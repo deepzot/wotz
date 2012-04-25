@@ -11,29 +11,38 @@ var dateOffset;
 // interval timer
 var timer = null;
 
+function update() {
+  var now = new Date();
+  // Calculate and display the offset time.
+  var then = new Date(now.getTime() - dateOffset);
+  $('#theDate').text(then.toLocaleString());  
+}
+
 $(document).ready(function(){
 
   // Install and invoke a reset action.
   $('#resetButton').click(function() {
-    // Display the simulation start date.
-    $('#theDate').text(startDate.toLocaleString());
     // Calculate the offset between current time and our start date.
     dateOffset = new Date() - startDate;
     // Clear any interval timer that is already running.
     if(timer) clearInterval(timer);
+    // Update now for immediate feedback.
+    update();
     // Start a new 1Hz interval timer.
-    timer = setInterval(function(){
-      var now = new Date();
-      // Calculate and display the offset time.
-      var then = new Date(now.getTime() - dateOffset);
-      $('#theDate').text(then.toLocaleString());
-    },1000 /* in millisecs */ );    
+    timer = setInterval(update,1000 /* in millisecs */ );    
   }).click();
 
   // Install a jump action.
   $('#jumpButton').click(function() {
+    // Calculate a random jump offset in millisecs.
     var jumpOffset = Math.random()*86400e3;
     dateOffset = dateOffset - jumpOffset;
+    // Clear any interval timer that is already running.
+    if(timer) clearInterval(timer);
+    // Update now for immediate feedback.
+    update();
+    // Start a new 1Hz interval timer.
+    timer = setInterval(update,1000 /* in millisecs */ );    
   });
 
 });
