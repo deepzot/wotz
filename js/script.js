@@ -2,17 +2,28 @@
 
 */
 
-var readings = new Array();
-
-// Represents a GreenButton IntervalReading as a custom object.
+// Represents a GreenButton IntervalReading.
 function IntervalReading(xml) {
   // Convert the xml start value to a javascript date.
-  this.start = new Date(xml.find('start').text()*1000);
-  this.value = Number(xml.find('value').text());
-  if(readings.length < 10) {
-    log(this.start,this.value);
-  }
+  this.start = new Date($(xml).find('start').text()*1000);
+  this.value = Number($(xml).find('value').text());
 }
+
+// Represents a GreenButton data file.
+function GreenButtonData(xml) {
+  var self = this;
+  this.readings = new Array();
+  // Save all IntervalReading elements to memory
+  // TODO: check for gaps and how daylight savings is handled
+  $(xml).find('IntervalReading').each(function() {
+    // Use the 'self' alias since 'this' is now hidden
+    self.readings.push(new IntervalReading(this));
+  });
+  this.startDate = this.readings[0].start;
+  log('startDate',this.startDate);
+}
+
+var theData = null;
 
 // simulation start
 var startDate = new Date('January 1, 2010 9:25:00 AM PST');
@@ -41,12 +52,9 @@ $(document).ready(function(){
       url: target,
       dataType: 'xml',
       success: function(xml) {
-        // Save all IntervalReading elements to memory
-        // TODO: check for gaps and how daylight savings is handled
-        $(xml).find('IntervalReading').each(function() {
-          readings.push(new IntervalReading($(this)));
-        });
-        log('done loading');
+        log('loaded');
+        theData = new GreenButtonData(xml);
+        log('parsed');
       }
     });    
     return false; // prevent further form submission
