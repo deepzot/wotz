@@ -34,20 +34,41 @@
        chromium.org/developers/how-tos/chrome-frame-getting-started -->
   <!--[if lt IE 7]><p class=chromeframe>Your browser is <em>ancient!</em> <a href="http://browsehappy.com/">Upgrade to a different browser</a> or <a href="http://www.google.com/chromeframe/?redirect=true">install Google Chrome Frame</a> to experience this site.</p><![endif]-->
   <header>
-		<div id="theDate"></div>
   </header>
   <div role="main">
 		<div id="welcome">
-			Select a GreenButton data file to use for this demonstration:
+			<p>
+				Select a GreenButton data file to use for this demonstration:
+			</p>
 			<form id='loadData' action="javascript:void(0);">
 				<input name='url' type='url' value='http://localhost/gbdata/Coastal_Multi_Family_Jan_1_2011_to_Jan_1_2012.xml' />
 				<input type='submit' value='Load' />
 			</form>
 		</div>
+		<div id="intro">
+			<p>
+				This data covers the period <span id="firstDate"></span> to <span id="lastDate"></span>
+				with <span id="nReadings"></span> readings.
+			</p>
+			<p>
+				This demonstration will start on <span id="startDate"></span> and provides a "Jump" button
+				to advance about a week and simulate loading updated GreenButton data.
+			</p>
+			<button id="startDemo">Ok</button>
+		</div>
+		<div id="demo">
+			<div>
+				Current time is <span id="theDate"></span>
+			</div>
+			<p>
+				Latest readings...
+			</p>
+			<div id="rawData"></div>
+			<button id="resetButton">reset</button>
+			<button id="jumpButton">jump</button>
+		</div>
   </div>
-  <footer>
-		<button id="resetButton">reset</button>
-		<button id="jumpButton">jump</button>
+  <footer class="main">
   </footer>
 
 

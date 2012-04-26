@@ -218,7 +218,8 @@ td { vertical-align: top; }
    Author:
    ========================================================================== */
 
-
+#intro { display: none; }
+#demo { display: none; }
 
 
 
