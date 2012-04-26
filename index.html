@@ -37,7 +37,13 @@
 		<div id="theDate"></div>
   </header>
   <div role="main">
-		<div id="rawData"></div>
+		<div id="welcome">
+			Select a GreenButton data file to use for this demonstration:
+			<form id='loadData' action="javascript:void(0);">
+				<input name='url' type='url' value='http://localhost/gbdata/Coastal_Multi_Family_Jan_1_2011_to_Jan_1_2012.xml' />
+				<input type='submit' value='Load' />
+			</form>
+		</div>
   </div>
   <footer>
 		<button id="resetButton">reset</button>

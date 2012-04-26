@@ -32,20 +32,29 @@ function update() {
 
 $(document).ready(function(){
 
-  // Load a GreenButton data file to use.
-  $.ajax({
-    type: 'GET',
-    url: '/gbdata/Coastal_Multi_Family_Jan_1_2011_to_Jan_1_2012.xml',
-    dataType: 'xml',
-    success: function(xml) {
-      log('loading');
-      // Need to check for gaps and how daylight savings is handled.
-      $(xml).find('IntervalReading').each(function() {
-        readings.push(new IntervalReading($(this)));
-      });
-      log('done');
-    }
+  $('#loadData').submit(function() {
+    var target = $('input[name=url]').val();
+    log('loading',target);
+    // Start loading the file in the background
+    $.ajax({
+      type: 'GET',
+      url: target,
+      dataType: 'xml',
+      success: function(xml) {
+        // Save all IntervalReading elements to memory
+        // TODO: check for gaps and how daylight savings is handled
+        $(xml).find('IntervalReading').each(function() {
+          readings.push(new IntervalReading($(this)));
+        });
+        log('done loading');
+      }
+    });    
+    return false; // prevent further form submission
   });
+
+  // Load a GreenButton data file to use.
+  /*
+  */
 
   // Install and invoke a reset action.
   $('#resetButton').click(function() {
