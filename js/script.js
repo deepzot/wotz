@@ -20,6 +20,21 @@ function update() {
 
 $(document).ready(function(){
 
+  // Load a GreenButton data file to use.
+  $.ajax({
+    type: 'GET',
+    url: '/gbdata/Coastal_Multi_Family_Jan_1_2011_to_Jan_1_2012.xml',
+    dataType: 'xml',
+    success: function(xml) {
+      log('got it');
+      $(xml).find('IntervalReading').each(function() {
+        var when = new Date($(this).find('start').text()*1000);
+        $('#rawData').append('<div>At ' + when.toUTCString() +
+          ', value is ' + $(this).find('value').text() + '</div>');
+      });
+    }
+  });
+
   // Install and invoke a reset action.
   $('#resetButton').click(function() {
     // Calculate the offset between current time and our start date.
