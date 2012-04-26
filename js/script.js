@@ -2,6 +2,18 @@
 
 */
 
+var readings = new Array();
+
+// Represents a GreenButton IntervalReading as a custom object.
+function IntervalReading(xml) {
+  // Convert the xml start value to a javascript date.
+  this.start = new Date(xml.find('start').text()*1000);
+  this.value = Number(xml.find('value').text());
+  if(readings.length < 10) {
+    log(this.start,this.value);
+  }
+}
+
 // simulation start
 var startDate = new Date('January 1, 2010 9:25:00 AM PST');
 
@@ -26,12 +38,12 @@ $(document).ready(function(){
     url: '/gbdata/Coastal_Multi_Family_Jan_1_2011_to_Jan_1_2012.xml',
     dataType: 'xml',
     success: function(xml) {
-      log('got it');
+      log('loading');
+      // Need to check for gaps and how daylight savings is handled.
       $(xml).find('IntervalReading').each(function() {
-        var when = new Date($(this).find('start').text()*1000);
-        $('#rawData').append('<div>At ' + when.toUTCString() +
-          ', value is ' + $(this).find('value').text() + '</div>');
+        readings.push(new IntervalReading($(this)));
       });
+      log('done');
     }
   });
 
