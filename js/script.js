@@ -62,6 +62,43 @@ function demoUpdate() {
     $('#rawData').append('<div>' + reading.value + ' at ' +
       reading.start.toLocaleString() + '</div>');
   }
+
+  var data = [4, 8, 15, 16, 23, 42];
+  var graph = d3.select("body").append("svg")
+    .attr("class", "graph")
+    .attr("width", 420)
+    .attr("height", 20 * data.length);
+  var x = d3.scale.linear()
+    .domain([0, d3.max(data)])
+    .range([0, 420]);
+  graph.selectAll("rect")
+    .data(data)
+    .enter().append("rect")
+    .attr("y", function(d, i) { return i * 20; })
+    .attr("width", x)
+    .attr("height", 20);
+
+/*  
+  var graphWidth = 700;
+  var graphHeight = 300;
+  var graph = d3.select('#graph')
+    .append('svg:svg')
+    .attr('width',graphWidth)
+    .attr('height',graphHeight);
+  var x = d3.time.scale()
+    .domain([theData.readings[current-48].start,theData.readings[current].start])
+    .range([0,graphWidth]);
+  var y = d3.scale.linear()
+    .domain([0,2000])
+    .range([graphHeight,0]);
+  graph.selectAll('rect')
+    .data(theData.readings.slice(current-48,current+1))
+    .enter().append('rect')
+      .attr('width',10)
+      .attr('height',function(d) { y(d.value) })
+      .attr('x',function(d) { x(d.start) })
+      .attr('y',0);
+*/
 }
 
 $(document).ready(function(){

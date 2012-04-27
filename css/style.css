@@ -221,11 +221,14 @@ td { vertical-align: top; }
 #intro { display: none; }
 #demo { display: none; }
 
+#graph {
+    border: solid black 1px;
+}
 
-
-
-
-
+.graph rect {
+    stroke: white;
+    fill: steelblue;
+}
 
 
 
