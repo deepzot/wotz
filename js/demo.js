@@ -4,6 +4,7 @@ function DemoApp() {
   this.dateOffset = 0;
   this.timer = null;
   this.modules = [ ];
+  this.module = null;
 }
 
 DemoApp.prototype.start = function() {
@@ -14,8 +15,19 @@ DemoApp.prototype.start = function() {
   $('#intro').hide();
   $('#demo').hide();
   for(var index = 0; index < this.modules.length; index++) {
+    log('add module',index);
     var module = this.modules[index];
     $('#menu').append('<button id="' + module.id + '">' + module.label + '</button>');
+    module.button = $('#'+module.id);
+    $('#'+module.id).click(function() {
+      log('start module',module.label);
+      if(self.module) {
+        self.module.button.prop('disabled',false);
+      }
+      self.module = module;
+      module.button.prop('disabled',true);
+      module.start(self.data);
+    });
   }
 
   // Implement the welcome handler.
@@ -57,8 +69,14 @@ DemoApp.prototype.start = function() {
     self.timerUpdate();
     // Start a new 1Hz interval timer.
     self.timer = setInterval(self.timerUpdate.bind(self),1000 /* in millisecs */ );
+    // Update our location in the dataset.
     self.data.current = 0;
-    self.demoUpdate();
+    self.data.updateCurrent(self.demoDate);
+    // No modules active yet.
+    if(self.module) {
+      self.module.button.prop('disabled',false);
+      self.module = null;
+    }
   });
 
   // Implement the jump handler.
@@ -69,10 +87,14 @@ DemoApp.prototype.start = function() {
     // Clear any interval timer that is already running.
     if(self.timer) clearInterval(self.timer);
     // Update now for immediate feedback.
-    self.timerUpdate();
-    // Start a new 1Hz interval timer.
-    self.timer = setInterval(self.timerUpdate.bind(self),1000 /* in millisecs */ );
-    self.demoUpdate();
+    if(self.timerUpdate()) {
+      // Start a new 1Hz interval timer.
+      self.timer = setInterval(self.timerUpdate.bind(self),1000 /* in millisecs */ );
+      // Update our location in the dataset.
+      self.data.updateCurrent(self.demoDate);
+      // Update the active module.
+      if(self.module) self.module.update(self.data);
+    }
   });
 
 }
@@ -86,12 +108,12 @@ DemoApp.prototype.timerUpdate = function() {
     this.demoDate = this.data.lastDate;
     alert("You have reached the end of the data. Let's start again.");
     $('#resetButton').click();
+    return false;
   }
+  return true;
 }
 
 DemoApp.prototype.demoUpdate = function() {
-  // Update our location in the dataset.
-  this.data.updateCurrent(this.demoDate);
   // Grab the most recent 48 readings.
   var data = this.data.getRecent(48);
   // Draw a graph of these readings.
