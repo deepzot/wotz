@@ -221,16 +221,16 @@ td { vertical-align: top; }
 #intro { display: none; }
 #demo { display: none; }
 
-#graph {
+#contentArea {
     border: solid black 1px;
 }
 
-.graph rect {
+#exploreGraph rect {
     stroke: white;
     fill: steelblue;
 }
 
-
+input[type="url"] { width: 350px; }
 
 
 

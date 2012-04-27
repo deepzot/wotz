@@ -63,10 +63,10 @@ function demoUpdate() {
   }
   theData.current = current;
   // Draw a graph of the past 48 hours.
-  $('#graph').empty();
+  $('#contentArea').empty();
   var data = theData.readings.slice(current-47,current+1);
-  var graph = d3.select('#graph').append("svg")
-    .attr("class", "graph")
+  var graph = d3.select('#contentArea').append("svg")
+    .attr("id", "exploreGraph")
     .attr("width", 600)
     .attr("height", 400);
   var x = d3.scale.linear()
