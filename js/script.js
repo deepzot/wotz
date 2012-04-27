@@ -28,7 +28,7 @@ function timerUpdate() {
 function demoUpdate() {
   // Update our location in the dataset.
   var current = theData.current;
-  while(current < theData.nReadings && theData.readings[current].start < demoDate) {
+  while(current < theData.nReadings && theData.readings[current] < demoDate) {
     current++;
   }
   theData.current = current;

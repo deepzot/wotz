@@ -7,6 +7,9 @@ function IntervalReading(xml) {
   this.value = Number($(xml).find('value').text());
 }
 
+// Readings can be sorted, etc, by their start date.
+IntervalReading.prototype.valueOf = function() { return this.start.valueOf(); }
+
 // Represents a GreenButton data file.
 function GreenButtonData(xml) {
   var self = this;
