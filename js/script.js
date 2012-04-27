@@ -22,13 +22,13 @@ function GreenButtonData(xml) {
     self.readings.push(new IntervalReading(this));
   });
   this.firstDate = this.readings[0].start;
-  $('#firstDate').text(this.firstDate.toLocaleString());
+  $('.firstDate').text(this.firstDate.toLocaleString());
   this.nReadings = this.readings.length;
-  $('#nReadings').text(this.nReadings);
+  $('.nReadings').text(this.nReadings);
   this.lastDate = this.readings[this.nReadings-1].start;
-  $('#lastDate').text(this.lastDate.toLocaleString());
-  this.startDate = this.readings[this.nReadings/10].start;
-  $('#startDate').text(this.startDate.toLocaleString());
+  $('.lastDate').text(this.lastDate.toLocaleString());
+  this.startDate = this.readings[Math.floor(this.nReadings/10)].start;
+  $('.startDate').text(this.startDate.toLocaleString());
   this.current = 0;
 }
 
@@ -47,7 +47,12 @@ function timerUpdate() {
   var now = new Date();
   // Calculate and display the offset time.
   demoDate = new Date(now.getTime() - dateOffset);
-  $('#theDate').text(demoDate.toLocaleString());  
+  $('#theDate').text(demoDate.toLocaleString());
+  if(demoDate > theData.lastDate) {
+    demoDate = theData.lastDate;
+    alert("You have reached the end of the data. Let's start again.");
+    $('#resetButton').click();
+  }
 }
 
 function demoUpdate() {
@@ -81,7 +86,9 @@ function demoUpdate() {
       .attr("x", function(d,i) { return x(d.start.getTime()) })
       .attr("y", function(d,i) { return y(d.value) })
       .attr("height", function(d,i) { return 400-y(d.value) })
-      .attr("width", 10);
+      .attr("width", function(d,i) {
+        return x(d.start.getTime()+d.duration*1000)-x(d.start.getTime())
+      });
 
 /*  
   var graphWidth = 700;

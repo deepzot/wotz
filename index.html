@@ -41,18 +41,19 @@
 				Select a GreenButton data file to use for this demonstration:
 			</p>
 			<form id='loadData' action="javascript:void(0);">
-				<input name='url' type='url' value='http://localhost/gbdata/Coastal_Single_Family_Jan_1_2011_to_Jan_1_2012.xml' />
+				<input name='url' type='url' value='http://localhost/gbdata/demo.xml' />
 				<input type='submit' value='Load' />
 			</form>
 		</div>
 		<div id="intro">
 			<p>
-				This data covers the period <span id="firstDate"></span> to <span id="lastDate"></span>
-				with <span id="nReadings"></span> readings.
+				This data covers the period <span class="firstDate"></span> to <span class="lastDate"></span>
+				with <span class="nReadings"></span> readings.
 			</p>
 			<p>
-				This demonstration will start on <span id="startDate"></span> and provides a "Jump" button
-				to advance about a week and simulate loading updated GreenButton data.
+				This demonstration will start on <span class="startDate"></span> and provides a "Jump" button
+				to advance about a week and simulate loading updated GreenButton data. There is also a "Reset"
+				button to start over on <span class="startDate"></span>.
 			</p>
 			<button id="startDemo">Ok</button>
 		</div>
@@ -81,8 +82,8 @@
 
   <!-- scripts concatenated and minified via build script -->
   <script src="js/plugins.js"></script>
-  <script src="js/script.js"></script>
 	<script src="js/d3.v2.min.js"></script>
+  <script src="js/script.js"></script>
   <!-- end scripts -->
 
   <!-- Asynchronous Google Analytics snippet. Change UA-XXXXX-X to be your site's ID.
