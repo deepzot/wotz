@@ -27,14 +27,11 @@ function timerUpdate() {
 
 function demoUpdate() {
   // Update our location in the dataset.
-  var current = theData.current;
-  while(current < theData.nReadings && theData.readings[current] < demoDate) {
-    current++;
-  }
-  theData.current = current;
-  // Draw a graph of the past 48 hours.
+  theData.updateCurrent(demoDate);
+  // Grab the most recent 48 readings.
+  var data = theData.getRecent(48);
+  // Draw a graph of these readings.
   $('#contentArea').empty();
-  var data = theData.readings.slice(current-47,current+1);
   var graph = d3.select('#contentArea').append("svg")
     .attr("id", "exploreGraph")
     .attr("width", 600)

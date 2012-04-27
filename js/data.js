@@ -30,3 +30,15 @@ function GreenButtonData(xml) {
   $('.startDate').text(this.startDate.toLocaleString());
   this.current = 0;
 }
+
+// Updates our current reading pointer to be the last reading before the specified date.
+GreenButtonData.prototype.updateCurrent = function(when) {
+  while(this.current < this.nReadings && this.readings[this.current] < when) {
+    this.current++;
+  }
+}
+
+// Recents the nRecent readings ending with the current reading.
+GreenButtonData.prototype.getRecent = function(nRecent) {
+  return this.readings.slice(this.current-nRecent+1,this.current+1);
+}
