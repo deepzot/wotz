@@ -3,7 +3,7 @@ function DemoApp() {
   this.demoDate = null;
   this.dateOffset = 0;
   this.timer = null;
-  this.modules = { };
+  this.modules = [ ];
 }
 
 DemoApp.prototype.start = function() {
@@ -13,6 +13,10 @@ DemoApp.prototype.start = function() {
   $('#welcome').show();
   $('#intro').hide();
   $('#demo').hide();
+  for(var index = 0; index < this.modules.length; index++) {
+    var module = this.modules[index];
+    $('#menu').append('<button id="' + module.id + '">' + module.label + '</button>');
+  }
 
   // Implement the welcome handler.
   $('#loadData').submit(function() {
