@@ -62,21 +62,26 @@ function demoUpdate() {
     $('#rawData').append('<div>' + reading.value + ' at ' +
       reading.start.toLocaleString() + '</div>');
   }
-
-  var data = [4, 8, 15, 16, 23, 42];
-  var graph = d3.select("body").append("svg")
+  
+  $('#graph').empty();
+  var data = theData.readings.slice(current-47,current+1);
+  var graph = d3.select('#graph').append("svg")
     .attr("class", "graph")
-    .attr("width", 420)
-    .attr("height", 20 * data.length);
+    .attr("width", 600)
+    .attr("height", 400);
   var x = d3.scale.linear()
-    .domain([0, d3.max(data)])
-    .range([0, 420]);
+    .domain([data[0].start.getTime(),data[data.length-1].start.getTime()+3600000])
+    .range([0,600])
+  var y = d3.scale.linear()
+    .domain([2000,0])
+    .range([0,400]);
   graph.selectAll("rect")
     .data(data)
     .enter().append("rect")
-    .attr("y", function(d, i) { return i * 20; })
-    .attr("width", x)
-    .attr("height", 20);
+      .attr("x", function(d,i) { return x(d.start.getTime()) })
+      .attr("y", function(d,i) { return y(d.value) })
+      .attr("height", function(d,i) { return 400-y(d.value) })
+      .attr("width", 10);
 
 /*  
   var graphWidth = 700;
