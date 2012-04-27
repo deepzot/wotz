@@ -56,18 +56,13 @@ function timerUpdate() {
 }
 
 function demoUpdate() {
-  $('#rawData').empty();
+  // Update our location in the dataset.
   var current = theData.current;
   while(current < theData.nReadings && theData.readings[current].start < demoDate) {
     current++;
   }
   theData.current = current;
-  for(var index = current-10; index <= current; index++) {
-    var reading = theData.readings[index];
-    $('#rawData').append('<div>' + reading.value + ' at ' +
-      reading.start.toLocaleString() + '</div>');
-  }
-  
+  // Draw a graph of the past 48 hours.
   $('#graph').empty();
   var data = theData.readings.slice(current-47,current+1);
   var graph = d3.select('#graph').append("svg")
