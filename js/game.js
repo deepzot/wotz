@@ -11,4 +11,6 @@ GameModule.prototype.update = function(data) {
   log('game update',data.current);
 }
 
+GameModule.prototype.end = function() { }
+
 GameModule.prototype.tick = function() { }

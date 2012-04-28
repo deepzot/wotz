@@ -15,19 +15,25 @@ DemoApp.prototype.start = function() {
   $('#intro').hide();
   $('#demo').hide();
   for(var index = 0; index < this.modules.length; index++) {
-    log('add module',index);
     var module = this.modules[index];
+    log('installing module',module.label);
     $('#menu').append('<button id="' + module.id + '">' + module.label + '</button>');
     module.button = $('#'+module.id);
-    $('#'+module.id).click(function() {
-      log('start module',module.label);
-      if(self.module) {
-        self.module.button.prop('disabled',false);
+    // This double-function syntax is required to get the correct closures.
+    // See http://www.mennovanslooten.nl/blog/post/62
+    module.button.click((function(m) {
+      return function() {
+        if(self.module) {
+          log('ending',self.module.label);
+          self.module.end();
+          self.module.button.prop('disabled',false);
+        }
+        log('starting',m.label);
+        self.module = m;
+        m.button.prop('disabled',true);
+        m.start(self.data);
       }
-      self.module = module;
-      module.button.prop('disabled',true);
-      module.start(self.data);
-    });
+    })(module));
   }
 
   // Implement the welcome handler.
