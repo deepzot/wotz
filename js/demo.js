@@ -63,11 +63,21 @@ DemoApp.prototype.start = function() {
   });
   
   // Register reset handler.
-  $('#resetButton,#endOfDataDialog').click(this.reset.bind(this));
+  $('#resetButton,#endOfDataDialog').click(function() { self.reset(); });
 
   // Register jump handler.
-  $('#jumpButton').click(this.jump.bind(this));
+  $('#jumpButton').click(function() { self.jump(); });
 
+}
+
+DemoApp.prototype.timerUpdate = function() {
+  var now = new Date();
+  // Calculate and display the offset time.
+  var when = new Date(now.getTime() - this.dateOffset);
+  this.demoDate = when;
+  var hrs = when.getHours(), hrs12 = hrs%12, mins = when.getMinutes();
+  $('#theDate').text(when.toLocaleDateString() + ' ' + (hrs12 == 0 ? '12':hrs12) + ':' +
+    (mins < 10 ? '0'+mins:mins) + (hrs<12?' am':' pm'));
 }
 
 DemoApp.prototype.reset = function() {
@@ -79,7 +89,8 @@ DemoApp.prototype.reset = function() {
   // Update now for immediate feedback.
   this.timerUpdate();
   // Start a new 1Hz interval timer.
-  this.timer = setInterval(this.timerUpdate.bind(this),1000);
+  var self = this;
+  this.timer = setInterval(function() { self.timerUpdate(); },1000);
   // Update our location in the dataset.
   this.data.current = 0;
   this.data.updateCurrent(this.demoDate);
@@ -87,12 +98,14 @@ DemoApp.prototype.reset = function() {
   if(this.module) {
     log('ending',this.module.id);
     this.module.end();
+    log('4');
     $('#'+this.module.id+'Select').removeClass('ui-btn-active');
     this.module = null;
   }  
 }
 
 DemoApp.prototype.jump = function() {
+  log('jump');
   // Calculate a random jump offset in millisecs.
   var jumpOffset = (5 + 4*Math.random())*86400e3;
   var newDate = this.data.coerceDate(new Date(this.demoDate.getTime() + jumpOffset));
@@ -107,22 +120,13 @@ DemoApp.prototype.jump = function() {
     // Clear any interval timer that is already running.
     if(this.timer) clearInterval(this.timer);
     // Start a new 1Hz interval timer.
-    this.timer = setInterval(this.timerUpdate.bind(this),1000);
+    var self = this;
+    this.timer = setInterval(function() { self.timerUpdate(); },1000);
     // Update our location in the dataset.
     this.data.updateCurrent(this.demoDate);
     // Update the active module.
     if(this.module) this.module.update(this.data);
   }
-}
-
-DemoApp.prototype.timerUpdate = function() {
-  var now = new Date();
-  // Calculate and display the offset time.
-  var when = new Date(now.getTime() - this.dateOffset);
-  this.demoDate = when;
-  var hrs = when.getHours(), hrs12 = hrs%12, mins = when.getMinutes();
-  $('#theDate').text(when.toLocaleDateString() + ' ' + (hrs12 == 0 ? '12':hrs12) + ':' +
-    (mins < 10 ? '0'+mins:mins) + (hrs<12?' am':' pm'));
 }
 
 DemoApp.prototype.demoUpdate = function() {
