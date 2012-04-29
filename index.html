@@ -1,0 +1,87 @@
+<!DOCTYPE html> 
+<html>
+
+<head>
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1"> 
+	<title>Multi-page template</title> 
+	<link rel="stylesheet" href="http://code.jquery.com/mobile/1.1.0/jquery.mobile-1.1.0.min.css" />
+	<script src="http://code.jquery.com/jquery-1.7.1.min.js"></script>
+	<script src="http://code.jquery.com/mobile/1.1.0/jquery.mobile-1.1.0.min.js"></script>
+</head> 
+
+	
+<body> 
+
+<!------------------------------------------------------>
+<div data-role="page" id="welcome">
+
+	<div data-role="header">
+		<h1>Welcome</h1>
+	</div><!-- /header -->
+
+	<div data-role="content" >
+		<form id='loadData' action="javascript:void(0);">	
+			<label for="url">Where is your GreenButton data?</label>
+			<input type="url" name="url" id="url" value="http://localhost/gbdata/demo.xml" />
+			<input type='submit' value='Load' />
+		</form>
+		<a href="#intro">Intro</a>
+		<a href="#demo">Demo</a>
+	</div>
+
+</div>
+
+<!------------------------------------------------------>
+<div data-role="page" id="intro">
+
+	<div data-role="header">
+		<h1>Getting Started</h1>
+	</div><!-- /header -->
+
+	<div data-role="content">	
+		<p>
+			This data covers the period <span class="firstDate"></span> to <span class="lastDate"></span>
+			with <span class="nReadings"></span> readings.
+		</p>
+		<p>
+			This demonstration will start on <span class="startDate"></span> and provides a "Jump" button
+			to advance about a week and simulate loading updated GreenButton data. There is also a "Reset"
+			button to start over on <span class="startDate"></span>.
+		</p>
+		<button id="startDemo">Ok</button>		
+		<a href="#welcome">Welcome</a>
+		<a href="#demo">Demo</a>
+	</div>
+
+</div>
+
+<!------------------------------------------------------>
+<div data-role="page" id="demo">
+
+	<div data-role="header">
+		<h1>Current time is <span id="theDate"></span></h1>
+		<div data-role="navbar">
+			<ul>
+				<li><a>Play</a></li>
+				<li><a>Explore</a></li>
+				<li><a>Challenge</a></li>
+				<!-- [tab] adds an item -->
+			</ul>
+		</div>
+	</div>
+
+	<div data-role="content">
+		<a href="#welcome">Welcome</a>
+		<a href="#intro">Intro</a>
+	</div>
+
+	<div data-role="footer">
+		<button id="resetButton">reset</button>
+		<button id="jumpButton">jump</button>
+	</div>
+
+</div>
+
+</body>
+</html>
