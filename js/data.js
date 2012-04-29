@@ -26,7 +26,7 @@ function GreenButtonData(xml) {
   $('.nReadings').text(this.nReadings);
   this.lastDate = this.readings[this.nReadings-1].start;
   $('.lastDate').text(this.lastDate.toLocaleDateString());
-  this.startDate = this.readings[Math.floor(this.nReadings/10)].start;
+  this.startDate = this.coerceDate(this.readings[Math.floor(this.nReadings/10)].start);
   $('.startDate').text(this.startDate.toLocaleDateString());
   this.current = 0;
 }
@@ -38,7 +38,17 @@ GreenButtonData.prototype.updateCurrent = function(when) {
   }
 }
 
-// Recents the nRecent readings ending with the current reading.
+// Returns the nRecent readings ending with the current reading.
 GreenButtonData.prototype.getRecent = function(nRecent) {
   return this.readings.slice(this.current-nRecent+1,this.current+1);
+}
+
+GreenButtonData.prototype.coerceDate = function(when) {
+  if (when.getHours() < 6) {
+    // Shift times from midnight to 6am forward into the 6am-6pm range. The net result is
+    // that times from 6am-6pm are 50% more likely than dates 6pm-midnight.
+    var ms = when.getTime();
+    when = new Date(ms + ((ms % 2 == 0) ? 21600000:43200000));
+  }
+  return when;
 }

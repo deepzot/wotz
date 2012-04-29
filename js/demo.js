@@ -95,7 +95,8 @@ DemoApp.prototype.reset = function() {
 DemoApp.prototype.jump = function() {
   // Calculate a random jump offset in millisecs.
   var jumpOffset = (5 + 4*Math.random())*86400e3;
-  this.dateOffset = this.dateOffset - jumpOffset;
+  var newDate = this.data.coerceDate(new Date(this.demoDate.getTime() + jumpOffset));
+  this.dateOffset = new Date() - newDate;
   // Update now for immediate feedback.
   this.timerUpdate();
   // Did this jump take us beyond the last data?
