@@ -76,8 +76,8 @@ DemoApp.prototype.timerUpdate = function() {
   var when = new Date(now.getTime() - this.dateOffset);
   this.demoDate = when;
   var hrs = when.getHours(), hrs12 = hrs%12, mins = when.getMinutes();
-  $('#theDate').text(when.toLocaleDateString() + ' ' + (hrs12 == 0 ? '12':hrs12) + ':' +
-    (mins < 10 ? '0'+mins:mins) + (hrs<12?' am':' pm'));
+  $('#theDate').text((when.getMonth()+1) + '/' + when.getDate() + '/' + (when.getFullYear()%100) + ' ' +
+    (hrs12 == 0 ? '12':hrs12) + ':' + (mins < 10 ? '0'+mins:mins) + (hrs<12?' am':' pm'));
 }
 
 DemoApp.prototype.reset = function() {
