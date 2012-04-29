@@ -117,8 +117,11 @@ DemoApp.prototype.jump = function() {
 DemoApp.prototype.timerUpdate = function() {
   var now = new Date();
   // Calculate and display the offset time.
-  this.demoDate = new Date(now.getTime() - this.dateOffset);
-  $('#theDate').text(this.demoDate.toLocaleString());
+  var when = new Date(now.getTime() - this.dateOffset);
+  this.demoDate = when;
+  var hrs = when.getHours(), mins = when.getMinutes();
+  $('#theDate').text(when.toLocaleDateString() + ' ' + (hrs%12) + ':' +
+    (mins < 10 ? '0'+mins:mins) + (hrs<12?' am':' pm'));
 }
 
 DemoApp.prototype.demoUpdate = function() {

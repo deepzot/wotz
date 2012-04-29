@@ -21,13 +21,13 @@ function GreenButtonData(xml) {
     self.readings.push(new IntervalReading(this));
   });
   this.firstDate = this.readings[0].start;
-  $('.firstDate').text(this.firstDate.toLocaleString());
+  $('.firstDate').text(this.firstDate.toLocaleDateString());
   this.nReadings = this.readings.length;
   $('.nReadings').text(this.nReadings);
   this.lastDate = this.readings[this.nReadings-1].start;
-  $('.lastDate').text(this.lastDate.toLocaleString());
+  $('.lastDate').text(this.lastDate.toLocaleDateString());
   this.startDate = this.readings[Math.floor(this.nReadings/10)].start;
-  $('.startDate').text(this.startDate.toLocaleString());
+  $('.startDate').text(this.startDate.toLocaleDateString());
   this.current = 0;
 }
 
