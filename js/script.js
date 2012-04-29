@@ -16,7 +16,7 @@ window.log = function(){
 
 var demo = new DemoApp();
 
-demo.modules.push(new GameModule());
+demo.modules.push(new PlayModule());
 demo.modules.push(new ExploreModule());
 demo.modules.push(new ChallengeModule());
 
