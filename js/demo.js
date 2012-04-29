@@ -120,8 +120,8 @@ DemoApp.prototype.timerUpdate = function() {
   // Calculate and display the offset time.
   var when = new Date(now.getTime() - this.dateOffset);
   this.demoDate = when;
-  var hrs = when.getHours(), mins = when.getMinutes();
-  $('#theDate').text(when.toLocaleDateString() + ' ' + (hrs%12) + ':' +
+  var hrs = when.getHours(), hrs12 = hrs%12, mins = when.getMinutes();
+  $('#theDate').text(when.toLocaleDateString() + ' ' + (hrs12 == 0 ? '12':hrs12) + ':' +
     (mins < 10 ? '0'+mins:mins) + (hrs<12?' am':' pm'));
 }
 
