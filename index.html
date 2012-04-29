@@ -20,15 +20,26 @@
 	</div><!-- /header -->
 
 	<div data-role="content" >
+		<p>Welcome to this TBN app...</p>
 		<form id='loadData' action="javascript:void(0);">	
 			<label for="url">Where is your GreenButton data?</label>
 			<input type="url" name="url" id="url" value="http://localhost/gbdata/demo.xml" />
 			<input type='submit' value='Load' />
 		</form>
-		<a href="#intro">Intro</a>
-		<a href="#demo">Demo</a>
+		<a href="#loadError" data-rel="dialog" id="loadErrorDialog" style="display:none">loadError</a>
 	</div>
 
+</div>
+
+<!------------------------------------------------------>
+<div data-role="page" id="loadError">
+
+	<div data-role="header">
+		<h1>Error loading data</h1>
+	</div>
+	<div data-role="content">
+		<p>The GreenButton data you requested cannot be loaded. Please choose something else.</p>
+	</div>
 </div>
 
 <!------------------------------------------------------>

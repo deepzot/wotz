@@ -31,8 +31,6 @@ DemoApp.prototype.start = function() {
     })(module));
   }
 
-  return;
-
   // Implement the welcome handler.
   $('#loadData').submit(function() {
     var target = $('input[name=url]').val();
@@ -45,13 +43,18 @@ DemoApp.prototype.start = function() {
       success: function(xml) {
         log('loaded');
         self.data = new GreenButtonData(xml);
-        log('parsed',self.data.startDate);
-        $('#welcome').hide();
-        $('#intro').show();
+        log('parsed',self.data.nReadings,'readings');
+        $.mobile.changePage($('#intro'));
+      },
+      error: function(jqXHR, textStatus, errorThrown) {
+        log('error',textStatus,errorThrown);
+        $('#loadErrorDialog').click();
       }
     });
     return false; // prevent further form submission
   });
+
+  return;
 
   // Implement the intro handler.
   $('#startDemo').click(function() {
