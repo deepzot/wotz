@@ -11,30 +11,27 @@ DemoApp.prototype.start = function() {
 
   var self = this;
   
-  $('#welcome').show();
-  $('#intro').hide();
-  $('#demo').hide();
+  // Attach toolbar selection handlers for each of our modules.
   for(var index = 0; index < this.modules.length; index++) {
     var module = this.modules[index];
-    log('installing module',module.label);
-    $('#menu').append('<button id="' + module.id + '">' + module.label + '</button>');
-    module.button = $('#'+module.id);
+    log('installing module',module.id);
     // This double-function syntax is required to get the correct closures.
     // See http://www.mennovanslooten.nl/blog/post/62
-    module.button.click((function(m) {
+    $('#'+module.id+'Select').click((function(m) {
       return function() {
+        log('click');
         if(self.module) {
-          log('ending',self.module.label);
+          log('ending',self.module.id);
           self.module.end();
-          self.module.button.prop('disabled',false);
         }
-        log('starting',m.label);
+        log('starting',m.id);
         self.module = m;
-        m.button.prop('disabled',true);
         m.start(self.data);
       }
     })(module));
   }
+
+  return;
 
   // Implement the welcome handler.
   $('#loadData').submit(function() {

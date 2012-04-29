@@ -1,5 +1,5 @@
 function ChallengeModule() {
-  this.id = 'challengeModule';
+  this.id = 'challenge';
   this.label = 'Take a Challenge';
 }
 

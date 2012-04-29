@@ -1,5 +1,5 @@
 function ExploreModule() {
-  this.id = 'exploreModule';
+  this.id = 'explore';
   this.label = 'Explore';
 }
 

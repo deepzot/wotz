@@ -1,5 +1,5 @@
 function GameModule() {
-  this.id = 'gameModule';
+  this.id = 'game';
   this.label = 'Play';
 }
 
