@@ -26,8 +26,9 @@
 			<input type="url" name="url" id="url" value="http://localhost/gbdata/demo.xml" />
 			<input type='submit' value='Load' />
 		</form>
-		<a href="#loadError" data-rel="dialog" id="loadErrorDialog" style="display:none">loadError</a>
 	</div>
+
+	<a href="#loadError" data-rel="dialog" id="loadErrorDialog" style="display:none">loadError</a>
 
 </div>
 
@@ -87,6 +88,19 @@
 		<button id="jumpButton">jump</button>
 	</div>
 
+	<a href="#endOfData" data-rel="dialog" id="endOfDataDialog" style="display:none">endOfData</a>
+
+</div>
+
+<!------------------------------------------------------>
+<div data-role="page" id="endOfData">
+
+	<div data-role="header">
+		<h1>End of data</h1>
+	</div>
+	<div data-role="content">
+		<p>You have reached the end of your GreenButton data. Let's start again.</p>
+	</div>
 </div>
 
 <!-- JavaScript at the bottom for fast page loading -->

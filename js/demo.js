@@ -9,6 +9,7 @@ function DemoApp() {
 
 DemoApp.prototype.start = function() {
 
+  // Use 'self' as an alias for 'this' when we are in a context that hides 'this'
   var self = this;
   
   // Attach toolbar selection handlers for each of our modules.
@@ -57,40 +58,24 @@ DemoApp.prototype.start = function() {
   // Implement the intro handler.
   $('#startDemo').click(function() {
     log('starting');
-    $('#resetButton').click();
+    self.reset();
     $.mobile.changePage($('#demo'));
   });
   
-  // Implement the reset handler.
-  $('#resetButton').click(function() {
-    // Calculate the offset between current time and our start date.
-    log('reset',self.data.startDate);
-    self.dateOffset = new Date() - self.data.startDate;
-    // Clear any interval timer that is already running.
-    if(self.timer) clearInterval(self.timer);
-    // Update now for immediate feedback.
-    self.timerUpdate();
-    // Start a new 1Hz interval timer.
-    self.timer = setInterval(self.timerUpdate.bind(self),1000);
-    // Update our location in the dataset.
-    self.data.current = 0;
-    self.data.updateCurrent(self.demoDate);
-    // No modules active yet.
-    if(self.module) {
-      self.module.button.prop('disabled',false);
-      self.module = null;
-    }
-  });
-
   // Implement the jump handler.
   $('#jumpButton').click(function() {
     // Calculate a random jump offset in millisecs.
     var jumpOffset = (5 + 4*Math.random())*86400e3;
     self.dateOffset = self.dateOffset - jumpOffset;
-    // Clear any interval timer that is already running.
-    if(self.timer) clearInterval(self.timer);
     // Update now for immediate feedback.
-    if(self.timerUpdate()) {
+    self.timerUpdate();
+    // Did this jump take us beyond the last data?
+    if(self.demoDate > self.data.lastDate) {
+      $('#endOfDataDialog').click();
+    }
+    else {
+      // Clear any interval timer that is already running.
+      if(self.timer) clearInterval(self.timer);
       // Start a new 1Hz interval timer.
       self.timer = setInterval(self.timerUpdate.bind(self),1000);
       // Update our location in the dataset.
@@ -100,6 +85,29 @@ DemoApp.prototype.start = function() {
     }
   });
 
+  // Register reset handler.
+  $('#resetButton,#endOfDataDialog').click(this.reset.bind(this));
+
+}
+
+DemoApp.prototype.reset = function() {
+  // Calculate the offset between current time and our start date.
+  log('reset',this.data.startDate);
+  this.dateOffset = new Date() - this.data.startDate;
+  // Clear any interval timer that is already running.
+  if(this.timer) clearInterval(this.timer);
+  // Update now for immediate feedback.
+  this.timerUpdate();
+  // Start a new 1Hz interval timer.
+  this.timer = setInterval(this.timerUpdate.bind(this),1000);
+  // Update our location in the dataset.
+  this.data.current = 0;
+  this.data.updateCurrent(this.demoDate);
+  // No modules active yet.
+  if(this.module) {
+    this.module.end();
+    this.module = null;
+  }  
 }
 
 DemoApp.prototype.timerUpdate = function() {
@@ -107,13 +115,6 @@ DemoApp.prototype.timerUpdate = function() {
   // Calculate and display the offset time.
   this.demoDate = new Date(now.getTime() - this.dateOffset);
   $('#theDate').text(this.demoDate.toLocaleString());
-  if(this.demoDate > this.data.lastDate) {
-    this.demoDate = this.data.lastDate;
-    alert("You have reached the end of the data. Let's start again.");
-    $('#resetButton').click();
-    return false;
-  }
-  return true;
 }
 
 DemoApp.prototype.demoUpdate = function() {
