@@ -57,12 +57,10 @@ DemoApp.prototype.start = function() {
   // Implement the intro handler.
   $('#startDemo').click(function() {
     log('starting');
-    //$('#resetButton').click();
+    $('#resetButton').click();
     $.mobile.changePage($('#demo'));
   });
   
-  return;
-
   // Implement the reset handler.
   $('#resetButton').click(function() {
     // Calculate the offset between current time and our start date.
@@ -73,7 +71,7 @@ DemoApp.prototype.start = function() {
     // Update now for immediate feedback.
     self.timerUpdate();
     // Start a new 1Hz interval timer.
-    self.timer = setInterval(self.timerUpdate.bind(self),1000 /* in millisecs */ );
+    self.timer = setInterval(self.timerUpdate.bind(self),1000);
     // Update our location in the dataset.
     self.data.current = 0;
     self.data.updateCurrent(self.demoDate);
@@ -94,7 +92,7 @@ DemoApp.prototype.start = function() {
     // Update now for immediate feedback.
     if(self.timerUpdate()) {
       // Start a new 1Hz interval timer.
-      self.timer = setInterval(self.timerUpdate.bind(self),1000 /* in millisecs */ );
+      self.timer = setInterval(self.timerUpdate.bind(self),1000);
       // Update our location in the dataset.
       self.data.updateCurrent(self.demoDate);
       // Update the active module.
