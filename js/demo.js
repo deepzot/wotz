@@ -54,15 +54,14 @@ DemoApp.prototype.start = function() {
     return false; // prevent further form submission
   });
 
-  return;
-
   // Implement the intro handler.
   $('#startDemo').click(function() {
     log('starting');
-    $('#intro').hide();
-    $('#demo').show();
-    $('#resetButton').click();
+    //$('#resetButton').click();
+    $.mobile.changePage($('#demo'));
   });
+  
+  return;
 
   // Implement the reset handler.
   $('#resetButton').click(function() {
