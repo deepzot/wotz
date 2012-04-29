@@ -4,7 +4,7 @@
 <head>
 	<meta charset="utf-8">
 	<meta name="viewport" content="width=device-width, initial-scale=1">
-	<title>Energy App</title>
+	<title>EnergyApp</title>
 	<link rel="stylesheet" href="http://code.jquery.com/mobile/1.1.0/jquery.mobile-1.1.0.min.css" />
 	<!-- javascript is loaded after the page content -->
 </head>
@@ -13,14 +13,14 @@
 <body> 
 
 <!------------------------------------------------------>
-<div data-role="page" id="welcome">
+<div data-role="page" data-title="EnergyApp" id="welcome">
 
 	<div data-role="header">
 		<h1>Welcome</h1>
 	</div><!-- /header -->
 
 	<div data-role="content" >
-		<p>Welcome to this TBN app...</p>
+		<p>Welcome to the TBN EnergyApp...</p>
 		<form id='loadData' action="javascript:void(0);">	
 			<label for="url">Where is your GreenButton data?</label>
 			<input type="url" name="url" id="url" value="http://localhost/gbdata/demo.xml" />
@@ -44,7 +44,7 @@
 </div>
 
 <!------------------------------------------------------>
-<div data-role="page" id="intro">
+<div data-role="page" data-title="EnergyApp" id="intro">
 
 	<div data-role="header">
 		<h1>Getting Started</h1>
@@ -66,7 +66,7 @@
 </div>
 
 <!------------------------------------------------------>
-<div data-role="page" id="demo">
+<div data-role="page" data-title="EnergyApp" id="demo">
 
 	<div data-role="header">
 		<h1><span id="theDate"></span></h1>
