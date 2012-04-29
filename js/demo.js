@@ -85,7 +85,9 @@ DemoApp.prototype.reset = function() {
   this.data.updateCurrent(this.demoDate);
   // No modules active yet.
   if(this.module) {
+    log('ending',this.module.id);
     this.module.end();
+    $('#'+this.module.id+'Select').removeClass('ui-btn-active');
     this.module = null;
   }  
 }
