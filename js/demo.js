@@ -62,31 +62,11 @@ DemoApp.prototype.start = function() {
     $.mobile.changePage($('#demo'));
   });
   
-  // Implement the jump handler.
-  $('#jumpButton').click(function() {
-    // Calculate a random jump offset in millisecs.
-    var jumpOffset = (5 + 4*Math.random())*86400e3;
-    self.dateOffset = self.dateOffset - jumpOffset;
-    // Update now for immediate feedback.
-    self.timerUpdate();
-    // Did this jump take us beyond the last data?
-    if(self.demoDate > self.data.lastDate) {
-      $('#endOfDataDialog').click();
-    }
-    else {
-      // Clear any interval timer that is already running.
-      if(self.timer) clearInterval(self.timer);
-      // Start a new 1Hz interval timer.
-      self.timer = setInterval(self.timerUpdate.bind(self),1000);
-      // Update our location in the dataset.
-      self.data.updateCurrent(self.demoDate);
-      // Update the active module.
-      if(self.module) self.module.update(self.data);
-    }
-  });
-
   // Register reset handler.
   $('#resetButton,#endOfDataDialog').click(this.reset.bind(this));
+
+  // Register jump handler.
+  $('#jumpButton').click(this.jump.bind(this));
 
 }
 
@@ -108,6 +88,28 @@ DemoApp.prototype.reset = function() {
     this.module.end();
     this.module = null;
   }  
+}
+
+DemoApp.prototype.jump = function() {
+  // Calculate a random jump offset in millisecs.
+  var jumpOffset = (5 + 4*Math.random())*86400e3;
+  this.dateOffset = this.dateOffset - jumpOffset;
+  // Update now for immediate feedback.
+  this.timerUpdate();
+  // Did this jump take us beyond the last data?
+  if(this.demoDate > this.data.lastDate) {
+    $('#endOfDataDialog').click();
+  }
+  else {
+    // Clear any interval timer that is already running.
+    if(this.timer) clearInterval(this.timer);
+    // Start a new 1Hz interval timer.
+    this.timer = setInterval(this.timerUpdate.bind(this),1000);
+    // Update our location in the dataset.
+    this.data.updateCurrent(this.demoDate);
+    // Update the active module.
+    if(this.module) this.module.update(this.data);
+  }
 }
 
 DemoApp.prototype.timerUpdate = function() {
