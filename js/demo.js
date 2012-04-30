@@ -28,6 +28,7 @@ DemoApp.prototype.start = function() {
         log('starting',m.id);
         self.module = m;
         m.start(self.data);
+        m.update(self.data);
       }
     })(module));
   }
@@ -101,7 +102,8 @@ DemoApp.prototype.reset = function() {
     log('4');
     $('#'+this.module.id+'Select').removeClass('ui-btn-active');
     this.module = null;
-  }  
+  }
+  $('#moduleContent').text('Select an activity using the buttons above...');
 }
 
 DemoApp.prototype.jump = function() {
@@ -127,30 +129,4 @@ DemoApp.prototype.jump = function() {
     // Update the active module.
     if(this.module) this.module.update(this.data);
   }
-}
-
-DemoApp.prototype.demoUpdate = function() {
-  // Grab the most recent 48 readings.
-  var data = this.data.getRecent(48);
-  // Draw a graph of these readings.
-  $('#contentArea').empty();
-  var graph = d3.select('#contentArea').append("svg")
-    .attr("id", "exploreGraph")
-    .attr("width", 600)
-    .attr("height", 400);
-  var x = d3.scale.linear()
-    .domain([data[0].start.getTime(),data[data.length-1].start.getTime()+3600000])
-    .range([0,600])
-  var y = d3.scale.linear()
-    .domain([2000,0])
-    .range([0,400]);
-  graph.selectAll("rect")
-    .data(data)
-    .enter().append("rect")
-      .attr("x", function(d,i) { return x(d.start.getTime()) })
-      .attr("y", function(d,i) { return y(d.value) })
-      .attr("height", function(d,i) { return 400-y(d.value) })
-      .attr("width", function(d,i) {
-        return x(d.start.getTime()+d.duration*1000)-x(d.start.getTime())
-      });
 }
