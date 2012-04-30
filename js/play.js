@@ -7,7 +7,7 @@ PlayModule.prototype.start = function(data) {
   log('play start',data.current);
 }
 
-PlayModule.prototype.update = function(data) {
+PlayModule.prototype.update = function(data,container) {
   log('play update',data.current);
 }
 

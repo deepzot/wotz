@@ -7,8 +7,8 @@ ChallengeModule.prototype.start = function(data) {
   log('game start',data.current);
 }
 
-ChallengeModule.prototype.update = function(data) {
-  log('game update',data.current);
+ChallengeModule.prototype.update = function(data,container) {
+  log('challenge update',data.current,container.width(),container.height());
   // Grab the most recent 48 readings.
   var recent = data.getRecent(48);
   // Draw a graph of these readings.

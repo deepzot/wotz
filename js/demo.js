@@ -5,6 +5,7 @@ function DemoApp() {
   this.timer = null;
   this.modules = [ ];
   this.module = null;
+  this.container = $('#moduleContent');
 }
 
 DemoApp.prototype.start = function() {
@@ -28,7 +29,7 @@ DemoApp.prototype.start = function() {
         log('starting',m.id);
         self.module = m;
         m.start(self.data);
-        m.update(self.data);
+        m.update(self.data,self.container);
       }
     })(module));
   }
@@ -71,18 +72,22 @@ DemoApp.prototype.start = function() {
 
   // Handle resizing of main content area
   $(window).on('orientationchange resize pageshow',function(evt) {
-    var content = $('#moduleContent');
-    if(content.is(':hidden')) return true;
+    if(self.container.is(':hidden')) return true;
     // lookup our viewport height
     var contentHeight = $(window).height();
     // subtract the height of our header and footer
     contentHeight -= $('[data-role="header"]:visible').outerHeight() +
       $('[data-role="footer"]:visible').outerHeight();
     // subtract any padding and margins
-    contentHeight -= content.outerHeight() - content.height();
-    log('content size',evt.type,$(window).height(),contentHeight);
+    contentHeight -= self.container.outerHeight() - self.container.height();
+    log('container',evt.type,$(window).height(),contentHeight);
     $('#windowSize').text($(window).width() + ' x ' + $(window).height());
-    content.height(contentHeight);
+    // set the content height now
+    self.container.height(contentHeight);
+    // tell any running module to resize itself
+    if(self.module) {
+      self.module.update(self.data,self.container);
+    }
   });
 }
 
@@ -142,6 +147,6 @@ DemoApp.prototype.jump = function() {
     // Update our location in the dataset.
     this.data.updateCurrent(this.demoDate);
     // Update the active module.
-    if(this.module) this.module.update(this.data);
+    if(this.module) this.module.update(this.data,this.container);
   }
 }

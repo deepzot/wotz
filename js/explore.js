@@ -7,7 +7,7 @@ ExploreModule.prototype.start = function(data) {
   log('explore start',data.current);
 }
 
-ExploreModule.prototype.update = function(data) {
+ExploreModule.prototype.update = function(data,container) {
   log('explore update',data.current);
 }
 
