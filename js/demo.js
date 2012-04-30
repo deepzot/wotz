@@ -80,7 +80,7 @@ DemoApp.prototype.start = function() {
       $('[data-role="footer"]:visible').outerHeight();
     // subtract any padding and margins
     contentHeight -= content.outerHeight() - content.height();
-    log('content size',evt.type,$(window).height(),pad,contentHeight);
+    log('content size',evt.type,$(window).height(),contentHeight);
     $('#windowSize').text($(window).width() + ' x ' + $(window).height());
     content.height(contentHeight);
   });
