@@ -38,6 +38,7 @@ DemoApp.prototype.start = function() {
   $('#loadData').submit(function() {
     var target = $('input[name=url]').val();
     log('loading',target);
+    $.mobile.showPageLoadingMsg();
     // Start loading the file in the background
     $.ajax({
       type: 'GET',
@@ -45,12 +46,14 @@ DemoApp.prototype.start = function() {
       dataType: 'xml',
       success: function(xml) {
         log('loaded');
+        $.mobile.hidePageLoadingMsg();
         self.data = new GreenButtonData(xml);
         log('parsed',self.data.nReadings,'readings');
         $.mobile.changePage($('#intro'));
       },
       error: function(jqXHR, textStatus, errorThrown) {
         log('error',textStatus,errorThrown);
+        $.mobile.hidePageLoadingMsg();
         $('#loadErrorDialog').click();
       }
     });
@@ -131,10 +134,10 @@ DemoApp.prototype.reset = function() {
 }
 
 DemoApp.prototype.jump = function() {
-  log('jump');
   // Calculate a random jump offset in millisecs.
   var jumpOffset = (5 + 4*Math.random())*86400e3;
   var newDate = this.data.coerceDate(new Date(this.demoDate.getTime() + jumpOffset));
+  log('jump',newDate.toLocaleString());
   this.dateOffset = new Date() - newDate;
   // Update now for immediate feedback.
   this.timerUpdate();
