@@ -1,4 +1,11 @@
-#challengeGraph rect {
+.graphics {
+    margin: 0;
+    padding: 0;
+    border-style: none;
+    height: 99%;
+}
+
+#exploreGraph rect {
     stroke: white;
     fill: steelblue;
 }
