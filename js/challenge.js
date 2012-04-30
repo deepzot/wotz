@@ -8,7 +8,9 @@ ChallengeModule.prototype.start = function(data) {
 }
 
 ChallengeModule.prototype.update = function(data,container) {
-log('challenge update',data.current);
+  log('challenge update',data.current);
+  container.empty();
+  container.text('take a challenge...');
 }
 
 ChallengeModule.prototype.end = function() { }

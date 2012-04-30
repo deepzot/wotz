@@ -9,6 +9,8 @@ PlayModule.prototype.start = function(data) {
 
 PlayModule.prototype.update = function(data,container) {
   log('play update',data.current);
+  container.empty();
+  container.text('playing...');
 }
 
 PlayModule.prototype.end = function() { }

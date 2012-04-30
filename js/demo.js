@@ -119,11 +119,11 @@ DemoApp.prototype.reset = function() {
   if(this.module) {
     log('ending',this.module.id);
     this.module.end();
-    log('4');
     $('#'+this.module.id+'Select').removeClass('ui-btn-active');
     this.module = null;
   }
-  $('#moduleContent').text('Select an activity using the buttons above...');
+  this.container.empty();
+  this.container.text('Select an activity using the buttons above...');
 }
 
 DemoApp.prototype.jump = function() {

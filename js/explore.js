@@ -11,7 +11,7 @@ ExploreModule.prototype.update = function(data,container) {
   // Grab the most recent 48 readings.
   var recent = data.getRecent(48);
   // Draw a graph of these readings.
-  $('#moduleContent').empty();
+  container.empty();
   var graph = d3.select('#moduleContent').append("svg")
     .attr('class','graphics')
     .attr('id', 'exploreGraph');
