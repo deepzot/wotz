@@ -71,11 +71,18 @@ DemoApp.prototype.start = function() {
 
   // Handle resizing of main content area
   $(window).on('orientationchange resize pageshow',function(evt) {
-    var contentHeight = $(window).height() -
-      $('[data-role="header"]:visible').outerHeight() - $('[data-role="footer"]:visible').outerHeight();
-    log('content',evt.type,location.hash,$(window).height(),contentHeight);
+    var content = $('#moduleContent');
+    if(content.is(':hidden')) return true;
+    // lookup our viewport height
+    var contentHeight = $(window).height();
+    // subtract the height of our header and footer
+    contentHeight -= $('[data-role="header"]:visible').outerHeight() +
+      $('[data-role="footer"]:visible').outerHeight();
+    // subtract any padding and margins
+    contentHeight -= content.outerHeight() - content.height();
+    log('content size',evt.type,$(window).height(),pad,contentHeight);
     $('#windowSize').text($(window).width() + ' x ' + $(window).height());
-    $('#moduleContent').height(contentHeight);
+    content.height(contentHeight);
   });
 }
 
