@@ -5,11 +5,21 @@
 	<meta charset="utf-8">
 	<meta name="viewport" content="width=device-width, initial-scale=1">
 	<title>EnergyApp</title>
+
+  <!-- Home screen icon  Mathias Bynens mathiasbynens.be/notes/touch-icons -->
+  <!-- For iPhone 4 with high-resolution Retina display: -->
+  <link rel="apple-touch-icon-precomposed" sizes="114x114" href="img/apple-touch-icon-114x114-precomposed.png">
+  <!-- For first-generation iPad: -->
+  <link rel="apple-touch-icon-precomposed" sizes="72x72" href="img/apple-touch-icon-72x72-precomposed.png">
+  <!-- For non-Retina iPhone, iPod Touch, and Android 2.1+ devices: -->
+  <link rel="apple-touch-icon-precomposed" href="img/apple-touch-icon-57x57-precomposed.png">
+  <!-- For nokia devices: -->
+  <link rel="shortcut icon" href="img/apple-touch-icon.png">
+
 	<link rel="stylesheet" href="http://code.jquery.com/mobile/1.1.0/jquery.mobile-1.1.0.min.css" />
 	<link rel="stylesheet" href="css/styles.css" />
 	<!-- javascript is loaded after the page content -->
 </head>
-
 	
 <body> 
 
@@ -24,7 +34,7 @@
 		<p>Welcome to the TBN EnergyApp...</p>
 		<form id='loadData' action="javascript:void(0);">	
 			<label for="url">Where is your GreenButton data?</label>
-			<input type="url" name="url" id="url" value="http://192.168.0.6/gbdata/demo.xml" />
+			<input type="url" name="url" id="url" value="http://10.0.1.21/gbdata/demo.xml" />
 			<input type='submit' value='Load' />
 		</form>
 	</div>
