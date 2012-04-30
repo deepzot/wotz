@@ -72,6 +72,8 @@ DemoApp.prototype.start = function() {
 
   // Handle resizing of main content area
   $(window).on('orientationchange resize pageshow',function(evt) {
+    // hide any iOS toolbar
+    window.top.scrollTo(0,1);
     if(self.container.is(':hidden')) return true;
     // lookup our viewport height
     var contentHeight = $(window).height();
@@ -96,9 +98,11 @@ DemoApp.prototype.timerUpdate = function() {
   // Calculate and display the offset time.
   var when = new Date(now.getTime() - this.dateOffset);
   this.demoDate = when;
+  /*
   var hrs = when.getHours(), hrs12 = hrs%12, mins = when.getMinutes();
   $('#theDate').text((when.getMonth()+1) + '/' + when.getDate() + '/' + (when.getFullYear()%100) + ' ' +
     (hrs12 == 0 ? '12':hrs12) + ':' + (mins < 10 ? '0'+mins:mins) + (hrs<12?' am':' pm'));
+  */
 }
 
 DemoApp.prototype.reset = function() {

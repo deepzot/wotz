@@ -8,7 +8,8 @@
 
 	<!-- http://developer.apple.com/library/safari/documentation/appleapplications/reference/SafariHTMLRef/Articles/MetaTags.html -->
 	<meta name="apple-mobile-web-app-capable" content="yes">
-
+	<meta name="apple-mobile-web-app-status-bar-style" content="black">
+	
   <!-- Home screen icon  Mathias Bynens mathiasbynens.be/notes/touch-icons -->
   <!-- For iPhone 4 with high-resolution Retina display: -->
   <link rel="apple-touch-icon-precomposed" sizes="114x114" href="img/apple-touch-icon-114x114-precomposed.png">
@@ -83,7 +84,6 @@
 <div data-role="page" data-title="EnergyApp" id="demo">
 
 	<div data-role="header">
-		<h1><span id="theDate"></span></h1>
 		<div data-role="navbar">
 			<ul>
 				<li><a id="playSelect">Play</a></li>
@@ -97,9 +97,8 @@
 	</div>
 
 	<div data-role="footer">
-		<button id="resetButton">reset</button>
-		<button id="jumpButton">jump</button>
-		<h4 id="windowSize">width x height</h4>
+		<button id="resetButton" data-mini="true">reset</button>
+		<button id="jumpButton" data-mini="true">jump</button>
 	</div>
 
 	<a href="#endOfData" data-rel="dialog" id="endOfDataDialog" style="display:none">endOfData</a>
