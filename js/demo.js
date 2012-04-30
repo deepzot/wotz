@@ -69,6 +69,14 @@ DemoApp.prototype.start = function() {
   // Register jump handler.
   $('#jumpButton').click(function() { self.jump(); });
 
+  // Handle resizing of main content area
+  $(window).on('orientationchange resize pageshow',function(evt) {
+    var contentHeight = $(window).height() -
+      $('[data-role="header"]:visible').outerHeight() - $('[data-role="footer"]:visible').outerHeight();
+    log('content',evt.type,location.hash,$(window).height(),contentHeight);
+    $('#windowSize').text($(window).width() + ' x ' + $(window).height());
+    $('#moduleContent').height(contentHeight);
+  });
 }
 
 DemoApp.prototype.timerUpdate = function() {
