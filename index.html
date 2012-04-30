@@ -97,8 +97,17 @@
 	</div>
 
 	<div data-role="footer">
-		<button id="resetButton" data-mini="true">reset</button>
-		<button id="jumpButton" data-mini="true">jump</button>
+		<div class="ui-grid-b">
+			<div data-role="controlgroup" data-type="horizontal" class="ui-block-a">
+				<button id="resetButton" data-mini="true" data-icon="back">reset</button>
+				<button id="jumpButton" data-mini="true" data-icon="arrow-r">jump</button>
+		</div>
+		<div class="ui-block-b" style="text-align:center">
+			<button id="about" data-mini="true" data-icon="info">about</button>
+		</div>
+		<div class="ui-block-c" style="text-align:right">
+			<button id="settings" data-mini="true" data-icon="gear">settings</button>
+		</div>
 	</div>
 
 	<a href="#endOfData" data-rel="dialog" id="endOfDataDialog" style="display:none">endOfData</a>
