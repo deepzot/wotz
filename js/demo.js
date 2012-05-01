@@ -94,6 +94,9 @@ DemoApp.prototype.start = function() {
       self.module.update(self.data,self.container);
     }
   });
+  
+  // Use the protocol and hostname where the app is running for the datafile default
+  $('#url').val(location.protocol+'//'+location.hostname+'/gbdata/demo.xml');
 }
 
 DemoApp.prototype.timerUpdate = function() {
