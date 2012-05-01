@@ -29,7 +29,7 @@ ExploreModule.prototype.update = function(data,container) {
       .attr("y", function(d,i) { return y(d.value) })
       .attr("height", function(d,i) { return height-y(d.value) })
       .attr("width", function(d,i) {
-        return x(d.start.getTime()+d.duration*1000)-x(d.start.getTime())
+        return x(d.start.getTime()+data.duration*1000)-x(d.start.getTime())
       });
 }
 

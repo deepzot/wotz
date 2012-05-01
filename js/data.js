@@ -3,7 +3,6 @@ function IntervalReading(xml) {
   // Convert the xml start value to a javascript date.
   var utc = new Date($(xml).find('start').text()*1000);
   this.start = new Date(utc.getTime() + utc.getTimezoneOffset()*60000);
-  this.duration = Number($(xml).find('duration').text());
   this.value = Number($(xml).find('value').text());
 }
 
