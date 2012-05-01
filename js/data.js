@@ -17,6 +17,17 @@ function GreenButtonData(xml) {
   // Save all IntervalReading elements to memory
   // TODO: check for gaps and how daylight savings is handled
   $(xml).find('IntervalReading').each(function() {
+    // lookup the duration value of this reading
+    var duration = $(this).find('duration').text();
+    if(0 == self.readings.length) {
+      self.duration = Number(duration);
+      log('reading duration is',self.duration);
+    }
+    else {
+      if(Number(duration) != self.duration) {
+        alert("Found reading with unexpected duration " + duration);
+      }
+    }
     // Use the 'self' alias since 'this' is now hidden
     self.readings.push(new IntervalReading(this));
   });
