@@ -78,6 +78,7 @@ function initNewGame() {
 };
 
 // Our active shape
+
 var Shape = {
 	State: {
 		x : null,
@@ -235,8 +236,6 @@ d3.select(window).on("keydown", function() {
 	return;
 }); // End Listen for key down events
 
-
-
 // Collision detection
 function isPossibleMovement(x, y, shape) {
 	// Iterate through shape tiles
@@ -267,7 +266,7 @@ function isPossibleMovement(x, y, shape) {
 	
 // Draw stuff
 function draw() {
-	// Update active piece	
+	// Update actice piece
 	var rect = gameBoard.selectAll("rect")
 		.data(Shape.State.currentShape);
 	
