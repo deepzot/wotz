@@ -8,6 +8,7 @@ ExploreModule.prototype.start = function(data) {
 }
 
 ExploreModule.prototype.update = function(data,container) {
+  var days = data.getDays(7,0);
   // Grab the most recent 48 readings.
   var recent = data.getRecent(48);
   // Draw a graph of these readings.
