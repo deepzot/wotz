@@ -21,8 +21,6 @@ PlayModule.prototype.start = function(data) {
 
 PlayModule.prototype.update = function(container) {
   log('play update');
-  // Grab the most recent 24 readings.
-  var recent = data.getRecent(24);
   container.empty();
   
   gameBoard = d3.select('#moduleContent').append("svg")
@@ -78,7 +76,6 @@ function initNewGame() {
 };
 
 // Our active shape
-
 var Shape = {
 	State: {
 		x : null,
