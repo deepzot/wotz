@@ -124,7 +124,7 @@ DemoApp.prototype.timerUpdate = function() {
 
 DemoApp.prototype.reset = function() {
   // Calculate the offset between current time and our start date.
-  log('reset',this.data.startDate);
+  log('reset to',this.data.startDate);
   this.dateOffset = new Date() - this.data.startDate;
   // Clear any interval timer that is already running.
   if(this.timer) clearInterval(this.timer);
@@ -134,9 +134,8 @@ DemoApp.prototype.reset = function() {
   var self = this;
   this.timer = setInterval(function() { self.timerUpdate(); },1000);
   // Update our location in the dataset.
-  this.data.current = 0;
-  this.data.updateCurrent(this.demoDate);
-  // No modules active yet.
+  this.data.current = this.data.startIndex;
+  // There should not be any active modules now.
   if(this.module) {
     log('ending',this.module.id);
     this.module.end();
@@ -148,25 +147,29 @@ DemoApp.prototype.reset = function() {
 }
 
 DemoApp.prototype.jump = function() {
-  // Calculate a random jump offset in millisecs.
-  var jumpOffset = (5 + 4*Math.random())*86400e3;
-  var newDate = this.data.coerceDate(new Date(this.demoDate.getTime() + jumpOffset));
-  log('jump',newDate.toLocaleString());
+  // Calculate a random jump offset in seconds.
+  var jumpOffset = (5 + 4*Math.random())*86400;
+  // Convert to an index offset.
+  var deltaIndex = Math.floor(jumpOffset/this.data.duration);
+  log('deltaIndex',deltaIndex);
+  // Update our dataset index, coercing to a reasonable time of day.
+  var newIndex = this.data.coerceIndex(this.data.current + deltaIndex);
+  var newDate = this.data.getDateTime(newIndex);
+  log('jump from',this.data.getDateTime(this.data.current),'to',newDate);
   this.dateOffset = new Date() - newDate;
-  // Update now for immediate feedback.
-  this.timerUpdate();
   // Did this jump take us beyond the last data?
-  if(this.demoDate > this.data.lastDate) {
+  if(newDate > this.data.lastDate) {
     $('#endOfDataDialog').click();
   }
   else {
+    // Update now for immediate feedback.
+    this.data.current = newIndex;
+    this.timerUpdate();
     // Clear any interval timer that is already running.
     if(this.timer) clearInterval(this.timer);
     // Start a new 1Hz interval timer.
     var self = this;
     this.timer = setInterval(function() { self.timerUpdate(); },1000);
-    // Update our location in the dataset.
-    this.data.updateCurrent(this.demoDate);
     // Update the active module.
     if(this.module) this.module.update(this.data,this.container);
   }
