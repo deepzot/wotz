@@ -1,6 +1,7 @@
 // Represents a GreenButton data file.
 function GreenButtonData(xml) {
   var self = this;
+  this.tzOffset = -8*3600; // assume PST=GMT-8
   this.errorMessage = null;
   this.readings = new Array();
   // Save all IntervalReading elements to memory
@@ -38,20 +39,20 @@ function GreenButtonData(xml) {
   if(this.errorMessage) return;
   // Insert info about this datafile into our document.
   this.firstDate = this.getDateTime(0);
-  $('.firstDate').text(this.firstDate.toLocaleString());
+  $('.firstDate').text(this.firstDate.toLocaleDateString());
   this.nReadings = this.readings.length;
   $('.nReadings').text(this.nReadings);
-  this.lastDate = this.getDateTime(this.nReadings-1);
-  $('.lastDate').text(this.lastDate.toLocaleString());
-  this.startIndex = Math.floor(this.nReadings/10);
-  this.startDate = this.coerceDate(this.getDateTime(this.startIndex));
+  this.lastDate = this.getDateTime(this.nReadings);
+  $('.lastDate').text(this.lastDate.toLocaleDateString());
+  this.startIndex = this.coerceIndex(Math.floor(this.nReadings/10));
+  this.startDate = this.getDateTime(this.startIndex);
   $('.startDate').text(this.startDate.toLocaleString());
-  this.current = 0;
+  this.current = this.startIndex;
 }
 
 // Returns the date and time corresponding to the specified reading index.
 GreenButtonData.prototype.getDateTime = function(index) {
-  return new Date(1000*(this.start + index*this.duration));
+  return new Date(1000*(this.start + index*this.duration - this.tzOffset));
 }
 
 // Updates our current reading pointer to be the last reading before the specified date.
@@ -91,12 +92,15 @@ GreenButtonData.prototype.getRecent = function(nRecent) {
   return this.readings.slice(this.current-nRecent+1,this.current+1);
 }
 
-GreenButtonData.prototype.coerceDate = function(when) {
-  if (when.getHours() < 6) {
-    // Shift times from midnight to 6am forward into the 6am-6pm range. The net result is
+GreenButtonData.prototype.coerceIndex = function(index) {
+  var when = this.getDateTime(index);
+  var hour = when.getHours();
+  if (hour < 6) {
+    // Shift times from midnight to 6am forward into the 6am-6pm range. To make this
+    // roughly random, pick 6am-noon vs noon-6pm based on the date. The net result is
     // that times from 6am-6pm are 50% more likely than dates 6pm-midnight.
-    var ms = when.getTime();
-    when = new Date(ms + ((ms % 2 == 0) ? 21600000:43200000));
+    var hoursToAdvance = ((when.getMonth() + when.getDate()) % 2 == 0) ? 6 : 12;
+    index += (hoursToAdvance*3600)/this.duration;
   }
-  return when;
+  return index;
 }
