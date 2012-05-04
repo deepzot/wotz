@@ -1,14 +1,3 @@
-// Represents a GreenButton IntervalReading.
-function IntervalReading(xml) {
-  // Convert the xml start value to a javascript date.
-  var utc = new Date($(xml).find('start').text()*1000);
-  this.start = new Date(utc.getTime() + utc.getTimezoneOffset()*60000);
-  this.value = Number($(xml).find('value').text());
-}
-
-// Readings can be sorted, etc, by their start date.
-IntervalReading.prototype.valueOf = function() { return this.start.valueOf(); }
-
 // Represents a GreenButton data file.
 function GreenButtonData(xml) {
   var self = this;
@@ -17,16 +6,15 @@ function GreenButtonData(xml) {
   // Save all IntervalReading elements to memory
   // TODO: check for gaps and how daylight savings is handled
   $(xml).find('IntervalReading').each(function() {
-    // create the new reading
-    var reading = new IntervalReading(this);
     // lookup the start and duration values of this reading
     var start = $(this).find('start').text();
     var duration = $(this).find('duration').text();
     if(0 == self.readings.length) {
+      // Record the fixed duration for readings in this file.
       self.duration = Number(duration);
+      // Record the timestamp of the first reading.
       self.start = Number(start);
-      self.firstDate = reading.start;
-      log('readings start at',self.firstDate,'with duration',self.duration);
+      log('readings start at timestamp',self.start,'with duration',self.duration);
     }
     else {
       // Check that all readings have the same duration
@@ -42,18 +30,28 @@ function GreenButtonData(xml) {
         return false;
       }
     }
-    // Remember this reading
-    self.readings.push(reading);
+    // Remember this reading's value
+    var value = $(this).find('value').text();
+    self.readings.push(Number(value));
   });
+  // Give up now if there was a problem with the data content.
   if(this.errorMessage) return;
-  $('.firstDate').text(this.firstDate.toLocaleDateString());
+  // Insert info about this datafile into our document.
+  this.firstDate = this.getDateTime(0);
+  $('.firstDate').text(this.firstDate.toLocaleString());
   this.nReadings = this.readings.length;
   $('.nReadings').text(this.nReadings);
-  this.lastDate = this.readings[this.nReadings-1].start;
-  $('.lastDate').text(this.lastDate.toLocaleDateString());
-  this.startDate = this.coerceDate(this.readings[Math.floor(this.nReadings/10)].start);
-  $('.startDate').text(this.startDate.toLocaleDateString());
+  this.lastDate = this.getDateTime(this.nReadings-1);
+  $('.lastDate').text(this.lastDate.toLocaleString());
+  this.startIndex = Math.floor(this.nReadings/10);
+  this.startDate = this.coerceDate(this.getDateTime(this.startIndex));
+  $('.startDate').text(this.startDate.toLocaleString());
   this.current = 0;
+}
+
+// Returns the date and time corresponding to the specified reading index.
+GreenButtonData.prototype.getDateTime = function(index) {
+  return new Date(1000*(this.start + index*this.duration));
 }
 
 // Updates our current reading pointer to be the last reading before the specified date.
