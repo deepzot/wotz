@@ -46,14 +46,25 @@ DemoApp.prototype.start = function() {
       dataType: 'xml',
       success: function(xml) {
         log('loaded');
-        $.mobile.hidePageLoadingMsg();
         self.data = new GreenButtonData(xml);
-        log('parsed',self.data.nReadings,'readings');
-        $.mobile.changePage($('#intro'));
+        $.mobile.hidePageLoadingMsg();
+        if(self.data.errorMessage) {
+          // Ajax requested completed ok, but there is a problem with the xml content.
+          log('load error',self.data.errorMessage);
+          $('#loadErrorMessage').text(self.data.errorMessage);
+          $('#loadErrorDialog').click();
+        }
+        else {
+          // Everything looks good.
+          log('parsed',self.data.nReadings,'readings');
+          $.mobile.changePage($('#intro'));
+        }
       },
       error: function(jqXHR, textStatus, errorThrown) {
+        // Ajax request resulted in an error.
         log('error',textStatus,errorThrown);
         $.mobile.hidePageLoadingMsg();
+        $('#loadErrorMessage').text('The GreenButton data you requested cannot be loaded.');
         $('#loadErrorDialog').click();
       }
     });

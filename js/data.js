@@ -12,6 +12,8 @@ IntervalReading.prototype.valueOf = function() { return this.start.valueOf(); }
 // Represents a GreenButton data file.
 function GreenButtonData(xml) {
   var self = this;
+  this.errorMessage = "This demonstration requires evenly spaced readings.";
+  return;
   this.readings = new Array();
   // Save all IntervalReading elements to memory
   // TODO: check for gaps and how daylight savings is handled
