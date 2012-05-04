@@ -8,9 +8,8 @@ ExploreModule.prototype.start = function(data) {
 }
 
 ExploreModule.prototype.update = function(data,container) {
-  var days = data.getDays(7,0);
-  // Grab the most recent 48 readings.
-  var recent = data.getRecent(48);
+  // Grab the most recent 2 days of data.
+  var recent = data.getDays(2);
   // Draw a graph of these readings.
   container.empty();
   var graph = d3.select('#moduleContent').append("svg")
@@ -18,7 +17,7 @@ ExploreModule.prototype.update = function(data,container) {
     .attr('id', 'exploreGraph');
   var width = $('#exploreGraph').width(), height = $('#exploreGraph').height();
   var x = d3.scale.linear()
-    .domain([recent[0].start.getTime(),recent[recent.length-1].start.getTime()+3600000])
+    .domain([0,48])
     .range([0,width-1])
   var y = d3.scale.linear()
     .domain([2000,0])
@@ -26,12 +25,10 @@ ExploreModule.prototype.update = function(data,container) {
   graph.selectAll("rect")
     .data(recent)
     .enter().append("rect")
-      .attr("x", function(d,i) { return x(d.start.getTime()) })
-      .attr("y", function(d,i) { return y(d.value) })
-      .attr("height", function(d,i) { return height-y(d.value) })
-      .attr("width", function(d,i) {
-        return x(d.start.getTime()+data.duration*1000)-x(d.start.getTime())
-      });
+      .attr("x", function(d,i) { return x(i) })
+      .attr("y", function(d,i) { return y(d) })
+      .attr("height", function(d,i) { return height-y(d) })
+      .attr("width", function(d,i) { return x(i+1)-x(i); });
 }
 
 ExploreModule.prototype.end = function() { }

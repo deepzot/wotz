@@ -55,34 +55,19 @@ GreenButtonData.prototype.getDateTime = function(index) {
   return new Date(1000*(this.start + index*this.duration - this.tzOffset));
 }
 
-// Returns an array of values with length nDays*valuesPerDay where valuesPerDay <= maxValuesPerDay.
-// The time period covered consists of the most recent nDays complete days (midnight to midnight).
-GreenButtonData.prototype.getDays = function(nDays,maxValuesPerDay) {
+// Returns an array of energy readings covering the most recent (relative to this.current)
+// nDays complete 24 hour periods, ending at midnight.
+GreenButtonData.prototype.getDays = function(nDays) {
   if(nDays <= 0) {
     alert("GreenButtonData.getDays: bad value of nDays = " + nDays);
     return [ ];
   }
-  if(maxValuesPerDay <= 0) {
-    alert("GreenButtonData.getDays: bad value of maxValuesPerDay = " + maxValuesPerDay);
-    return [ ];
-  }
-  var grouping = 1;
-  var valuesPerDay = 86400/this.duration;
-  log('valuesPerDay',valuesPerDay);
-  if(valuesPerDay != Math.round(valuesPerDay)) {
-    alert("Readings do not divide evenly into 24 hours!");
-  }
-  while(valuesPerDay > maxValuesPerDay) {
-    grouping++;
-    valuesPerDay = 86400/(grouping*this.duration);
-  }
-  days = new Array(nDays*valuesPerDay);
-  return days;
-}
-
-// Returns the nRecent readings ending with the current reading.
-GreenButtonData.prototype.getRecent = function(nRecent) {
-  return this.readings.slice(this.current-nRecent+1,this.current+1);
+  var when = this.getDateTime(this.current);
+  var hour = when.getHours();
+  var lastIndex = this.current - Math.round((hour*3600)/this.duration);
+  var firstIndex = lastIndex - Math.round(nDays*(86400/this.duration));
+  log('getDays returning period from',this.getDateTime(firstIndex),'to',this.getDateTime(lastIndex));
+  return this.readings.slice(firstIndex,lastIndex);
 }
 
 GreenButtonData.prototype.coerceIndex = function(index) {
