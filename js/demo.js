@@ -134,7 +134,7 @@ DemoApp.prototype.reset = function() {
   var self = this;
   this.timer = setInterval(function() { self.timerUpdate(); },1000);
   // Update our location in the dataset.
-  this.data.current = this.data.startIndex;
+  this.data.reset();
   // There should not be any active modules now.
   if(this.module) {
     log('ending',this.module.id);
@@ -151,7 +151,6 @@ DemoApp.prototype.jump = function() {
   var jumpOffset = (5 + 4*Math.random())*86400;
   // Convert to an index offset.
   var deltaIndex = Math.floor(jumpOffset/this.data.duration);
-  log('deltaIndex',deltaIndex);
   // Update our dataset index, coercing to a reasonable time of day.
   var newIndex = this.data.coerceIndex(this.data.current + deltaIndex);
   var newDate = this.data.getDateTime(newIndex);

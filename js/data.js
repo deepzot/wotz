@@ -23,8 +23,7 @@ function GreenButtonData(xml) {
         self.errorMessage = "This demonstration requires evenly spaced readings.";
         return false; // return false to prevent further .each processing
       }
-      // Check that there are no gaps in the readings. Use UTC for this to avoid
-      // issues with daylight savings.
+      // Check that there are no gaps in the readings.
       if(Number(start) != self.start + self.readings.length*self.duration) {
         log('missing data',self.readings.length,self.start,self.start + self.readings.length*self.duration,Number(start));
         self.errorMessage = "This demonstration requires a complete set of readings with no missing data.";
@@ -37,17 +36,28 @@ function GreenButtonData(xml) {
   });
   // Give up now if there was a problem with the data content.
   if(this.errorMessage) return;
+  // Set our current position.
+  this.nReadings = this.readings.length;
+  this.startIndex = this.coerceIndex(Math.floor(this.nReadings/10));
+  this.reset();
   // Insert info about this datafile into our document.
   this.firstDate = this.getDateTime(0);
   $('.firstDate').text(this.firstDate.toLocaleDateString());
-  this.nReadings = this.readings.length;
   $('.nReadings').text(this.nReadings);
   this.lastDate = this.getDateTime(this.nReadings);
   $('.lastDate').text(this.lastDate.toLocaleDateString());
-  this.startIndex = this.coerceIndex(Math.floor(this.nReadings/10));
   this.startDate = this.getDateTime(this.startIndex);
   $('.startDate').text(this.startDate.toLocaleString());
-  this.current = this.startIndex;
+}
+
+// Updates our current position in the datafile.
+GreenButtonData.prototype.updateCurrent = function(index) {
+  this.current = index;
+}
+
+GreenButtonData.prototype.reset = function() {
+  this.current = 0;
+  this.updateCurrent(this.startIndex);
 }
 
 // Returns the date and time corresponding to the specified reading index.
