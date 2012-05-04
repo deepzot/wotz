@@ -12,8 +12,7 @@ IntervalReading.prototype.valueOf = function() { return this.start.valueOf(); }
 // Represents a GreenButton data file.
 function GreenButtonData(xml) {
   var self = this;
-  this.errorMessage = "This demonstration requires evenly spaced readings.";
-  return;
+  this.errorMessage = null;
   this.readings = new Array();
   // Save all IntervalReading elements to memory
   // TODO: check for gaps and how daylight savings is handled
@@ -26,12 +25,14 @@ function GreenButtonData(xml) {
     }
     else {
       if(Number(duration) != self.duration) {
-        alert("Found reading with unexpected duration " + duration);
+        self.errorMessage = "This demonstration requires evenly spaced readings.";
+        return false; // return false to prevent further .each processing
       }
     }
     // Use the 'self' alias since 'this' is now hidden
     self.readings.push(new IntervalReading(this));
   });
+  if(this.errorMessage) return;
   this.firstDate = this.readings[0].start;
   $('.firstDate').text(this.firstDate.toLocaleDateString());
   this.nReadings = this.readings.length;
