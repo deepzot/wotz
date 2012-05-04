@@ -55,13 +55,6 @@ GreenButtonData.prototype.getDateTime = function(index) {
   return new Date(1000*(this.start + index*this.duration - this.tzOffset));
 }
 
-// Updates our current reading pointer to be the last reading before the specified date.
-GreenButtonData.prototype.updateCurrent = function(when) {
-  while(this.current < this.nReadings && this.readings[this.current] < when) {
-    this.current++;
-  }
-}
-
 // Returns an array of values with length nDays*valuesPerDay where valuesPerDay <= maxValuesPerDay.
 // The time period covered consists of the most recent nDays complete days (midnight to midnight).
 GreenButtonData.prototype.getDays = function(nDays,maxValuesPerDay) {
