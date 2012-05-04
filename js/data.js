@@ -17,23 +17,35 @@ function GreenButtonData(xml) {
   // Save all IntervalReading elements to memory
   // TODO: check for gaps and how daylight savings is handled
   $(xml).find('IntervalReading').each(function() {
-    // lookup the duration value of this reading
+    // create the new reading
+    var reading = new IntervalReading(this);
+    // lookup the start and duration values of this reading
+    var start = $(this).find('start').text();
     var duration = $(this).find('duration').text();
     if(0 == self.readings.length) {
       self.duration = Number(duration);
-      log('reading duration is',self.duration);
+      self.start = Number(start);
+      self.firstDate = reading.start;
+      log('readings start at',self.firstDate,'with duration',self.duration);
     }
     else {
+      // Check that all readings have the same duration
       if(Number(duration) != self.duration) {
         self.errorMessage = "This demonstration requires evenly spaced readings.";
         return false; // return false to prevent further .each processing
       }
+      // Check that there are no gaps in the readings. Use UTC for this to avoid
+      // issues with daylight savings.
+      if(Number(start) != self.start + self.readings.length*self.duration) {
+        log('missing data',self.readings.length,self.start,self.start + self.readings.length*self.duration,Number(start));
+        self.errorMessage = "This demonstration requires a complete set of readings with no missing data.";
+        return false;
+      }
     }
-    // Use the 'self' alias since 'this' is now hidden
-    self.readings.push(new IntervalReading(this));
+    // Remember this reading
+    self.readings.push(reading);
   });
   if(this.errorMessage) return;
-  this.firstDate = this.readings[0].start;
   $('.firstDate').text(this.firstDate.toLocaleDateString());
   this.nReadings = this.readings.length;
   $('.nReadings').text(this.nReadings);
