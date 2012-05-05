@@ -13,6 +13,14 @@ function GreenButtonData(xml) {
     if(0 == self.readings.length) {
       // Record the fixed duration for readings in this file.
       self.duration = Number(duration);
+      // Check that an hour consists of an exact number of readings (possibly one)
+      if(3600 % self.duration != 0) {
+        self.errorMessage = "This demonstration does not support non-standard reading durations.";
+        return false;
+      }
+      // Calculate and save the number of readings per hour and per day.
+      self.readingsPerHour = 3600/self.duration;
+      self.readingsPerDay = 24*self.readingsPerHour;
       // Record the timestamp of the first reading.
       self.start = Number(start);
       log('readings start at timestamp',self.start,'with duration',self.duration);
@@ -40,9 +48,6 @@ function GreenButtonData(xml) {
   this.nReadings = this.readings.length;
   this.startIndex = this.coerceIndex(Math.ceil((7*86400)/this.duration));
   this.reset();
-  // Calculate and save the number of readings per hour and per day.
-  this.readingsPerHour = Math.round(3600/this.duration);
-  this.readingsPerDay = Math.round(86400/this.duration);
   // Insert info about this datafile into our document.
   this.firstDate = this.getDateTime(0);
   $('.firstDate').text(this.firstDate.toLocaleDateString());
