@@ -5,7 +5,7 @@ function ExploreModule() {
 }
 
 ExploreModule.prototype.start = function(data) {
-  log('explore start',data.current);
+  log('explore start at',data.getSimulationTime());
   // Grab the most recent 2 days of data.
   this.displayData = data.getDays(2);
 }

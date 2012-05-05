@@ -4,6 +4,7 @@ function GreenButtonData(xml) {
   this.tzOffset = -5*3600; // assume EST=GMT-5
   this.errorMessage = null;
   this.readings = new Array();
+  this.dateOffset = 0;
   // Loop over all IntervalReading elements...
   $(xml).find('IntervalReading').each(function() {
     // lookup the start and duration values of this reading
@@ -124,4 +125,10 @@ GreenButtonData.prototype.coerceIndex = function(index) {
     index += (hoursToAdvance*3600)/this.duration;
   }
   return index;
+}
+
+// Returns the current simulation time, based on an offset real-time clock.
+GreenButtonData.prototype.getSimulationTime = function() {
+  var now = new Date();
+  return new Date(now.getTime() - this.dateOffset);
 }

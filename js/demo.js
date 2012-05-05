@@ -1,6 +1,5 @@
 function DemoApp() {
   this.data = null;
-  this.dateOffset = 0;
   this.modules = [ ];
   this.module = null;
   this.container = $('#moduleContent');
@@ -107,12 +106,6 @@ DemoApp.prototype.start = function() {
   $('#url').val(location.protocol+'//'+location.hostname+'/gbdata/demo.xml');
 }
 
-// Returns the current simulation time, based on an offset real-time clock.
-DemoApp.prototype.getSimulationTime = function() {
-  var now = new Date();
-  return new Date(now.getTime() - this.dateOffset);
-}
-
 // De-activates any current module.
 DemoApp.prototype.clearModule = function() {
   if(this.module) {
@@ -128,7 +121,7 @@ DemoApp.prototype.clearModule = function() {
 DemoApp.prototype.reset = function() {
   // Calculate the offset between current time and our start date.
   log('reset to',this.data.startDate);
-  this.dateOffset = new Date() - this.data.startDate;
+  this.data.dateOffset = new Date() - this.data.startDate;
   // Update our location in the dataset.
   this.data.reset();
   // There should not be any active module now.
@@ -144,7 +137,7 @@ DemoApp.prototype.jump = function() {
   var newIndex = this.data.coerceIndex(this.data.current + deltaIndex);
   var newDate = this.data.getDateTime(newIndex);
   log('jump from',this.data.getDateTime(this.data.current),'to',newDate);
-  this.dateOffset = new Date() - newDate;
+  this.data.dateOffset = new Date() - newDate;
   // Did this jump take us beyond the last data?
   if(newDate > this.data.lastDate) {
     $('#endOfDataDialog').click();
