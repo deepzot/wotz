@@ -53,7 +53,7 @@ ExploreModule.prototype.update = function(container) {
         .attr('style', 'stop-color:rgb(180,150,150);stop-opacity:1');
     });
   defs.append('svg:radialGradient')
-    .attr('id','sunGradientLeft')
+    .attr('class','sunGradient')
     .attr('gradientUnits','userSpaceOnUse')
     .attr('cx','25%').attr('cy','0%')
     .attr('r','25%')
@@ -63,19 +63,11 @@ ExploreModule.prototype.update = function(container) {
       gradient.append('svg:stop').attr('offset', '100%')
         .attr('style', 'stop-color:rgb(255,245,140);stop-opacity:0');
     });
-  // It should be possible to re-use the first sun gradient with an SVG translation
-  // but I can't get this to work in Safari, so make a copy with cx changed from 25% to 75%.
-  defs.append('svg:radialGradient')
-    .attr('id','sunGradientRight')
-    .attr('gradientUnits','userSpaceOnUse')
-    .attr('cx','75%').attr('cy','0%')
-    .attr('r','25%')
-    .call(function(gradient) {
-      gradient.append('svg:stop').attr('offset', '0%')
-        .attr('style', 'stop-color:rgb(255,245,140);stop-opacity:0.75');
-      gradient.append('svg:stop').attr('offset', '100%')
-        .attr('style', 'stop-color:rgb(255,245,140);stop-opacity:0');
-    });
+  // Duplicate the sun gradient for the left/right hand side of the graph.
+  var sunLeft = $('.sunGradient');
+  var sunRight = $(sunLeft).clone().insertAfter(sunLeft);
+  $(sunLeft).attr('id','sunGradientLeft');
+  $(sunRight).attr('id','sunGradientRight').attr('cx','75%');
   // Prepare axis scaling functions.
   var x = d3.scale.linear()
     .domain([0,48])
