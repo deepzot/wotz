@@ -10,13 +10,11 @@
     font-size: 100%;
 }
 
-#exploreGraph rect.sky {
+#exploreGraph rect {
     stroke: none;
-    fill: url(#skyGradient);
 }
 
 #exploreGraph rect.bar {
-    stroke: none;
     fill: lightgray;
 }
 

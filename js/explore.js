@@ -34,22 +34,47 @@ ExploreModule.prototype.update = function(container) {
     .attr('gradientUnits', 'userSpaceOnUse')
     .attr('x1','0%').attr('y1','0%')
     .attr('x2','100%').attr('y2','0%')
-    .attr('spreadMethod','reflect')
     .call(function(gradient) {
-      gradient.append('svg:stop').attr('offset', '0%')
+      gradient.append('svg:stop').attr('offset', '5%')
         .attr('style', 'stop-color:rgb(180,150,150);stop-opacity:1');
       gradient.append('svg:stop').attr('offset', '20%')
         .attr('style', 'stop-color:rgb(180,180,255);stop-opacity:1');
       gradient.append('svg:stop').attr('offset', '30%')
         .attr('style', 'stop-color:rgb(180,180,255);stop-opacity:1');
-      gradient.append('svg:stop').attr('offset', '50%')
+      gradient.append('svg:stop').attr('offset', '45%')
+        .attr('style', 'stop-color:rgb(180,150,150);stop-opacity:1');
+      gradient.append('svg:stop').attr('offset', '55%')
         .attr('style', 'stop-color:rgb(180,150,150);stop-opacity:1');
       gradient.append('svg:stop').attr('offset', '70%')
         .attr('style', 'stop-color:rgb(180,180,255);stop-opacity:1');
       gradient.append('svg:stop').attr('offset', '80%')
         .attr('style', 'stop-color:rgb(180,180,255);stop-opacity:1');
-      gradient.append('svg:stop').attr('offset', '100%')
+      gradient.append('svg:stop').attr('offset', '95%')
         .attr('style', 'stop-color:rgb(180,150,150);stop-opacity:1');
+    });
+  defs.append('svg:radialGradient')
+    .attr('id','sunGradientLeft')
+    .attr('gradientUnits','userSpaceOnUse')
+    .attr('cx','25%').attr('cy','0%')
+    .attr('r','25%')
+    .call(function(gradient) {
+      gradient.append('svg:stop').attr('offset', '0%')
+        .attr('style', 'stop-color:rgb(255,245,140);stop-opacity:0.75');
+      gradient.append('svg:stop').attr('offset', '100%')
+        .attr('style', 'stop-color:rgb(255,245,140);stop-opacity:0');
+    });
+  // It should be possible to re-use the first sun gradient with an SVG translation
+  // but I can't get this to work in Safari, so make a copy with cx changed from 25% to 75%.
+  defs.append('svg:radialGradient')
+    .attr('id','sunGradientRight')
+    .attr('gradientUnits','userSpaceOnUse')
+    .attr('cx','75%').attr('cy','0%')
+    .attr('r','25%')
+    .call(function(gradient) {
+      gradient.append('svg:stop').attr('offset', '0%')
+        .attr('style', 'stop-color:rgb(255,245,140);stop-opacity:0.75');
+      gradient.append('svg:stop').attr('offset', '100%')
+        .attr('style', 'stop-color:rgb(255,245,140);stop-opacity:0');
     });
   // Prepare axis scaling functions.
   var x = d3.scale.linear()
@@ -60,10 +85,22 @@ ExploreModule.prototype.update = function(container) {
     .range([height-1,0]);
   // Draw the background sky.
   graph.append('svg:rect')
-    .attr('class','sky')
+    .attr('fill','url(#skyGradient)')
     .attr('x',0)
     .attr('y',0)
     .attr('width',width)
+    .attr('height',height);
+  graph.append('svg:rect')
+    .attr('fill','url(#sunGradientLeft)')
+    .attr('x',0)
+    .attr('y',0)
+    .attr('width',width/2)
+    .attr('height',height);
+  graph.append('svg:rect')
+    .attr('fill','url(#sunGradientRight)')
+    .attr('x',width/2)
+    .attr('y',0)
+    .attr('width',width/2)
     .attr('height',height);
   // Draw a bar chart in the background.
   graph.selectAll('rect.bar')
