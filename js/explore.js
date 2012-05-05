@@ -7,7 +7,7 @@ function ExploreModule() {
 }
 
 ExploreModule.prototype.start = function(data) {
-  log('explore start at',data.getSimulationTime());
+  log('explore start at',data.getDateTime());
   // Remember our data source.
   this.dataSource = data;
   // Grab the most recent 2 complete days of data.

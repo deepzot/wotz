@@ -101,8 +101,10 @@ GreenButtonData.prototype.reset = function() {
   this.updateCurrent(this.startIndex);
 }
 
-// Returns the date and time corresponding to the specified reading index.
+// Returns the date and time corresponding to the specified reading index. If no index is
+// specified, uses the current index, as maintained by updateCurrent().
 GreenButtonData.prototype.getDateTime = function(index) {
+  index = typeof index !== 'undefined' ? index : this.current;
   return new Date(1000*(this.start + index*this.duration - this.tzOffset));
 }
 
