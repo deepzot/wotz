@@ -21,7 +21,6 @@ DemoApp.prototype.start = function() {
     // See http://www.mennovanslooten.nl/blog/post/62
     $('#'+module.id+'Select').click((function(m) {
       return function() {
-        log('click');
         if(self.module) {
           log('ending',self.module.id);
           self.module.end();
@@ -96,7 +95,7 @@ DemoApp.prototype.start = function() {
       $('[data-role="footer"]:visible').outerHeight();
     // subtract any padding and margins
     contentHeight -= self.container.outerHeight() - self.container.height();
-    log('container',evt.type,$(window).height(),contentHeight);
+    //log('container',evt.type,$(window).height(),contentHeight);
     $('#windowSize').text($(window).width() + ' x ' + $(window).height());
     // set the content height now
     self.container.height(contentHeight);
