@@ -17,6 +17,7 @@ ExploreModule.prototype.start = function(data) {
 
 ExploreModule.prototype.update = function(container) {
   var self = this;
+  log('maxValue',this.dataSource.maxValue);
   // Remember our container in case we need to redraw under our own control.
   this.container = container;
   // Draw a graph of these readings.
@@ -29,7 +30,7 @@ ExploreModule.prototype.update = function(container) {
     .domain([0,48])
     .range([0,width-1])
   var y = d3.scale.linear()
-    .domain([2000,0])
+    .domain([self.dataSource.maxValue,0])
     .range([0,height-1]);
   graph.selectAll("rect")
     .data(this.displayData)

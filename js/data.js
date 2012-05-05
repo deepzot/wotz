@@ -73,22 +73,18 @@ GreenButtonData.prototype.updateCurrent = function(index) {
   while(this.current < index) {
     var value = this.readings[this.current];
     var when = this.getDateTime(this.current);
+
+    if(value > this.maxValue) this.maxValue = value;
+
     var hour = when.getHours();
     this.byHourSum[hour] += value;
     this.byHourCount[hour]++;
+
     var day = when.getDay();
     this.byWeekDaySum[day] += value;
     this.byWeekDayCount[day]++;
     this.current++;
   }
-  /*
-  for(var day = 0; day < 7; ++day) {
-    log('day avg',day,this.averageByWeekDay(day));
-  }
-  for(var hour = 0; hour < 24; ++hour) {
-    log('hour avg',hour,this.averageByHour(hour));
-  }
-  */
 }
 
 GreenButtonData.prototype.reset = function() {
@@ -98,6 +94,7 @@ GreenButtonData.prototype.reset = function() {
   this.byHourCount = [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0];
   this.byWeekDaySum = [0,0,0,0,0,0,0];
   this.byWeekDayCount = [0,0,0,0,0,0,0];
+  this.maxValue = 0;
   this.updateCurrent(this.startIndex);
 }
 
