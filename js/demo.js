@@ -29,7 +29,7 @@ DemoApp.prototype.start = function() {
         log('starting',m.id);
         self.module = m;
         m.start(self.data);
-        m.update(self.data,self.container);
+        m.update(self.container);
       }
     })(module));
   }
@@ -102,7 +102,7 @@ DemoApp.prototype.start = function() {
     self.container.height(contentHeight);
     // tell any running module to resize itself
     if(self.module) {
-      self.module.update(self.data,self.container);
+      self.module.update(self.container);
     }
   });
   
