@@ -5,6 +5,10 @@
     height: 99%;
 }
 
+#exploreGraph {
+    font-size: 100%;
+}
+
 #exploreGraph rect {
     stroke: none;
     fill: steelblue;
@@ -17,5 +21,5 @@
     text-shadow: none;
 }
 
-#exploreGraph text.timeLabel { font-size: medium; }
-#exploreGraph text.dayLabel { font-size: large; }
+#exploreGraph text.timeLabel { font-size: 1em; }
+#exploreGraph text.dayLabel { font-size: 2em; }
