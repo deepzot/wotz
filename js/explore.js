@@ -11,13 +11,14 @@ ExploreModule.prototype.start = function(data) {
   // Remember our data source.
   this.dataSource = data;
   // Grab the most recent 2 complete days of data.
-  this.displayData = data.getDays(-2,0,this.displayRange);
-  log('range',this.displayRange)
   this.dayOffset = 0;
+  this.getData();
 }
 
 ExploreModule.prototype.update = function(container) {
   var self = this;
+  // Remember our container in case we need to redraw under our own control.
+  this.container = container;
   // Draw a graph of these readings.
   container.empty();
   var graph = d3.select('#moduleContent').append("svg:svg")
@@ -86,7 +87,7 @@ ExploreModule.prototype.update = function(container) {
   }
   if(this.displayRange[1] <= this.dataSource.current - this.dataSource.readingsPerDay) {
     graph.append('svg:text')
-      .attr('class','leftArrow')
+      .attr('class','rightArrow')
       .text('>')
       .attr('x',x(47.5))
       .attr('y', height-3*emUnit)
@@ -94,12 +95,24 @@ ExploreModule.prototype.update = function(container) {
   }
 }
 
-ExploreModule.prototype.navBack = function() {
-  log('navBack');
+// Fetches and analyzes the data corresponding to this.dayOffset
+ExploreModule.prototype.getData = function() {
+  this.displayData = this.dataSource.getDays(this.dayOffset-2,this.dayOffset,this.displayRange);   
+  log('getData: range is now',this.displayRange)
 }
 
+// Handles a request to view earlier data.
+ExploreModule.prototype.navBack = function() {
+  this.dayOffset--;
+  this.getData();
+  this.update(this.container);
+}
+
+// Handles a request to view more recent data.
 ExploreModule.prototype.navForward = function() {
-  log('navForward');
+  this.dayOffset++;
+  this.getData();
+  this.update(this.container);
 }
 
 ExploreModule.prototype.end = function() {
