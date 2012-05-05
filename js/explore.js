@@ -13,6 +13,7 @@ ExploreModule.prototype.start = function(data) {
   // Grab the most recent 2 complete days of data.
   this.dayOffset = 0;
   this.getData();
+  this.landHeight = null;
 }
 
 ExploreModule.prototype.update = function(container) {
@@ -53,7 +54,6 @@ ExploreModule.prototype.update = function(container) {
   else {
     emUnit = 10;
   }
-  log('em',emUnit);
   // Add time-of-day labels.
   var labelPos = null;
   var timeLabels = graph.selectAll('text.timeLabel');
@@ -116,12 +116,18 @@ ExploreModule.prototype.getData = function() {
   // Fetch the data from our source.
   this.displayData = this.dataSource.getDays(this.dayOffset-2,this.dayOffset,this.displayRange);
   // Find the minimum reading.
+  var size = this.displayData.length;
   var minValue = this.dataSource.maxValue;
-  for(var i = 0; i < this.displayData.length; ++i) {
+  for(var i = 0; i < size; ++i) {
     var value = this.displayData[i];
     if(value < minValue) minValue = value;
   }
   this.baseLoad = 1.1*minValue;
+  // Calculate an array of land heights.
+  if(this.landHeight == null) this.landHeight = new Array(size);
+  for(var i = 0; i < size; ++i) {
+    this.landHeight[i] = Math.min(this.displayData[i],minValue);
+  }
 }
 
 // Handles a request to view earlier data.
