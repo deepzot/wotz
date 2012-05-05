@@ -30,8 +30,8 @@ ExploreModule.prototype.update = function(container) {
     .domain([0,48])
     .range([0,width-1])
   var y = d3.scale.linear()
-    .domain([self.dataSource.maxValue,0])
-    .range([0,height-1]);
+    .domain([0,self.dataSource.maxValue])
+    .range([height-1,0]);
   graph.selectAll("rect")
     .data(this.displayData)
     .enter().append("svg:rect")
@@ -39,6 +39,12 @@ ExploreModule.prototype.update = function(container) {
       .attr("y", function(d,i) { return y(d) })
       .attr("height", function(d,i) { return height-y(d) })
       .attr("width", function(d,i) { return x(i+1)-x(i); });
+  // Draw a base-load level line.
+  var baseY = y(self.baseLoad);
+  graph.append('svg:line')
+    .attr('class','baseLoad')
+    .attr('x1',x(0)).attr('x2',x(48))
+    .attr('y1',baseY).attr('y2',baseY);
   // Calculate a nominal scaling unit for labels.
   var emUnit = $('#exploreGraph').css('font-size');
   if(emUnit.slice(-2) == 'px') {
@@ -107,8 +113,15 @@ ExploreModule.prototype.update = function(container) {
 
 // Fetches and analyzes the data corresponding to this.dayOffset
 ExploreModule.prototype.getData = function() {
-  this.displayData = this.dataSource.getDays(this.dayOffset-2,this.dayOffset,this.displayRange);   
-  log('getData: range is now',this.displayRange)
+  // Fetch the data from our source.
+  this.displayData = this.dataSource.getDays(this.dayOffset-2,this.dayOffset,this.displayRange);
+  // Find the minimum reading.
+  var minValue = this.dataSource.maxValue;
+  for(var i = 0; i < this.displayData.length; ++i) {
+    var value = this.displayData[i];
+    if(value < minValue) minValue = value;
+  }
+  this.baseLoad = 1.1*minValue;
 }
 
 // Handles a request to view earlier data.
