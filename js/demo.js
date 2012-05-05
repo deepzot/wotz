@@ -1,7 +1,6 @@
 function DemoApp() {
   this.data = null;
   this.dateOffset = 0;
-  this.timer = null;
   this.modules = [ ];
   this.module = null;
   this.container = $('#moduleContent');
@@ -114,17 +113,6 @@ DemoApp.prototype.getSimulationTime = function() {
   return new Date(now.getTime() - this.dateOffset);
 }
 
-DemoApp.prototype.timerUpdate = function() {
-  var now = new Date();
-  // Calculate and display the offset time.
-  var when = new Date(now.getTime() - this.dateOffset);
-  /*
-  var hrs = when.getHours(), hrs12 = hrs%12, mins = when.getMinutes();
-  $('#theDate').text((when.getMonth()+1) + '/' + when.getDate() + '/' + (when.getFullYear()%100) + ' ' +
-    (hrs12 == 0 ? '12':hrs12) + ':' + (mins < 10 ? '0'+mins:mins) + (hrs<12?' am':' pm'));
-  */
-}
-
 // De-activates any current module.
 DemoApp.prototype.clearModule = function() {
   if(this.module) {
@@ -141,13 +129,6 @@ DemoApp.prototype.reset = function() {
   // Calculate the offset between current time and our start date.
   log('reset to',this.data.startDate);
   this.dateOffset = new Date() - this.data.startDate;
-  // Clear any interval timer that is already running.
-  if(this.timer) clearInterval(this.timer);
-  // Update now for immediate feedback.
-  this.timerUpdate();
-  // Start a new 1Hz interval timer.
-  var self = this;
-  this.timer = setInterval(function() { self.timerUpdate(); },1000);
   // Update our location in the dataset.
   this.data.reset();
   // There should not be any active module now.
@@ -169,14 +150,8 @@ DemoApp.prototype.jump = function() {
     $('#endOfDataDialog').click();
   }
   else {
-    // Update now for immediate feedback.
+    // Update our location in the dataset.
     this.data.updateCurrent(newIndex);
-    this.timerUpdate();
-    // Clear any interval timer that is already running.
-    if(this.timer) clearInterval(this.timer);
-    // Start a new 1Hz interval timer.
-    var self = this;
-    this.timer = setInterval(function() { self.timerUpdate(); },1000);
     // There should not be any active module now.
     this.clearModule();
   }
