@@ -1,7 +1,7 @@
 // Represents a GreenButton data file.
 function GreenButtonData(xml) {
   var self = this;
-  this.tzOffset = -8*3600; // assume PST=GMT-8
+  this.tzOffset = -5*3600; // assume EST=GMT-5
   this.errorMessage = null;
   this.readings = new Array();
   // Save all IntervalReading elements to memory
@@ -38,7 +38,7 @@ function GreenButtonData(xml) {
   if(this.errorMessage) return;
   // Set our current position.
   this.nReadings = this.readings.length;
-  this.startIndex = this.coerceIndex(Math.floor(this.nReadings/10));
+  this.startIndex = this.coerceIndex(Math.ceil((7*86400)/this.duration));
   this.reset();
   // Insert info about this datafile into our document.
   this.firstDate = this.getDateTime(0);
@@ -50,13 +50,46 @@ function GreenButtonData(xml) {
   $('.startDate').text(this.startDate.toLocaleString());
 }
 
+// Returns the average energy consumption by hour of the day (0-23) for the data seen so far.
+GreenButtonData.prototype.averageByHour = function(hour) {
+  return (this.byHourCount[hour] > 0) ? this.byHourSum[hour]/this.byHourCount[hour] : 0;
+}
+
+// Returns the average energy consumption by day of the week (0-6) for the data seen so far.
+GreenButtonData.prototype.averageByWeekDay = function(day) {
+  return (this.byWeekDayCount[day] > 0) ? this.byWeekDaySum[day]/this.byWeekDayCount[day] : 0;
+}
+
 // Updates our current position in the datafile.
 GreenButtonData.prototype.updateCurrent = function(index) {
-  this.current = index;
+  while(this.current < index) {
+    var value = this.readings[this.current];
+    var when = this.getDateTime(this.current);
+    var hour = when.getHours();
+    this.byHourSum[hour] += value;
+    this.byHourCount[hour]++;
+    var day = when.getDay();
+    this.byWeekDaySum[day] += value;
+    this.byWeekDayCount[day]++;
+    this.current++;
+  }
+  /*
+  for(var day = 0; day < 7; ++day) {
+    log('day avg',day,this.averageByWeekDay(day));
+  }
+  for(var hour = 0; hour < 24; ++hour) {
+    log('hour avg',hour,this.averageByHour(hour));
+  }
+  */
 }
 
 GreenButtonData.prototype.reset = function() {
   this.current = 0;
+  // Reset arrays that accumulate readings by hour and day of the week
+  this.byHourSum = [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0];
+  this.byHourCount = [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0];
+  this.byWeekDaySum = [0,0,0,0,0,0,0];
+  this.byWeekDayCount = [0,0,0,0,0,0,0];
   this.updateCurrent(this.startIndex);
 }
 

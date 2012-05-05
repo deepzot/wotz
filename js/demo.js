@@ -162,7 +162,7 @@ DemoApp.prototype.jump = function() {
   }
   else {
     // Update now for immediate feedback.
-    this.data.current = newIndex;
+    this.data.updateCurrent(newIndex);
     this.timerUpdate();
     // Clear any interval timer that is already running.
     if(this.timer) clearInterval(this.timer);
