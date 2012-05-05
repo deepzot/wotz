@@ -4,7 +4,7 @@ function ChallengeModule() {
 }
 
 ChallengeModule.prototype.start = function(data) {
-  log('game start',data.current);
+  log('challenge start',data.current);
 }
 
 ChallengeModule.prototype.update = function(data,container) {
