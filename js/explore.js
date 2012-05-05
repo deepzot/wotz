@@ -74,6 +74,21 @@ ExploreModule.prototype.update = function(container) {
       .text(formatter)
       .attr('x', function(d,i) { return x(24*i+12); })
       .attr('y', height-3*emUnit);
+  // Add navigation labels.
+  if(this.displayRange[0] >= this.dataSource.readingsPerDay) {
+    graph.append('svg:text')
+      .attr('class','leftArrow')
+      .text('<')
+      .attr('x',x(0.5))
+      .attr('y', height-3*emUnit);
+  }
+  if(this.displayRange[1] <= this.dataSource.current - this.dataSource.readingsPerDay) {
+    graph.append('svg:text')
+      .attr('class','leftArrow')
+      .text('>')
+      .attr('x',x(47.5))
+      .attr('y', height-3*emUnit);
+  }
 }
 
 ExploreModule.prototype.end = function() {
