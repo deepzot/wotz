@@ -4,8 +4,7 @@ function GreenButtonData(xml) {
   this.tzOffset = -5*3600; // assume EST=GMT-5
   this.errorMessage = null;
   this.readings = new Array();
-  // Save all IntervalReading elements to memory
-  // TODO: check for gaps and how daylight savings is handled
+  // Loop over all IntervalReading elements...
   $(xml).find('IntervalReading').each(function() {
     // lookup the start and duration values of this reading
     var start = $(this).find('start').text();
@@ -99,7 +98,8 @@ GreenButtonData.prototype.getDateTime = function(index) {
 }
 
 // Returns an array of energy readings covering the most recent (relative to this.current)
-// nDays complete 24 hour periods, ending at midnight.
+// nDays complete 24 hour periods, ending at midnight. Each reading represents a fixed time
+// interval of this.duration (in seconds), which might not equal 1 hour (3600s).
 GreenButtonData.prototype.getDays = function(nDays) {
   if(nDays <= 0) {
     alert("GreenButtonData.getDays: bad value of nDays = " + nDays);
