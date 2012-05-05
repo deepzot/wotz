@@ -36,8 +36,20 @@ ExploreModule.prototype.update = function(container) {
     .attr('x2','100%').attr('y2','0%')
     .attr('spreadMethod','reflect')
     .call(function(gradient) {
-      gradient.append('svg:stop').attr('offset', '0%').attr('style', 'stop-color:rgb(0,0,0);stop-opacity:1');
-      gradient.append('svg:stop').attr('offset', '100%').attr('style', 'stop-color:rgb(0,0,0);stop-opacity:0');
+      gradient.append('svg:stop').attr('offset', '0%')
+        .attr('style', 'stop-color:rgb(180,150,150);stop-opacity:1');
+      gradient.append('svg:stop').attr('offset', '20%')
+        .attr('style', 'stop-color:rgb(180,180,255);stop-opacity:1');
+      gradient.append('svg:stop').attr('offset', '30%')
+        .attr('style', 'stop-color:rgb(180,180,255);stop-opacity:1');
+      gradient.append('svg:stop').attr('offset', '50%')
+        .attr('style', 'stop-color:rgb(180,150,150);stop-opacity:1');
+      gradient.append('svg:stop').attr('offset', '70%')
+        .attr('style', 'stop-color:rgb(180,180,255);stop-opacity:1');
+      gradient.append('svg:stop').attr('offset', '80%')
+        .attr('style', 'stop-color:rgb(180,180,255);stop-opacity:1');
+      gradient.append('svg:stop').attr('offset', '100%')
+        .attr('style', 'stop-color:rgb(180,150,150);stop-opacity:1');
     });
   // Prepare axis scaling functions.
   var x = d3.scale.linear()
