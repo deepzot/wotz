@@ -81,15 +81,25 @@ ExploreModule.prototype.update = function(container) {
       .attr('class','leftArrow')
       .text('<')
       .attr('x',x(0.5))
-      .attr('y', height-3*emUnit);
+      .attr('y', height-3*emUnit)
+      .on('click', function() { self.navBack(); });
   }
   if(this.displayRange[1] <= this.dataSource.current - this.dataSource.readingsPerDay) {
     graph.append('svg:text')
       .attr('class','leftArrow')
       .text('>')
       .attr('x',x(47.5))
-      .attr('y', height-3*emUnit);
+      .attr('y', height-3*emUnit)
+      .on('click', function() { self.navForward(); });
   }
+}
+
+ExploreModule.prototype.navBack = function() {
+  log('navBack');
+}
+
+ExploreModule.prototype.navForward = function() {
+  log('navForward');
 }
 
 ExploreModule.prototype.end = function() {
