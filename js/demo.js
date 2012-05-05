@@ -122,6 +122,18 @@ DemoApp.prototype.timerUpdate = function() {
   */
 }
 
+// De-activates any current module.
+DemoApp.prototype.clearModule = function() {
+  if(this.module) {
+    log('ending',this.module.id);
+    this.module.end();
+    $('#'+this.module.id+'Select').removeClass('ui-btn-active');
+    this.module = null;
+  }
+  this.container.empty();
+  this.container.text('Select an activity using the buttons above...');  
+}
+
 DemoApp.prototype.reset = function() {
   // Calculate the offset between current time and our start date.
   log('reset to',this.data.startDate);
@@ -135,15 +147,8 @@ DemoApp.prototype.reset = function() {
   this.timer = setInterval(function() { self.timerUpdate(); },1000);
   // Update our location in the dataset.
   this.data.reset();
-  // There should not be any active modules now.
-  if(this.module) {
-    log('ending',this.module.id);
-    this.module.end();
-    $('#'+this.module.id+'Select').removeClass('ui-btn-active');
-    this.module = null;
-  }
-  this.container.empty();
-  this.container.text('Select an activity using the buttons above...');
+  // There should not be any active module now.
+  this.clearModule();
 }
 
 DemoApp.prototype.jump = function() {
@@ -169,7 +174,7 @@ DemoApp.prototype.jump = function() {
     // Start a new 1Hz interval timer.
     var self = this;
     this.timer = setInterval(function() { self.timerUpdate(); },1000);
-    // Update the active module.
-    if(this.module) this.module.update(this.data,this.container);
+    // There should not be any active module now.
+    this.clearModule();
   }
 }
