@@ -12,7 +12,7 @@
 
 #exploreGraph rect {
     stroke: none;
-    fill: steelblue;
+    fill: lightgray;
 }
 
 #exploreGraph text {
@@ -27,4 +27,4 @@
 #exploreGraph text.leftArrow { font-size: 2em; text-anchor: start; cursor: pointer; }
 #exploreGraph text.rightArrow { font-size: 2em; text-anchor: end; cursor: pointer; }
 
-#exploreGraph line.baseLoad { stroke: red; stroke-width: 0.25em; }
+#exploreGraph line.baseLoad { stroke: blue; stroke-width: 0.25em; }
