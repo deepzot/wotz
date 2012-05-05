@@ -19,7 +19,7 @@ ExploreModule.prototype.start = function(data) {
 ExploreModule.prototype.update = function(container) {
   // Draw a graph of these readings.
   container.empty();
-  var graph = d3.select('#moduleContent').append("svg")
+  var graph = d3.select('#moduleContent').append("svg:svg")
     .attr('class','graphics')
     .attr('id', 'exploreGraph');
   var width = $('#exploreGraph').width(), height = $('#exploreGraph').height();
@@ -31,7 +31,7 @@ ExploreModule.prototype.update = function(container) {
     .range([0,height-1]);
   graph.selectAll("rect")
     .data(this.displayData)
-    .enter().append("rect")
+    .enter().append("svg:rect")
       .attr("x", function(d,i) { return x(i) })
       .attr("y", function(d,i) { return y(d) })
       .attr("height", function(d,i) { return height-y(d) })
