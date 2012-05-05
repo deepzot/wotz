@@ -12,8 +12,8 @@ ExploreModule.prototype.start = function(data) {
   this.dataSource = data;
   // Grab the most recent 2 complete days of data.
   this.dayOffset = 0;
-  this.getData();
   this.landHeight = null;
+  this.getData();
 }
 
 ExploreModule.prototype.update = function(container) {
@@ -40,6 +40,15 @@ ExploreModule.prototype.update = function(container) {
       .attr("y", function(d,i) { return y(d) })
       .attr("height", function(d,i) { return height-y(d) })
       .attr("width", function(d,i) { return x(i+1)-x(i); });
+  // Draw land heights.
+  var land = d3.svg.area()
+    .x(function(d,i) { return x(i+0.5); })
+    .y0(y(this.minValue))
+    .y1(function(d,i) { return y(d); })
+    .interpolate("linear");
+  graph.append('svg:path')
+      .attr('class','land')
+      .attr('d',land(this.landHeight));
   // Draw a base-load level line.
   var baseY = y(self.baseLoad);
   graph.append('svg:line')
@@ -122,11 +131,12 @@ ExploreModule.prototype.getData = function() {
     var value = this.displayData[i];
     if(value < minValue) minValue = value;
   }
+  this.minValue = minValue;
   this.baseLoad = 1.1*minValue;
   // Calculate an array of land heights.
   if(this.landHeight == null) this.landHeight = new Array(size);
   for(var i = 0; i < size; ++i) {
-    this.landHeight[i] = Math.min(this.displayData[i],minValue);
+    this.landHeight[i] = Math.max(this.displayData[i],minValue);
   }
 }
 

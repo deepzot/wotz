@@ -28,3 +28,5 @@
 #exploreGraph text.rightArrow { font-size: 2em; text-anchor: end; cursor: pointer; }
 
 #exploreGraph line.baseLoad { stroke: blue; stroke-width: 0.25em; }
+
+#exploreGraph path.land { fill: brown; stroke: none; }
