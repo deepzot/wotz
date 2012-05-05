@@ -66,8 +66,17 @@ ExploreModule.prototype.update = function(container) {
     .attr('x', labelPos)
     .attr('y', height-emUnit);
   // Add day-of-week labels.
-  var weekDay = d3.time.format("%a");
-  var formatter = function(d,i) { return weekDay(self.dataSource.getDateTime(d)); };
+  var weekDay = d3.time.format('%a');
+  var fullDate = d3.time.format('%m/%d');
+  var formatter = null;
+  if(this.dayOffset > -6) {
+    // Display abbreviated day of the week for the past week.
+    formatter = function(d,i) { return weekDay(self.dataSource.getDateTime(d)); };
+  }
+  else {
+    // Display MM/DD for days more than a week ago.
+    formatter = function(d,i) { return fullDate(self.dataSource.getDateTime(d)); }
+  }
   graph.selectAll('text.dayLabel')
     .data([
       this.displayRange[0] + 12*this.dataSource.readingsPerHour,
