@@ -40,6 +40,9 @@ function GreenButtonData(xml) {
   this.nReadings = this.readings.length;
   this.startIndex = this.coerceIndex(Math.ceil((7*86400)/this.duration));
   this.reset();
+  // Calculate and save the number of readings per hour and per day.
+  this.readingsPerHour = Math.round(3600/this.duration);
+  this.readingsPerDay = Math.round(86400/this.duration);
   // Insert info about this datafile into our document.
   this.firstDate = this.getDateTime(0);
   $('.firstDate').text(this.firstDate.toLocaleDateString());
@@ -98,19 +101,26 @@ GreenButtonData.prototype.getDateTime = function(index) {
   return new Date(1000*(this.start + index*this.duration - this.tzOffset));
 }
 
-// Returns an array of energy readings covering the most recent (relative to this.current)
-// nDays complete 24 hour periods, ending at midnight. Each reading represents a fixed time
-// interval of this.duration (in seconds), which might not equal 1 hour (3600s).
-GreenButtonData.prototype.getDays = function(nDays) {
-  if(nDays <= 0) {
-    alert("GreenButtonData.getDays: bad value of nDays = " + nDays);
-    return [ ];
-  }
+// Returns an array of energy readings covering a range of days specified by (first,last)
+// in units of relative days, where 0 corresponds to the most recent (relative to this.current)
+// occurence of midnight, -1 refers to the previous midnight, etc. For example, to fetch the last
+// two complete days of readings, use getDays(-2,0). A value of last > 0 is truncated to last=0.
+// Each reading represents a fixed time interval of this.duration (in seconds),
+// which might not equal 1 hour (3600s). If an Array is provided via the optional range parameter,
+// elements [0] and [1] will be filled with the reading index values for the first and last+1
+// readings returned.
+GreenButtonData.prototype.getDays = function(first,last,range) {
+  if(last > 0) last = 0;
+  if(first >= last) return [ ];
   var when = this.getDateTime(this.current);
   var hour = when.getHours();
-  var lastIndex = this.current - Math.round((hour*3600)/this.duration);
-  var firstIndex = lastIndex - Math.round(nDays*(86400/this.duration));
+  var lastIndex = this.current - hour*this.readingsPerHour + last*this.readingsPerDay;
+  var firstIndex = lastIndex - (last-first)*this.readingsPerDay;
   log('getDays returning period from',this.getDateTime(firstIndex),'to',this.getDateTime(lastIndex));
+  if(typeof range !== 'undefined') {
+    range[0] = firstIndex;
+    range[1] = lastIndex; // this is one beyond the last reading returned!
+  }
   return this.readings.slice(firstIndex,lastIndex);
 }
 
