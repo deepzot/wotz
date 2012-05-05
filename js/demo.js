@@ -1,6 +1,5 @@
 function DemoApp() {
   this.data = null;
-  this.demoDate = null;
   this.dateOffset = 0;
   this.timer = null;
   this.modules = [ ];
@@ -109,11 +108,16 @@ DemoApp.prototype.start = function() {
   $('#url').val(location.protocol+'//'+location.hostname+'/gbdata/demo.xml');
 }
 
+// Returns the current simulation time, based on an offset real-time clock.
+DemoApp.prototype.getSimulationTime = function() {
+  var now = new Date();
+  return new Date(now.getTime() - this.dateOffset);
+}
+
 DemoApp.prototype.timerUpdate = function() {
   var now = new Date();
   // Calculate and display the offset time.
   var when = new Date(now.getTime() - this.dateOffset);
-  this.demoDate = when;
   /*
   var hrs = when.getHours(), hrs12 = hrs%12, mins = when.getMinutes();
   $('#theDate').text((when.getMonth()+1) + '/' + when.getDate() + '/' + (when.getFullYear()%100) + ' ' +
