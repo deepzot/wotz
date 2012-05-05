@@ -6,6 +6,14 @@
 }
 
 #exploreGraph rect {
-    stroke: white;
+    stroke: none;
     fill: steelblue;
+}
+
+#exploreGraph text.timeLabel {
+    stroke: none;
+    fill: white;
+    text-anchor: middle;
+    text-shadow: none;
+    font-size: medium;
 }

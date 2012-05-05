@@ -37,7 +37,21 @@ ExploreModule.prototype.update = function(container) {
       .attr("height", function(d,i) { return height-y(d) })
       .attr("width", function(d,i) { return x(i+1)-x(i); });
   // Add day-of-week labels
-  
+  var labelPos = null;
+  var timeLabels = graph.selectAll('text');
+  if(width > 500) {
+    timeLabels = timeLabels.data(['6am','noon','6pm','midnight','6am','noon','6pm']);
+    labelPos = function(d,i) { return x(6*(i+1)); };
+  }
+  else {
+    timeLabels = timeLabels.data(['6am','6pm','6am','6pm']);
+    labelPos = function(d,i) { return x(12*i+6); };
+  }
+  timeLabels.enter().append('svg:text')
+    .attr('class','timeLabel')
+    .text(function(d,i) { return d; })
+    .attr('x', labelPos)
+    .attr('y', height-10);
 }
 
 ExploreModule.prototype.end = function() {
