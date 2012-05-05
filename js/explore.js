@@ -27,19 +27,41 @@ ExploreModule.prototype.update = function(container) {
     .attr('class','graphics')
     .attr('id', 'exploreGraph');
   var width = $('#exploreGraph').width(), height = $('#exploreGraph').height();
+  // Initialize SVG definitions.
+  var defs = graph.append('svg:defs');
+  defs.append('svg:linearGradient')
+    .attr('id', 'skyGradient')
+    .attr('gradientUnits', 'userSpaceOnUse')
+    .attr('x1','0%').attr('y1','0%')
+    .attr('x2','100%').attr('y2','0%')
+    .attr('spreadMethod','reflect')
+    .call(function(gradient) {
+      gradient.append('svg:stop').attr('offset', '0%').attr('style', 'stop-color:rgb(0,0,0);stop-opacity:1');
+      gradient.append('svg:stop').attr('offset', '100%').attr('style', 'stop-color:rgb(0,0,0);stop-opacity:0');
+    });
+  // Prepare axis scaling functions.
   var x = d3.scale.linear()
     .domain([0,48])
-    .range([0,width-1])
+    .range([0,width-1]);
   var y = d3.scale.linear()
     .domain([0,self.dataSource.maxValue])
     .range([height-1,0]);
-  graph.selectAll("rect")
+  // Draw the background sky.
+  graph.append('svg:rect')
+    .attr('class','sky')
+    .attr('x',0)
+    .attr('y',0)
+    .attr('width',width)
+    .attr('height',height);
+  // Draw a bar chart in the background.
+  graph.selectAll('rect.bar')
     .data(this.displayData)
-    .enter().append("svg:rect")
-      .attr("x", function(d,i) { return x(i) })
-      .attr("y", function(d,i) { return y(d) })
-      .attr("height", function(d,i) { return height-y(d) })
-      .attr("width", function(d,i) { return x(i+1)-x(i); });
+    .enter().append('svg:rect')
+      .attr('class','bar')
+      .attr('x', function(d,i) { return x(i); })
+      .attr('y', function(d,i) { return y(d); })
+      .attr('height', function(d,i) { return height-y(d); })
+      .attr('width', function(d,i) { return x(i+1)-x(i); });
   // Draw land heights.
   var land = d3.svg.area()
     .x(function(d,i) { return x(i+0.5); })
