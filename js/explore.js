@@ -17,6 +17,7 @@ ExploreModule.prototype.start = function(data) {
 }
 
 ExploreModule.prototype.update = function(container) {
+  var self = this;
   // Draw a graph of these readings.
   container.empty();
   var graph = d3.select('#moduleContent').append("svg:svg")
@@ -36,9 +37,10 @@ ExploreModule.prototype.update = function(container) {
       .attr("y", function(d,i) { return y(d) })
       .attr("height", function(d,i) { return height-y(d) })
       .attr("width", function(d,i) { return x(i+1)-x(i); });
-  // Add day-of-week labels
+  // Add time-of-day labels.
   var labelPos = null;
-  var timeLabels = graph.selectAll('text');
+  var timeLabels = graph.selectAll('text.timeLabel');
+  // Use 4 or 7 labels, depending on how much space we have available.
   if(width > 500) {
     timeLabels = timeLabels.data(['6am','noon','6pm','midnight','6am','noon','6pm']);
     labelPos = function(d,i) { return x(6*(i+1)); };
@@ -52,6 +54,17 @@ ExploreModule.prototype.update = function(container) {
     .text(function(d,i) { return d; })
     .attr('x', labelPos)
     .attr('y', height-10);
+  // Add day-of-week labels.
+  var weekDay = d3.time.format("%a");
+  var formatter = function(d,i) { return weekDay(self.dataSource.getDateTime(d)); };
+  graph.selectAll('text.dayLabel')
+    .data([
+      this.displayRange[0] + 12*this.dataSource.readingsPerHour,
+      this.displayRange[1] - 12*this.dataSource.readingsPerHour ])
+    .enter().append('svg:text')
+      .text(formatter)
+      .attr('x', function(d,i) { return x(24*i+12); })
+      .attr('y', height-30);
 }
 
 ExploreModule.prototype.end = function() {
