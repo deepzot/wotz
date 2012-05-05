@@ -46,14 +46,25 @@ DemoApp.prototype.start = function() {
       dataType: 'xml',
       success: function(xml) {
         log('loaded');
-        $.mobile.hidePageLoadingMsg();
         self.data = new GreenButtonData(xml);
-        log('parsed',self.data.nReadings,'readings');
-        $.mobile.changePage($('#intro'));
+        $.mobile.hidePageLoadingMsg();
+        if(self.data.errorMessage) {
+          // Ajax requested completed ok, but there is a problem with the xml content.
+          log('load error',self.data.errorMessage);
+          $('#loadErrorMessage').text(self.data.errorMessage);
+          $('#loadErrorDialog').click();
+        }
+        else {
+          // Everything looks good.
+          log('parsed',self.data.nReadings,'readings');
+          $.mobile.changePage($('#intro'));
+        }
       },
       error: function(jqXHR, textStatus, errorThrown) {
+        // Ajax request resulted in an error.
         log('error',textStatus,errorThrown);
         $.mobile.hidePageLoadingMsg();
+        $('#loadErrorMessage').text('The GreenButton data you requested cannot be loaded.');
         $('#loadErrorDialog').click();
       }
     });
@@ -94,6 +105,9 @@ DemoApp.prototype.start = function() {
       self.module.update(self.data,self.container);
     }
   });
+  
+  // Use the protocol and hostname where the app is running for the datafile default
+  $('#url').val(location.protocol+'//'+location.hostname+'/gbdata/demo.xml');
 }
 
 DemoApp.prototype.timerUpdate = function() {
@@ -110,7 +124,7 @@ DemoApp.prototype.timerUpdate = function() {
 
 DemoApp.prototype.reset = function() {
   // Calculate the offset between current time and our start date.
-  log('reset',this.data.startDate);
+  log('reset to',this.data.startDate);
   this.dateOffset = new Date() - this.data.startDate;
   // Clear any interval timer that is already running.
   if(this.timer) clearInterval(this.timer);
@@ -120,9 +134,8 @@ DemoApp.prototype.reset = function() {
   var self = this;
   this.timer = setInterval(function() { self.timerUpdate(); },1000);
   // Update our location in the dataset.
-  this.data.current = 0;
-  this.data.updateCurrent(this.demoDate);
-  // No modules active yet.
+  this.data.reset();
+  // There should not be any active modules now.
   if(this.module) {
     log('ending',this.module.id);
     this.module.end();
@@ -134,25 +147,28 @@ DemoApp.prototype.reset = function() {
 }
 
 DemoApp.prototype.jump = function() {
-  // Calculate a random jump offset in millisecs.
-  var jumpOffset = (5 + 4*Math.random())*86400e3;
-  var newDate = this.data.coerceDate(new Date(this.demoDate.getTime() + jumpOffset));
-  log('jump',newDate.toLocaleString());
+  // Calculate a random jump offset in seconds.
+  var jumpOffset = (5 + 4*Math.random())*86400;
+  // Convert to an index offset.
+  var deltaIndex = Math.floor(jumpOffset/this.data.duration);
+  // Update our dataset index, coercing to a reasonable time of day.
+  var newIndex = this.data.coerceIndex(this.data.current + deltaIndex);
+  var newDate = this.data.getDateTime(newIndex);
+  log('jump from',this.data.getDateTime(this.data.current),'to',newDate);
   this.dateOffset = new Date() - newDate;
-  // Update now for immediate feedback.
-  this.timerUpdate();
   // Did this jump take us beyond the last data?
-  if(this.demoDate > this.data.lastDate) {
+  if(newDate > this.data.lastDate) {
     $('#endOfDataDialog').click();
   }
   else {
+    // Update now for immediate feedback.
+    this.data.updateCurrent(newIndex);
+    this.timerUpdate();
     // Clear any interval timer that is already running.
     if(this.timer) clearInterval(this.timer);
     // Start a new 1Hz interval timer.
     var self = this;
     this.timer = setInterval(function() { self.timerUpdate(); },1000);
-    // Update our location in the dataset.
-    this.data.updateCurrent(this.demoDate);
     // Update the active module.
     if(this.module) this.module.update(this.data,this.container);
   }

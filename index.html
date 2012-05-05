@@ -20,6 +20,7 @@
   <!-- For nokia devices: -->
   <link rel="shortcut icon" href="img/apple-touch-icon.png">
 
+	<!-- See http://www.stevesouders.com/blog/2008/08/23/revving-filenames-dont-use-querystring/ -->
 	<link rel="stylesheet" href="http://code.jquery.com/mobile/1.1.0/jquery.mobile-1.1.0.min.css" />
 	<link rel="stylesheet" href="css/styles.css?v=0" />
 	<!-- javascript is loaded after the page content -->
@@ -54,7 +55,8 @@
 		<h1>Error loading data</h1>
 	</div>
 	<div data-role="content">
-		<p>The GreenButton data you requested cannot be loaded. Please choose something else.</p>
+		<p id="loadErrorMessage">The GreenButton data you requested cannot be loaded.</p>
+		<p>Please choose a different GreenButton data file.</p>
 	</div>
 </div>
 
@@ -68,7 +70,8 @@
 	<div data-role="content">	
 		<p>
 			This data covers the period <span class="firstDate"></span> to <span class="lastDate"></span>
-			with <span class="nReadings"></span> readings.
+			with <span class="nReadings"></span> readings. Since no timezone information is available in
+			the data, we are assuming Eastern Standard Time (GMT-5).
 		</p>
 		<p>
 			This demonstration will start on <span class="startDate"></span> and provides a "Jump" button
