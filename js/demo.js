@@ -1,8 +1,5 @@
 function DemoApp() {
   this.data = null;
-  this.demoDate = null;
-  this.dateOffset = 0;
-  this.timer = null;
   this.modules = [ ];
   this.module = null;
   this.container = $('#moduleContent');
@@ -21,7 +18,6 @@ DemoApp.prototype.start = function() {
     // See http://www.mennovanslooten.nl/blog/post/62
     $('#'+module.id+'Select').click((function(m) {
       return function() {
-        log('click');
         if(self.module) {
           log('ending',self.module.id);
           self.module.end();
@@ -29,7 +25,7 @@ DemoApp.prototype.start = function() {
         log('starting',m.id);
         self.module = m;
         m.start(self.data);
-        m.update(self.data,self.container);
+        m.update(self.container);
       }
     })(module));
   }
@@ -96,13 +92,13 @@ DemoApp.prototype.start = function() {
       $('[data-role="footer"]:visible').outerHeight();
     // subtract any padding and margins
     contentHeight -= self.container.outerHeight() - self.container.height();
-    log('container',evt.type,$(window).height(),contentHeight);
+    //log('container',evt.type,$(window).height(),contentHeight);
     $('#windowSize').text($(window).width() + ' x ' + $(window).height());
     // set the content height now
     self.container.height(contentHeight);
     // tell any running module to resize itself
     if(self.module) {
-      self.module.update(self.data,self.container);
+      self.module.update(self.container);
     }
   });
   
@@ -110,32 +106,8 @@ DemoApp.prototype.start = function() {
   $('#url').val(location.protocol+'//'+location.hostname+'/gbdata/demo.xml');
 }
 
-DemoApp.prototype.timerUpdate = function() {
-  var now = new Date();
-  // Calculate and display the offset time.
-  var when = new Date(now.getTime() - this.dateOffset);
-  this.demoDate = when;
-  /*
-  var hrs = when.getHours(), hrs12 = hrs%12, mins = when.getMinutes();
-  $('#theDate').text((when.getMonth()+1) + '/' + when.getDate() + '/' + (when.getFullYear()%100) + ' ' +
-    (hrs12 == 0 ? '12':hrs12) + ':' + (mins < 10 ? '0'+mins:mins) + (hrs<12?' am':' pm'));
-  */
-}
-
-DemoApp.prototype.reset = function() {
-  // Calculate the offset between current time and our start date.
-  log('reset to',this.data.startDate);
-  this.dateOffset = new Date() - this.data.startDate;
-  // Clear any interval timer that is already running.
-  if(this.timer) clearInterval(this.timer);
-  // Update now for immediate feedback.
-  this.timerUpdate();
-  // Start a new 1Hz interval timer.
-  var self = this;
-  this.timer = setInterval(function() { self.timerUpdate(); },1000);
-  // Update our location in the dataset.
-  this.data.reset();
-  // There should not be any active modules now.
+// De-activates any current module.
+DemoApp.prototype.clearModule = function() {
   if(this.module) {
     log('ending',this.module.id);
     this.module.end();
@@ -143,7 +115,17 @@ DemoApp.prototype.reset = function() {
     this.module = null;
   }
   this.container.empty();
-  this.container.text('Select an activity using the buttons above...');
+  this.container.text('Select an activity using the buttons above...');  
+}
+
+DemoApp.prototype.reset = function() {
+  // Calculate the offset between current time and our start date.
+  log('reset to',this.data.startDate);
+  this.data.dateOffset = new Date() - this.data.startDate;
+  // Update our location in the dataset.
+  this.data.reset();
+  // There should not be any active module now.
+  this.clearModule();
 }
 
 DemoApp.prototype.jump = function() {
@@ -155,21 +137,15 @@ DemoApp.prototype.jump = function() {
   var newIndex = this.data.coerceIndex(this.data.current + deltaIndex);
   var newDate = this.data.getDateTime(newIndex);
   log('jump from',this.data.getDateTime(this.data.current),'to',newDate);
-  this.dateOffset = new Date() - newDate;
+  this.data.dateOffset = new Date() - newDate;
   // Did this jump take us beyond the last data?
   if(newDate > this.data.lastDate) {
     $('#endOfDataDialog').click();
   }
   else {
-    // Update now for immediate feedback.
+    // Update our location in the dataset.
     this.data.updateCurrent(newIndex);
-    this.timerUpdate();
-    // Clear any interval timer that is already running.
-    if(this.timer) clearInterval(this.timer);
-    // Start a new 1Hz interval timer.
-    var self = this;
-    this.timer = setInterval(function() { self.timerUpdate(); },1000);
-    // Update the active module.
-    if(this.module) this.module.update(this.data,this.container);
+    // There should not be any active module now.
+    this.clearModule();
   }
 }
