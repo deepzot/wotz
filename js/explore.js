@@ -37,7 +37,7 @@ ExploreModule.prototype.update = function(container) {
       .attr("y", function(d,i) { return y(d) })
       .attr("height", function(d,i) { return height-y(d) })
       .attr("width", function(d,i) { return x(i+1)-x(i); });
-  // Add time-of-day labels.
+  // Calculate a nominal scaling unit for labels.
   var emUnit = $('#exploreGraph').css('font-size');
   if(emUnit.slice(-2) == 'px') {
     emUnit = parseFloat(emUnit);
@@ -46,6 +46,7 @@ ExploreModule.prototype.update = function(container) {
     emUnit = 10;
   }
   log('em',emUnit);
+  // Add time-of-day labels.
   var labelPos = null;
   var timeLabels = graph.selectAll('text.timeLabel');
   // Use 4 or 7 labels, depending on how much space we have available.
