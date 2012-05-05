@@ -10,10 +10,12 @@
     fill: steelblue;
 }
 
-#exploreGraph text.timeLabel {
+#exploreGraph text {
     stroke: none;
     fill: white;
     text-anchor: middle;
     text-shadow: none;
-    font-size: medium;
 }
+
+#exploreGraph text.timeLabel { font-size: medium; }
+#exploreGraph text.dayLabel { font-size: large; }
