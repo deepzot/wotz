@@ -14,5 +14,3 @@ PlayModule.prototype.update = function(container) {
 }
 
 PlayModule.prototype.end = function() { }
-
-PlayModule.prototype.tick = function() { }

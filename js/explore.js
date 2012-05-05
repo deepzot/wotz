@@ -35,5 +35,3 @@ ExploreModule.prototype.update = function(container) {
 ExploreModule.prototype.end = function() {
   this.displayData = null;
 }
-
-ExploreModule.prototype.tick = function() { }

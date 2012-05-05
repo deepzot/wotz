@@ -14,5 +14,3 @@ ChallengeModule.prototype.update = function(container) {
 }
 
 ChallengeModule.prototype.end = function() { }
-
-ChallengeModule.prototype.tick = function() { }
