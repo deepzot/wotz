@@ -76,6 +76,20 @@ ExploreModule.prototype.update = function(container) {
       gradient.append('svg:stop').attr('offset', '100%')
         .attr('style', 'stop-color:rgb(28,0,100);stop-opacity:1');
     });
+  defs.append('svg:linearGradient')
+    .attr('id','hillGradient')
+    .attr('gradientUnits', 'objectBoundingBox')
+    .attr('x1','0%').attr('y1','100%')
+    .attr('x2','0%').attr('y2','0%')
+    .call(function(gradient) {
+      gradient.append('svg:stop').attr('offset', '0%')
+        .attr('style', 'stop-color:rgb(233,240,161);stop-opacity:1');
+      gradient.append('svg:stop').attr('offset', '20%')
+        .attr('style', 'stop-color:rgb(83,156,50);stop-opacity:1');
+      gradient.append('svg:stop').attr('offset', '100%')
+        .attr('style', 'stop-color:rgb(97,102,107);stop-opacity:1');
+    });
+
   // Prepare axis scaling functions.
   var x = d3.scale.linear()
     .domain([0,48])
@@ -102,17 +116,6 @@ ExploreModule.prototype.update = function(container) {
     .attr('y',0)
     .attr('width',width/2)
     .attr('height',height);
-  // Draw a bar chart in the background.
-  /**
-  graph.selectAll('rect.bar')
-    .data(this.displayData)
-    .enter().append('svg:rect')
-      .attr('class','bar')
-      .attr('x', function(d,i) { return x(i/self.dataSource.readingsPerHour); })
-      .attr('y', function(d,i) { return y(d); })
-      .attr('height', function(d,i) { return height-y(d); })
-      .attr('width', function(d,i) { return x(i+1)-x(i); });
-  **/
   // Draw land heights.
   var land = d3.svg.area()
     .x(function(d,i) { return x((i-0.5)/self.dataSource.readingsPerHour); })
@@ -124,13 +127,6 @@ ExploreModule.prototype.update = function(container) {
     .y0(land.y0())
     .y1(land.y1())
     .interpolate('basis');
-  /*
-  var land2 = d3.svg.area()
-    .x(land1.x())
-    .y0(land1.y())
-    .y1(function(d,i) { return y((d-self.minValue)*(0.5+0.0*Math.random())+self.minValue); })
-    .interpolate('linear');
-  */
   graph.append('svg:path')
     .attr('class','land1')
     .attr('d',land(this.landHeight));
@@ -138,7 +134,7 @@ ExploreModule.prototype.update = function(container) {
     .attr('class','land2')
     .attr('d',land(this.landHeight2));
   graph.append('svg:path')
-    .attr('class','land3')
+    .attr('fill','url(#hillGradient)')
     .attr('d',hills(this.landHeight3));
   // Draw a base-load sea level.
   var sea = d3.svg.area()
@@ -148,7 +144,6 @@ ExploreModule.prototype.update = function(container) {
     .interpolate('basis');
   var seaData = [0,0,0,0,0,0,0,0,0];
   graph.append('svg:path')
-    .attr('class','sea')
     .attr('fill','url(#seaGradient)')
     .attr('d',sea(seaData));
   // Calculate a nominal scaling unit for labels.
@@ -244,7 +239,7 @@ ExploreModule.prototype.getData = function() {
   this.landHeight3[0] = this.landHeight3[49] = minValue;
   for(var i = 0; i < 24; ++i) {
     var hourAvg = this.dataSource.averageByHour(i);
-    hourAvg = minValue + 0.75*(hourAvg - minValue);
+    hourAvg = minValue + 0.5*(hourAvg - minValue);
     hourAvg = Math.max(hourAvg,minValue);
     this.landHeight3[i+1] = this.landHeight3[i+25] = hourAvg;
   }
