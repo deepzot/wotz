@@ -105,7 +105,7 @@ ExploreModule.prototype.update = function(container) {
       .attr('width', function(d,i) { return x(i+1)-x(i); });
   // Draw land heights.
   var land = d3.svg.area()
-    .x(function(d,i) { return x((i+0.5)/self.dataSource.readingsPerHour); })
+    .x(function(d,i) { return x((i-0.5)/self.dataSource.readingsPerHour); })
     .y0(y(this.minValue))
     .y1(function(d,i) { return y(d); })
     .interpolate("linear");
@@ -197,9 +197,10 @@ ExploreModule.prototype.getData = function() {
   this.minValue = minValue;
   this.baseLoad = 1.1*minValue;
   // Calculate an array of land heights.
-  if(this.landHeight == null) this.landHeight = new Array(size);
+  if(this.landHeight == null) this.landHeight = new Array(size+2);
+  this.landHeight[0] = this.landHeight[size+1] = minValue;
   for(var i = 0; i < size; ++i) {
-    this.landHeight[i] = Math.max(this.displayData[i],minValue);
+    this.landHeight[i+1] = Math.max(this.displayData[i],minValue);
   }
 }
 
