@@ -210,11 +210,22 @@ ExploreModule.prototype.update = function(container) {
       .on('click', function() { self.navForward(); });
   }
   // Start message drawing.
-  graph.append('svg:text')
-    .attr('class','message')
-    .text('Welcome to your energy-use landscape for the last two days.')
-    .attr('x',x(24))
-    .attr('y',height/2);
+  var content = ['Welcome to your','energy-use landscape.','Touch to continue...'];
+  var message = graph.append('svg:g').attr('id','exploreMessage');
+  message = message.selectAll('text')
+    .data(content)
+    .enter().append('svg:text')
+      .text(function(d) { return d; })
+      .attr('font-size','10px')
+      .attr('x',0)
+      .attr('y',function(d,i) { return 15*(i-(content.length-1)/2); });
+  var bbox = $('#exploreMessage')[0].getBBox();
+  var scaleFactor = Math.min(0.95*width/bbox.width,0.8*height/bbox.height);
+  var dx = width/(2*scaleFactor);
+  var dy = height/(2*scaleFactor) - bbox.y/scaleFactor;
+  message
+    .attr('transform','scale('+scaleFactor+') translate(' + dx + ',' + dy + ')')
+    .attr('stroke-width',(2/scaleFactor)+'px');
 }
 
 // Fetches and analyzes the data corresponding to this.dayOffset
