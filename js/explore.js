@@ -53,9 +53,9 @@ ExploreModule.prototype.update = function(container) {
         .attr('style', 'stop-color:rgb(180,150,150);stop-opacity:1');
     });
   defs.append('svg:radialGradient')
-    .attr('class','sunGradient')
-    .attr('gradientUnits','userSpaceOnUse')
-    .attr('cx','25%').attr('cy','0%')
+    .attr('id','sunGradient')
+    .attr('gradientUnits','objectBoundingBox')
+    .attr('cx','50%').attr('cy','0%')
     .attr('r','25%')
     .call(function(gradient) {
       gradient.append('svg:stop').attr('offset', '0%')
@@ -76,12 +76,6 @@ ExploreModule.prototype.update = function(container) {
       gradient.append('svg:stop').attr('offset', '100%')
         .attr('style', 'stop-color:rgb(28,0,100);stop-opacity:1');
     });
-
-  // Duplicate the sun gradient for the left/right hand side of the graph.
-  var sunLeft = $('.sunGradient');
-  var sunRight = $(sunLeft).clone().insertAfter(sunLeft);
-  $(sunLeft).attr('id','sunGradientLeft');
-  $(sunRight).attr('id','sunGradientRight').attr('cx','75%');
   // Prepare axis scaling functions.
   var x = d3.scale.linear()
     .domain([0,48])
@@ -97,13 +91,13 @@ ExploreModule.prototype.update = function(container) {
     .attr('width',width)
     .attr('height',height);
   graph.append('svg:rect')
-    .attr('fill','url(#sunGradientLeft)')
+    .attr('fill','url(#sunGradient)')
     .attr('x',0)
     .attr('y',0)
     .attr('width',width/2)
     .attr('height',height);
   graph.append('svg:rect')
-    .attr('fill','url(#sunGradientRight)')
+    .attr('fill','url(#sunGradient)')
     .attr('x',width/2)
     .attr('y',0)
     .attr('width',width/2)
