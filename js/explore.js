@@ -209,14 +209,16 @@ ExploreModule.prototype.update = function(container) {
       .on('click', function() { self.navForward(); });
   }
   // Start message drawing.
+  graph.append('svg:g').attr('id','exploreMessage');
   this.showMessage(['Welcome to your','energy-use landscape.','Touch to continue...']);
 }
 
 ExploreModule.prototype.showMessage = function(content) {
   var graph = d3.select('#exploreGraph');
   var width = $('#exploreGraph').width(), height = $('#exploreGraph').height();
-  var message = graph.append('svg:g').attr('id','exploreMessage');
-  message = message.selectAll('text')
+  var message = d3.select('#exploreMessage').attr('transform',null).attr('opacity',0);
+  message.selectAll('text')
+    .remove()
     .data(content)
     .enter().append('svg:text')
       .text(function(d) { return d; })
@@ -229,7 +231,9 @@ ExploreModule.prototype.showMessage = function(content) {
   var dy = height/(2*scaleFactor) - bbox.y/scaleFactor;
   message
     .attr('transform','scale('+scaleFactor+') translate(' + dx + ',' + dy + ')')
-    .attr('stroke-width',(2/scaleFactor)+'px');  
+    .attr('stroke-width',(2/scaleFactor)+'px')
+    .transition().duration(750) // ms
+    .attr('opacity',1);
 }
 
 // Fetches and analyzes the data corresponding to this.dayOffset
