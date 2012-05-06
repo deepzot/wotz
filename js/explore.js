@@ -18,7 +18,6 @@ ExploreModule.prototype.start = function(data) {
 
 ExploreModule.prototype.update = function(container) {
   var self = this;
-  log('maxValue',this.dataSource.maxValue);
   // Remember our container in case we need to redraw under our own control.
   this.container = container;
   // Draw a graph of these readings.
@@ -210,7 +209,12 @@ ExploreModule.prototype.update = function(container) {
       .on('click', function() { self.navForward(); });
   }
   // Start message drawing.
-  var content = ['Welcome to your','energy-use landscape.','Touch to continue...'];
+  this.showMessage(['Welcome to your','energy-use landscape.','Touch to continue...']);
+}
+
+ExploreModule.prototype.showMessage = function(content) {
+  var graph = d3.select('#exploreGraph');
+  var width = $('#exploreGraph').width(), height = $('#exploreGraph').height();
   var message = graph.append('svg:g').attr('id','exploreMessage');
   message = message.selectAll('text')
     .data(content)
@@ -225,7 +229,7 @@ ExploreModule.prototype.update = function(container) {
   var dy = height/(2*scaleFactor) - bbox.y/scaleFactor;
   message
     .attr('transform','scale('+scaleFactor+') translate(' + dx + ',' + dy + ')')
-    .attr('stroke-width',(2/scaleFactor)+'px');
+    .attr('stroke-width',(2/scaleFactor)+'px');  
 }
 
 // Fetches and analyzes the data corresponding to this.dayOffset
