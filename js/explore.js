@@ -95,6 +95,7 @@ ExploreModule.prototype.update = function(container) {
     .attr('width',width/2)
     .attr('height',height);
   // Draw a bar chart in the background.
+  /**
   graph.selectAll('rect.bar')
     .data(this.displayData)
     .enter().append('svg:rect')
@@ -103,6 +104,7 @@ ExploreModule.prototype.update = function(container) {
       .attr('y', function(d,i) { return y(d); })
       .attr('height', function(d,i) { return height-y(d); })
       .attr('width', function(d,i) { return x(i+1)-x(i); });
+  **/
   // Draw land heights.
   var land = d3.svg.area()
     .x(function(d,i) { return x((i-0.5)/self.dataSource.readingsPerHour); })
