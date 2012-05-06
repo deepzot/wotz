@@ -209,6 +209,7 @@ ExploreModule.prototype.update = function(container) {
       .on('click', function() { self.navForward(); });
   }
   // Start message drawing.
+  this.messageCount = 0;
   graph.append('svg:g').attr('id','exploreMessage');
   this.showMessage(['Welcome to your','energy-use landscape.','Touch to continue...']);
 }
@@ -217,9 +218,8 @@ ExploreModule.prototype.showMessage = function(content) {
   var graph = d3.select('#exploreGraph');
   var width = $('#exploreGraph').width(), height = $('#exploreGraph').height();
   var message = d3.select('#exploreMessage').attr('transform',null).attr('opacity',0);
-  message.selectAll('text')
-    .remove()
-    .data(content)
+  message.selectAll('text').remove();
+  message.selectAll('text').data(content)
     .enter().append('svg:text')
       .text(function(d) { return d; })
       .attr('font-size','10px')
@@ -234,6 +234,15 @@ ExploreModule.prototype.showMessage = function(content) {
     .attr('stroke-width',(2/scaleFactor)+'px')
     .transition().duration(750) // ms
     .attr('opacity',1);
+  var self = this;
+  this.messageCount++;
+  message.on('click',function() {
+    self.showMessage(self.nextMessage());
+  });
+}
+
+ExploreModule.prototype.nextMessage = function() {
+  return ['Here is message','number '+(this.messageCount+1)];
 }
 
 // Fetches and analyzes the data corresponding to this.dayOffset
