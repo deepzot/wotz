@@ -31,5 +31,4 @@
 #exploreGraph text.rightArrow { font-size: 2em; text-anchor: end; cursor: pointer; }
 
 #exploreGraph path.land { fill: brown; stroke: none; }
-#exploreGraph path.seaArea { fill: blue; stroke: none; }
-#exploreGraph path.seaSurface { fill: none; stroke: lightblue; stroke-width: 0.5em; }
+#exploreGraph path.sea { stroke: none; }

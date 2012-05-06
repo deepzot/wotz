@@ -63,6 +63,20 @@ ExploreModule.prototype.update = function(container) {
       gradient.append('svg:stop').attr('offset', '100%')
         .attr('style', 'stop-color:rgb(255,245,140);stop-opacity:0');
     });
+  defs.append('svg:linearGradient')
+    .attr('id','seaGradient')
+    .attr('gradientUnits', 'objectBoundingBox')
+    .attr('x1','0%').attr('y1','0%')
+    .attr('x2','0%').attr('y2','100%')
+    .call(function(gradient) {
+      gradient.append('svg:stop').attr('offset', '0%')
+        .attr('style', 'stop-color:rgb(75,120,100);stop-opacity:1');
+      gradient.append('svg:stop').attr('offset', '15%')
+        .attr('style', 'stop-color:rgb(50,100,100);stop-opacity:1');
+      gradient.append('svg:stop').attr('offset', '100%')
+        .attr('style', 'stop-color:rgb(28,0,100);stop-opacity:1');
+    });
+
   // Duplicate the sun gradient for the left/right hand side of the graph.
   var sunLeft = $('.sunGradient');
   var sunRight = $(sunLeft).clone().insertAfter(sunLeft);
@@ -115,21 +129,16 @@ ExploreModule.prototype.update = function(container) {
       .attr('class','land')
       .attr('d',land(this.landHeight));
   // Draw a base-load sea level.
-  var seaSurface = d3.svg.line()
+  var sea = d3.svg.area()
     .x(function(d,i) { return x(6*i); })
-    .y(function(d,i) { return y(self.minValue*(1.05+0.05*Math.sin(Math.PI*i/2))); })
+    .y1(function(d,i) { return y(self.minValue*(1.05+0.05*Math.sin(Math.PI*i/2))); })
+    .y0(height)
     .interpolate('basis');
-  var seaArea = d3.svg.area()
-    .x(seaSurface.x())
-    .y1(seaSurface.y())
-    .y0(height);
   var seaData = [0,0,0,0,0,0,0,0,0];
   graph.append('svg:path')
-    .attr('class','seaArea')
-    .attr('d',seaArea(seaData));
-  graph.append('svg:path')
-    .attr('class','seaSurface')
-    .attr('d',seaSurface(seaData));
+    .attr('class','sea')
+    .attr('fill','url(#seaGradient)')
+    .attr('d',sea(seaData));
   // Calculate a nominal scaling unit for labels.
   var emUnit = $('#exploreGraph').css('font-size');
   if(emUnit.slice(-2) == 'px') {
