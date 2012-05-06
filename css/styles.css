@@ -32,3 +32,10 @@
 
 #exploreGraph path.land1 { fill: #798086; stroke: none; }
 #exploreGraph path.land2 { fill: #61666B; stroke: none; }
+
+#exploreGraph text.message {
+    font-weight: bold;
+    font-size: 2em;
+    stroke: #464;
+    stroke-width: 0.02em;
+}

@@ -209,6 +209,12 @@ ExploreModule.prototype.update = function(container) {
       .attr('y', height-3*emUnit)
       .on('click', function() { self.navForward(); });
   }
+  // Start message drawing.
+  graph.append('svg:text')
+    .attr('class','message')
+    .text('Welcome to your energy-use landscape for the last two days.')
+    .attr('x',x(24))
+    .attr('y',height/2);
 }
 
 // Fetches and analyzes the data corresponding to this.dayOffset
