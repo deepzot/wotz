@@ -25,7 +25,9 @@ ExploreModule.prototype.update = function(container) {
   var graph = d3.select('#moduleContent').append("svg:svg")
     .attr('class','graphics')
     .attr('id', 'exploreGraph');
-  var width = $('#exploreGraph').width(), height = $('#exploreGraph').height();
+  var width = $('#moduleContent').width(), height = $('#moduleContent').height();
+  log('size',width,'x',height);
+  graph.attr('width',width).attr('height',height);
   // Initialize SVG definitions.
   var defs = graph.append('svg:defs');
   defs.append('svg:linearGradient')

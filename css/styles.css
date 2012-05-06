@@ -1,8 +1,14 @@
+#moduleContent {
+    margin: 0;
+    padding: 0;
+    border: none;
+    overflow: hidden;
+}
+
 .graphics {
     margin: 0;
     padding: 0;
-    border-style: none;
-    height: 99%;
+    border: none;
     cursor: default;
 }
 
