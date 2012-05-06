@@ -4,6 +4,8 @@ function ExploreModule() {
   this.dataSource = null;
   this.displayData = null;
   this.displayRange = [ null,null ];
+  // Reset messaging.
+  this.messageCount = 0;
 }
 
 ExploreModule.prototype.start = function(data) {
@@ -14,9 +16,8 @@ ExploreModule.prototype.start = function(data) {
   this.dayOffset = 0;
   this.landHeight = null;
   this.getData();
-  // Reset messaging.
-  this.messageCount = 0;
-  this.currentMessage = ['Welcome to your','energy-use landscape.','Touch to continue...'];
+  // Display the next message.
+  this.getNextMessage();
 }
 
 ExploreModule.prototype.update = function(container) {
@@ -248,14 +249,21 @@ ExploreModule.prototype.showMessage = function() {
   this.lastMessageCount = this.messageCount;
   var self = this;
   message.on('click',function() {
-    self.currentMessage = self.getNextMessage();
+    self.getNextMessage();
     self.showMessage();
   });
 }
 
 ExploreModule.prototype.getNextMessage = function() {
   this.messageCount++;
-  return ['Here is message','number '+this.messageCount];
+  var newMessage;
+  if(this.messageCount == 1) {
+    newMessage = ['Welcome to your','energy-use landscape.','Touch to continue...'];
+  }
+  else {
+    newMessage = ['Here is message','number '+this.messageCount];
+  }
+  this.currentMessage = newMessage;
 }
 
 // Fetches and analyzes the data corresponding to this.dayOffset
