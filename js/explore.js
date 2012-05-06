@@ -99,13 +99,13 @@ ExploreModule.prototype.update = function(container) {
     .data(this.displayData)
     .enter().append('svg:rect')
       .attr('class','bar')
-      .attr('x', function(d,i) { return x(i); })
+      .attr('x', function(d,i) { return x(i/self.dataSource.readingsPerHour); })
       .attr('y', function(d,i) { return y(d); })
       .attr('height', function(d,i) { return height-y(d); })
       .attr('width', function(d,i) { return x(i+1)-x(i); });
   // Draw land heights.
   var land = d3.svg.area()
-    .x(function(d,i) { return x(i+0.5); })
+    .x(function(d,i) { return x((i+0.5)/self.dataSource.readingsPerHour); })
     .y0(y(this.minValue))
     .y1(function(d,i) { return y(d); })
     .interpolate("linear");
