@@ -13,6 +13,14 @@ function GreenButtonData(xml) {
     if(0 == self.readings.length) {
       // Record the fixed duration for readings in this file.
       self.duration = Number(duration);
+      // Check that an hour consists of an exact number of readings (possibly one)
+      if(3600 % self.duration != 0) {
+        self.errorMessage = "This demonstration does not support non-standard reading durations.";
+        return false;
+      }
+      // Calculate and save the number of readings per hour and per day.
+      self.readingsPerHour = 3600/self.duration;
+      self.readingsPerDay = 24*self.readingsPerHour;
       // Record the timestamp of the first reading.
       self.start = Number(start);
       log('readings start at timestamp',self.start,'with duration',self.duration);
@@ -65,22 +73,18 @@ GreenButtonData.prototype.updateCurrent = function(index) {
   while(this.current < index) {
     var value = this.readings[this.current];
     var when = this.getDateTime(this.current);
+
+    if(value > this.maxValue) this.maxValue = value;
+
     var hour = when.getHours();
     this.byHourSum[hour] += value;
     this.byHourCount[hour]++;
+
     var day = when.getDay();
     this.byWeekDaySum[day] += value;
     this.byWeekDayCount[day]++;
     this.current++;
   }
-  /*
-  for(var day = 0; day < 7; ++day) {
-    log('day avg',day,this.averageByWeekDay(day));
-  }
-  for(var hour = 0; hour < 24; ++hour) {
-    log('hour avg',hour,this.averageByHour(hour));
-  }
-  */
 }
 
 GreenButtonData.prototype.reset = function() {
@@ -90,27 +94,37 @@ GreenButtonData.prototype.reset = function() {
   this.byHourCount = [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0];
   this.byWeekDaySum = [0,0,0,0,0,0,0];
   this.byWeekDayCount = [0,0,0,0,0,0,0];
+  this.maxValue = 0;
   this.updateCurrent(this.startIndex);
 }
 
-// Returns the date and time corresponding to the specified reading index.
+// Returns the date and time corresponding to the specified reading index. If no index is
+// specified, uses the current index, as maintained by updateCurrent().
 GreenButtonData.prototype.getDateTime = function(index) {
+  index = typeof index !== 'undefined' ? index : this.current;
   return new Date(1000*(this.start + index*this.duration - this.tzOffset));
 }
 
-// Returns an array of energy readings covering the most recent (relative to this.current)
-// nDays complete 24 hour periods, ending at midnight. Each reading represents a fixed time
-// interval of this.duration (in seconds), which might not equal 1 hour (3600s).
-GreenButtonData.prototype.getDays = function(nDays) {
-  if(nDays <= 0) {
-    alert("GreenButtonData.getDays: bad value of nDays = " + nDays);
-    return [ ];
-  }
+// Returns an array of energy readings covering a range of days specified by (first,last)
+// in units of relative days, where 0 corresponds to the most recent (relative to this.current)
+// occurence of midnight, -1 refers to the previous midnight, etc. For example, to fetch the last
+// two complete days of readings, use getDays(-2,0). A value of last > 0 is truncated to last=0.
+// Each reading represents a fixed time interval of this.duration (in seconds),
+// which might not equal 1 hour (3600s). If an Array is provided via the optional range parameter,
+// elements [0] and [1] will be filled with the reading index values for the first and last+1
+// readings returned.
+GreenButtonData.prototype.getDays = function(first,last,range) {
+  if(last > 0) last = 0;
+  if(first >= last) return [ ];
   var when = this.getDateTime(this.current);
   var hour = when.getHours();
-  var lastIndex = this.current - Math.round((hour*3600)/this.duration);
-  var firstIndex = lastIndex - Math.round(nDays*(86400/this.duration));
+  var lastIndex = this.current - hour*this.readingsPerHour + last*this.readingsPerDay;
+  var firstIndex = lastIndex - (last-first)*this.readingsPerDay;
   log('getDays returning period from',this.getDateTime(firstIndex),'to',this.getDateTime(lastIndex));
+  if(typeof range !== 'undefined') {
+    range[0] = firstIndex;
+    range[1] = lastIndex; // this is one beyond the last reading returned!
+  }
   return this.readings.slice(firstIndex,lastIndex);
 }
 

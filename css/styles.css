@@ -1,11 +1,46 @@
+#moduleContent {
+    margin: 0;
+    padding: 0;
+    border: none;
+    overflow: hidden;
+}
+
 .graphics {
     margin: 0;
     padding: 0;
-    border-style: none;
-    height: 99%;
+    border: none;
+    cursor: default;
+}
+
+#exploreGraph {
+    font-size: 100%;
 }
 
 #exploreGraph rect {
-    stroke: white;
-    fill: steelblue;
+    stroke: none;
+}
+
+#exploreGraph rect.bar {
+    fill: lightgray;
+}
+
+#exploreGraph text {
+    stroke: none;
+    fill: white;
+    text-anchor: middle;
+    text-shadow: none;
+}
+
+#exploreGraph text.timeLabel { font-size: 1em; }
+#exploreGraph text.dayLabel { font-size: 1.75em; }
+#exploreGraph text.leftArrow { font-size: 2em; text-anchor: start; cursor: pointer; }
+#exploreGraph text.rightArrow { font-size: 2em; text-anchor: end; cursor: pointer; }
+
+#exploreGraph path.land1 { fill: #798086; stroke: none; }
+#exploreGraph path.land2 { fill: #61666B; stroke: none; }
+
+#exploreMessage text {
+    font-weight: bold;
+    stroke: #464;
+    cursor: pointer;
 }
