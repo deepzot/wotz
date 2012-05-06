@@ -119,6 +119,11 @@ ExploreModule.prototype.update = function(container) {
     .y0(y(this.minValue))
     .y1(function(d,i) { return y(d); })
     .interpolate('linear');
+  var hills = d3.svg.area()
+    .x(function(d,i) { return x(i-0.5); })
+    .y0(land.y0())
+    .y1(land.y1())
+    .interpolate('basis');
   /*
   var land2 = d3.svg.area()
     .x(land1.x())
@@ -127,17 +132,14 @@ ExploreModule.prototype.update = function(container) {
     .interpolate('linear');
   */
   graph.append('svg:path')
-      .attr('class','land1')
-      .attr('d',land(this.landHeight));
+    .attr('class','land1')
+    .attr('d',land(this.landHeight));
   graph.append('svg:path')
-      .attr('class','land2')
-      .attr('d',land(this.landHeight2));
-
-  /*
+    .attr('class','land2')
+    .attr('d',land(this.landHeight2));
   graph.append('svg:path')
-      .attr('class','land2')
-      .attr('d',land2(this.landHeight));
-  */
+    .attr('class','land3')
+    .attr('d',hills(this.landHeight3));
   // Draw a base-load sea level.
   var sea = d3.svg.area()
     .x(function(d,i) { return x(6*i); })
@@ -231,13 +233,20 @@ ExploreModule.prototype.getData = function() {
   if(this.landHeight == null) {
     this.landHeight = new Array(size+2);
     this.landHeight2 = new Array(size+2);
-    this.landHeight3 = new Array(size+2);
+    this.landHeight3 = new Array(48+2);
   }
   this.landHeight[0] = this.landHeight[size+1] = minValue;
   this.landHeight2[0] = this.landHeight2[size+1] = minValue;
   for(var i = 0; i < size; ++i) {
     this.landHeight[i+1] = Math.max(this.displayData[i],minValue);
     this.landHeight2[i+1] = (this.landHeight[i+1]-minValue)*(0.75+0.25*Math.random()) + minValue;
+  }
+  this.landHeight3[0] = this.landHeight3[49] = minValue;
+  for(var i = 0; i < 24; ++i) {
+    var hourAvg = this.dataSource.averageByHour(i);
+    hourAvg = minValue + 0.75*(hourAvg - minValue);
+    hourAvg = Math.max(hourAvg,minValue);
+    this.landHeight3[i+1] = this.landHeight3[i+25] = hourAvg;
   }
 }
 
