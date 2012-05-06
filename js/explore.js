@@ -231,9 +231,11 @@ ExploreModule.prototype.showMessage = function() {
       .attr('x',0)
       .attr('y',function(d,i) { return 15*(i-(msgLength-1)/2); });
   var bbox = $('#exploreMessage')[0].getBBox();
-  var scaleFactor = Math.min(0.95*width/bbox.width,0.8*height/bbox.height);
-  var dx = width/(2*scaleFactor);
-  var dy = height/(2*scaleFactor) - bbox.y/scaleFactor;
+  var labelBox = $('.dayLabel')[0].getBBox();
+  var scaleFactor = Math.min(0.95*width/bbox.width,0.95*labelBox.y/bbox.height);
+  var dx = (width/2)/scaleFactor;
+  // Add an extra 5px to vertically center text (original font-size is 10px)
+  var dy = (labelBox.y/2 + 5)/scaleFactor;
   message
     .attr('transform','scale('+scaleFactor+') translate(' + dx + ',' + dy + ')')
     .attr('stroke-width',(2/scaleFactor)+'px');
