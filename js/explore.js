@@ -29,7 +29,6 @@ ExploreModule.prototype.update = function(container) {
     .attr('class','graphics')
     .attr('id', 'exploreGraph');
   var width = $('#moduleContent').width(), height = $('#moduleContent').height();
-  log('size',width,'x',height);
   graph.attr('width',width).attr('height',height);
   // Initialize SVG definitions.
   var defs = graph.append('svg:defs');
@@ -213,7 +212,7 @@ ExploreModule.prototype.update = function(container) {
       .attr('y', height-3*emUnit)
       .on('click', function() { self.navForward(); });
   }
-  // Start message drawing.
+  // Show the current message.
   graph.append('svg:g').attr('id','exploreMessage');
   this.showMessage();
 }
@@ -236,9 +235,17 @@ ExploreModule.prototype.showMessage = function() {
   var dy = height/(2*scaleFactor) - bbox.y/scaleFactor;
   message
     .attr('transform','scale('+scaleFactor+') translate(' + dx + ',' + dy + ')')
-    .attr('stroke-width',(2/scaleFactor)+'px')
-    .transition().duration(750) // ms
+    .attr('stroke-width',(2/scaleFactor)+'px');
+  // Only animate fade-in if this is the first time this message is being displayed.
+  if(this.messageCount != this.lastMessageCount) {
+    message.transition()
+    .duration(750) // ms
     .attr('opacity',1);
+  }
+  else {
+    message.attr('opacity',1);
+  }
+  this.lastMessageCount = this.messageCount;
   var self = this;
   message.on('click',function() {
     self.currentMessage = self.getNextMessage();
