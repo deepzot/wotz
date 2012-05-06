@@ -147,6 +147,9 @@ DemoApp.prototype.start = function() {
 
   // Register jump handler.
   $('#jumpButton').click(function() { self.jump(); });
+  
+  // Register share handler.
+  $('#shareButton').click(function() { share(self.module); });
 
   // Handle resizing of main content area
   $(window).on('orientationchange resize pageshow',function(evt) {
