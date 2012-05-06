@@ -14,6 +14,9 @@ ExploreModule.prototype.start = function(data) {
   this.dayOffset = 0;
   this.landHeight = null;
   this.getData();
+  // Reset messaging.
+  this.messageCount = 0;
+  this.currentMessage = ['Welcome to your','energy-use landscape.','Touch to continue...'];
 }
 
 ExploreModule.prototype.update = function(container) {
@@ -211,22 +214,22 @@ ExploreModule.prototype.update = function(container) {
       .on('click', function() { self.navForward(); });
   }
   // Start message drawing.
-  this.messageCount = 0;
   graph.append('svg:g').attr('id','exploreMessage');
-  this.showMessage(['Welcome to your','energy-use landscape.','Touch to continue...']);
+  this.showMessage();
 }
 
-ExploreModule.prototype.showMessage = function(content) {
+ExploreModule.prototype.showMessage = function() {
   var graph = d3.select('#exploreGraph');
   var width = $('#exploreGraph').width(), height = $('#exploreGraph').height();
   var message = d3.select('#exploreMessage').attr('transform',null).attr('opacity',0);
+  var msgLength = this.currentMessage.length;
   message.selectAll('text').remove();
-  message.selectAll('text').data(content)
+  message.selectAll('text').data(this.currentMessage)
     .enter().append('svg:text')
       .text(function(d) { return d; })
       .attr('font-size','10px')
       .attr('x',0)
-      .attr('y',function(d,i) { return 15*(i-(content.length-1)/2); });
+      .attr('y',function(d,i) { return 15*(i-(msgLength-1)/2); });
   var bbox = $('#exploreMessage')[0].getBBox();
   var scaleFactor = Math.min(0.95*width/bbox.width,0.8*height/bbox.height);
   var dx = width/(2*scaleFactor);
@@ -237,14 +240,15 @@ ExploreModule.prototype.showMessage = function(content) {
     .transition().duration(750) // ms
     .attr('opacity',1);
   var self = this;
-  this.messageCount++;
   message.on('click',function() {
-    self.showMessage(self.nextMessage());
+    self.currentMessage = self.getNextMessage();
+    self.showMessage();
   });
 }
 
-ExploreModule.prototype.nextMessage = function() {
-  return ['Here is message','number '+(this.messageCount+1)];
+ExploreModule.prototype.getNextMessage = function() {
+  this.messageCount++;
+  return ['Here is message','number '+this.messageCount];
 }
 
 // Fetches and analyzes the data corresponding to this.dayOffset
