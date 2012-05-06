@@ -108,16 +108,19 @@ ExploreModule.prototype.update = function(container) {
     .x(function(d,i) { return x((i-0.5)/self.dataSource.readingsPerHour); })
     .y0(y(this.minValue))
     .y1(function(d,i) { return y(d); })
-    .interpolate("linear");
+    .interpolate('linear');
   graph.append('svg:path')
       .attr('class','land')
       .attr('d',land(this.landHeight));
-  // Draw a base-load level line.
-  var baseY = y(self.baseLoad);
-  graph.append('svg:line')
-    .attr('class','baseLoad')
-    .attr('x1',x(0)).attr('x2',x(48))
-    .attr('y1',baseY).attr('y2',baseY);
+  // Draw a base-load sea level.
+  var sea = d3.svg.line()
+    .x(function(d,i) { return x(6*i); })
+    .y(function(d,i) { return y(self.minValue*(1.05+0.05*Math.sin(Math.PI*i/2))); })
+    .interpolate('basis');
+  var seaData = [0,0,0,0,0,0,0,0,0];
+  graph.append('svg:path')
+    .attr('class','sea')
+    .attr('d',sea(seaData));
   // Calculate a nominal scaling unit for labels.
   var emUnit = $('#exploreGraph').css('font-size');
   if(emUnit.slice(-2) == 'px') {

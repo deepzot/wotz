@@ -30,6 +30,5 @@
 #exploreGraph text.leftArrow { font-size: 2em; text-anchor: start; cursor: pointer; }
 #exploreGraph text.rightArrow { font-size: 2em; text-anchor: end; cursor: pointer; }
 
-#exploreGraph line.baseLoad { stroke: blue; stroke-width: 0.25em; }
-
 #exploreGraph path.land { fill: brown; stroke: none; }
+#exploreGraph path.sea { fill: none; stroke: lightblue; stroke-width: 0.5em; }
