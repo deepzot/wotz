@@ -13,12 +13,12 @@ function shareOnFacebook(message) {
     method: 'feed',
     name: 'I\'m using GBAPP!',
     caption: message,
-    description: 'This is the description.'
-    //link: 'http://developers.facebook.com/mobile',
+    description: 'This is the description.',
+    link: 'http://darkmatter.ps.uci.edu/gbtest/'
     //picture: 'http://www.facebookmobileweb.com/getting-started/img/facebook_icon_large.png'
   }, 
   function(response) {
-    console.log('shareOnFacebook', response);
+    log('shareOnFacebook', response);
   });
   return false;
 }
