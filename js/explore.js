@@ -113,14 +113,21 @@ ExploreModule.prototype.update = function(container) {
       .attr('class','land')
       .attr('d',land(this.landHeight));
   // Draw a base-load sea level.
-  var sea = d3.svg.line()
+  var seaSurface = d3.svg.line()
     .x(function(d,i) { return x(6*i); })
     .y(function(d,i) { return y(self.minValue*(1.05+0.05*Math.sin(Math.PI*i/2))); })
     .interpolate('basis');
+  var seaArea = d3.svg.area()
+    .x(seaSurface.x())
+    .y1(seaSurface.y())
+    .y0(height);
   var seaData = [0,0,0,0,0,0,0,0,0];
   graph.append('svg:path')
-    .attr('class','sea')
-    .attr('d',sea(seaData));
+    .attr('class','seaArea')
+    .attr('d',seaArea(seaData));
+  graph.append('svg:path')
+    .attr('class','seaSurface')
+    .attr('d',seaSurface(seaData));
   // Calculate a nominal scaling unit for labels.
   var emUnit = $('#exploreGraph').css('font-size');
   if(emUnit.slice(-2) == 'px') {
