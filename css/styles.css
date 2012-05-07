@@ -130,14 +130,14 @@ Also, see http://www.uci.edu/graphic_identity/colors.php
 		stroke: #464;
 		cursor: pointer;
 
-#innerCircle {
-    stroke: red;
-    stroke-width: 0.5em;
+#clockCircle {
+    stroke: black;
+    stroke-width: 0.25em;
     fill: lightgray;
 }
 
 #challengeGraph text.clockLabel {
-    font-size: 1.5em;
+    font-size: 2em;
     fill: red;
     text-anchor: middle;
 }

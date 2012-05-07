@@ -2,7 +2,7 @@ function ChallengeModule() {
   this.id = 'challenge';
   this.label = 'Take a Challenge';
   this.dataSource = null;
-  this.hourlyData = new Array(24);
+  this.hourlyData = new Array(12);
   this.timer = null;
 }
 
@@ -11,11 +11,15 @@ ChallengeModule.prototype.start = function(data) {
   // Remember our data source.
   this.dataSource = data;
   this.maxHourly = 0;
-  for(var hr = 0; hr < 24; ++hr) {
-    var value = this.dataSource.averageByHour(hr);
-    this.hourlyData[hr] = value;
+  var now = new Date();
+  var hour = now.getHours();
+  for(var offset = 0; offset < 12; ++offset) {
+    var value = this.dataSource.averageByHour((hour + offset)%24);
+    log('avg',hour,offset,value);
+    this.hourlyData[offset] = value;
     if(value > this.maxHourly) this.maxHourly = value;
   }
+  this.hourOrigin = hour % 12;
 }
 
 ChallengeModule.prototype.update = function(container) {
@@ -38,12 +42,9 @@ ChallengeModule.prototype.update = function(container) {
     emUnit = 10;
   }
   // Draw a clock face.
-  var rotation = d3.scale.linear()
-    .domain([0,12])
-    .range([0,360]);
   var radius = 0.4*Math.min(height,width);
   graph.append('svg:circle')
-    .attr('id','innerCircle')
+    .attr('id','clockCircle')
     .attr('cx',width/2)
     .attr('cy',height/2)
     .attr('r',radius/2);
@@ -55,7 +56,7 @@ ChallengeModule.prototype.update = function(container) {
       .attr('x',width/2)
       .attr('y',height/2)
       .attr('transform',function(d) {
-        return 'rotate('+rotation(d)+','+width/2+','+height/2+') translate(0,'+(-radius/2+2*emUnit)+')';
+        return 'rotate('+(30*d)+','+width/2+','+height/2+') translate(0,'+(-radius/2+2*emUnit)+')';
       });
   // Start real-time clock hands going.
   graph.selectAll('line.clockHand')
@@ -79,22 +80,21 @@ ChallengeModule.prototype.update = function(container) {
       .attr('transform',function(d) { return 'rotate('+360*d+','+width/2+','+height/2+')'});
   },1000);
   // Draw average hourly usage around the clock face.
+  var gap = emUnit/2;
   var hourlyArc = d3.svg.arc()
-    .innerRadius(radius/2)
-    .outerRadius(function(d) { return radius/2*(1+d/self.maxHourly); })
-    .startAngle(function(d,i) { return rotation(i)*Math.PI/180; })
-    .endAngle(function(d,i) { return rotation(i+1)*Math.PI/180; });
-  var hourlyData = graph.append('svg:g');
-  var now = new Date();
-  var hour = now.getHours() % 12;
-  hourlyData.selectAll('path.hourlyArc')
-    .data(this.hourlyData.slice(12,24))
+    .innerRadius(radius/2+emUnit/2)
+    .outerRadius(function(d) { return radius/2+gap + (radius/2-gap)*d/self.maxHourly; })
+    .startAngle(function(d,i) { return (i+self.hourOrigin)*Math.PI/6; })
+    .endAngle(function(d,i) { return (i+1+self.hourOrigin)*Math.PI/6; });
+  var hourlyDataG = graph.append('svg:g');
+  hourlyDataG.selectAll('path.hourlyArc')
+    .data(this.hourlyData)
     .enter()
     .append('svg:path')
       .attr('class','hourlyArc')
-      .attr('opacity',function(d,i) { return 1-((12+i-hour)%12)/12; })
+      .attr('opacity',function(d,i) { return 1-i/12; })
       .attr('d',hourlyArc);
-  hourlyData.attr('transform','translate('+width/2+','+height/2+')');
+  hourlyDataG.attr('transform','translate('+width/2+','+height/2+')');
 }
 
 ChallengeModule.prototype.end = function() { }
