@@ -125,6 +125,23 @@ Also, see http://www.uci.edu/graphic_identity/colors.php
 #tetrisField text.levelLabel { font-size: 2em; }
 #tetrisField text.rowCountLabel { font-size: 2em; }
 
+#playMessage text {
+		font-weight: bold;
+		stroke: #464;
+		cursor: pointer;
+
+#innerCircle {
+    stroke: black;
+    stroke-width: 0.5em;
+    fill: lightgray;
+}
+
+#challengeGraph text.clockLabel {
+    font-size: 1.5em;
+    fill: red;
+    text-anchor: middle;
+}
+
 #asteroidField text {
     fill: red;
     text-anchor: middle;
