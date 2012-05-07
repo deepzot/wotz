@@ -37,7 +37,12 @@
 
 	<div data-role="content" >
 		<p>Welcome to the TBN EnergyApp...</p>
-		<form id='loadData' action="javascript:void(0);">	
+		<form id='loadData' action="javascript:void(0);">
+			<label for="dataMenu0" class="select">Select a sample GreenButton:</label>
+			<select name="dataMenu0" id="dataMenu">
+			   <option value="sdge1">SDG&amp;E Coastal Single Family</option>
+			   <option value="pge1">PG&amp;E Residential Large Usage</option>
+			</select>
 			<label for="url">Where is your GreenButton data?</label>
 			<input type="url" name="url" id="url" value="http://darkmatter.ps.uci.edu/gbdata/demo.xml" />
 			<input type='submit' value='Load' />
