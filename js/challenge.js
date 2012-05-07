@@ -85,11 +85,14 @@ ChallengeModule.prototype.update = function(container) {
     .startAngle(function(d,i) { return rotation(i)*Math.PI/180; })
     .endAngle(function(d,i) { return rotation(i+1)*Math.PI/180; });
   var hourlyData = graph.append('svg:g');
+  var now = new Date();
+  var hour = now.getHours() % 12;
   hourlyData.selectAll('path.hourlyArc')
     .data(this.hourlyData.slice(12,24))
     .enter()
     .append('svg:path')
       .attr('class','hourlyArc')
+      .attr('opacity',function(d,i) { return 1-((12+i-hour)%12)/12; })
       .attr('d',hourlyArc);
   hourlyData.attr('transform','translate('+width/2+','+height/2+')');
 }
