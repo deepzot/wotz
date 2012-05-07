@@ -15,7 +15,6 @@ ChallengeModule.prototype.start = function(data) {
   var hour = now.getHours();
   for(var offset = 0; offset < 12; ++offset) {
     var value = this.dataSource.averageByHour((hour + offset)%24);
-    log('avg',hour,offset,value);
     this.hourlyData[offset] = value;
     if(value > this.maxHourly) this.maxHourly = value;
   }
