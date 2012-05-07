@@ -15,7 +15,6 @@ ChallengeModule.prototype.start = function(data) {
     this.hourlyData[hr] = value;
     if(value > this.maxHourly) this.maxHourly = value;
   }
-  log(this.hourlyData);
 }
 
 ChallengeModule.prototype.update = function(container) {
@@ -57,10 +56,22 @@ ChallengeModule.prototype.update = function(container) {
       .attr('transform',function(d) {
         return 'rotate('+rotation(d)+','+width/2+','+height/2+') translate(0,'+(-radius/2+2*emUnit)+')';
       });
+  // Draw real-time clock hands.
+  graph.selectAll('line.clockHand')
+    .data([0.6,0.75,0.2])
+    .enter().append('svg:line')
+      .attr('class','clockHand')
+      .attr('x1',width/2)
+      .attr('y1',height/2+height/50)
+      .attr('x2',width/2)
+      .attr('y2',function(d,i) { return height/2 - ((i==0)? 0.35*radius : 0.45*radius); })
+      .attr('stroke-width', function(d,i) { return 0.4*emUnit/(i+1); })
+      .attr('transform',function(d) { return 'rotate('+360*d+','+width/2+','+height/2+')'});
+  // Draw average hourly usage around the clock face.
   var hourlyArc = d3.svg.arc()
     .innerRadius(radius/2)
     .outerRadius(function(d) { return radius/2*(1+d/self.maxHourly); })
-    .startAngle(function(d,i) { log('arc',i,rotation(i),d); return rotation(i)*Math.PI/180; })
+    .startAngle(function(d,i) { return rotation(i)*Math.PI/180; })
     .endAngle(function(d,i) { return rotation(i+1)*Math.PI/180; });
   var hourlyData = graph.append('svg:g');
   hourlyData.selectAll('path.hourlyArc')

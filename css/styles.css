@@ -154,3 +154,7 @@ Also, see http://www.uci.edu/graphic_identity/colors.php
     fill: lightblue;
     stroke: red;
 }
+
+#challengeGraph line.clockHand {
+    stroke: blue;
+}
