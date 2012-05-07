@@ -5,9 +5,12 @@ var storedTiles;
 var score;
 var timer;
 var stepDelay;
-var HEIGHT = 15, WIDTH = 10;
+var HEIGHT = 15, WIDTH = 12;
+var ROWSPERLEVEL = 10;
 var x, y;
 var gameBoard;
+var level;
+var rowCounter;
 //////////////////////
 function PlayModule() {
   this.id = 'play';
@@ -26,22 +29,24 @@ PlayModule.prototype.update = function(container) {
   gameBoard = d3.select('#moduleContent').append("svg")
     .attr('class','graphics')
     .attr('id', 'gameBoard');
-    
+        
   var width = $('#gameBoard').width(), height = $('#gameBoard').height();
+  
+  var pad = Math.floor(width * .2);
+  log(pad);
+  
 
-	if (width > height) {
-		y = d3.scale.linear()
-			.domain([0, HEIGHT])
-			.range([0, height]);
-		x = y;
-	}
-	else {
-		x = d3.scale.linear()
-			.domain([0, WIDTH])
-			.range([0, width]);
-		y = x;
-	}
-			  
+	log(width);
+	log(height);
+	
+	x = d3.scale.linear()
+		.domain([0, WIDTH])
+		.range([0,width]);
+	
+	y = d3.scale.linear()
+		.domain([0, HEIGHT])
+		.range([0, height]);
+			
 	// Using for loop to draw multiple horizontal lines
 	for (var i=0; i <= HEIGHT; i++) {
 			gameBoard.append("svg:line")
@@ -73,7 +78,9 @@ function initNewGame() {
 	score = 0;
 	stepDelay = 1000;
 	Shape.init(WIDTH/2,-1,Shape.randomShape());
-};
+	level = 1;
+	rowCounter = 0;
+}
 
 // Our active shape
 var Shape = {
@@ -315,7 +322,16 @@ function step() {
 			}
 		});
 		// Clear filled rows	
-		score += 10 * deletePossibleRows();
+		var numClearedRows = deletePossibleRows();
+		rowCounter += numClearedRows;
+		
+		if(rowCounter >= ROWSPERLEVEL * level) {
+			level++;
+			stepDelay = Math.floor(stepDelay * 0.9);
+		}
+		
+		score += 10 * numClearedRows;
+		score++;
 		// Create a new piece
 		createNewPiece();
 	}
@@ -378,7 +394,12 @@ function setMode(newMode) {
 	else if(newMode == GameMode.LOSE){
 		// end game
 		clearTimeout(timer);
+		log(score);
+		log(rowCounter);
+		log(level);
+		log(stepDelay);
 	}
+	
 	return;
 };
 	
