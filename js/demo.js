@@ -32,7 +32,10 @@ DemoApp.prototype.start = function() {
 
   // Implement the welcome handler.
   $('#loadData').submit(function() {
-    var target = $('input[name=url]').val();
+    var target = $('#dataMenu').val();
+    log('target',target);
+    // Use the protocol and hostname where the app is running.
+    target = location.protocol + '//' + location.hostname + '/gbdata/' + target;
     log('loading',target);
     $.mobile.showPageLoadingMsg();
     // Start loading the file in the background
@@ -101,9 +104,6 @@ DemoApp.prototype.start = function() {
       self.module.update(self.container);
     }
   });
-  
-  // Use the protocol and hostname where the app is running for the datafile default
-  $('#url').val(location.protocol+'//'+location.hostname+'/gbdata/demo.xml');
 }
 
 // De-activates any current module.
