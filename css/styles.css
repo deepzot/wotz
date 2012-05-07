@@ -155,6 +155,6 @@ Also, see http://www.uci.edu/graphic_identity/colors.php
     stroke: red;
 }
 
-#challengeGraph line.clockHand {
-    stroke: blue;
-}
+#clockHand0 { stroke: black; stroke-width: 0.5em; }
+#clockHand1 { stroke: black; stroke-width: 0.3em; }
+#clockHand2 { stroke: red; stroke-width: 0.1em; }

@@ -3,6 +3,7 @@ function ChallengeModule() {
   this.label = 'Take a Challenge';
   this.dataSource = null;
   this.hourlyData = new Array(24);
+  this.timer = null;
 }
 
 ChallengeModule.prototype.start = function(data) {
@@ -56,17 +57,27 @@ ChallengeModule.prototype.update = function(container) {
       .attr('transform',function(d) {
         return 'rotate('+rotation(d)+','+width/2+','+height/2+') translate(0,'+(-radius/2+2*emUnit)+')';
       });
-  // Draw real-time clock hands.
+  // Start real-time clock hands going.
   graph.selectAll('line.clockHand')
-    .data([0.6,0.75,0.2])
+    .data([0,0,0])
     .enter().append('svg:line')
       .attr('class','clockHand')
+      .attr('opacity',0)
+      .attr('id',function(d,i) { return 'clockHand'+i; })
       .attr('x1',width/2)
       .attr('y1',height/2+height/50)
       .attr('x2',width/2)
-      .attr('y2',function(d,i) { return height/2 - ((i==0)? 0.35*radius : 0.45*radius); })
-      .attr('stroke-width', function(d,i) { return 0.4*emUnit/(i+1); })
+      .attr('y2',function(d,i) { return height/2 - ((i==0)? 0.35*radius : 0.45*radius); });
+  if(this.timer) clearInterval(this.timer);
+  this.timer = setInterval(function() {
+    var now = new Date();
+    // Only hour hand moves continuously.
+    var mins = now.getMinutes();
+    var hands = [ (now.getHours()%12 + mins/60)/12, mins/60, now.getSeconds()/60 ];
+    graph.selectAll('line.clockHand').data(hands)
+      .attr('opacity',1)
       .attr('transform',function(d) { return 'rotate('+360*d+','+width/2+','+height/2+')'});
+  },1000);
   // Draw average hourly usage around the clock face.
   var hourlyArc = d3.svg.arc()
     .innerRadius(radius/2)
