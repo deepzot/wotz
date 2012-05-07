@@ -2,12 +2,20 @@ function ChallengeModule() {
   this.id = 'challenge';
   this.label = 'Take a Challenge';
   this.dataSource = null;
+  this.hourlyData = new Array(24);
 }
 
 ChallengeModule.prototype.start = function(data) {
   log('challenge start at',data.getDateTime());
   // Remember our data source.
   this.dataSource = data;
+  this.maxHourly = 0;
+  for(var hr = 0; hr < 24; ++hr) {
+    var value = this.dataSource.averageByHour(hr);
+    this.hourlyData[hr] = value;
+    if(value > this.maxHourly) this.maxHourly = value;
+  }
+  log(this.hourlyData);
 }
 
 ChallengeModule.prototype.update = function(container) {
@@ -49,6 +57,19 @@ ChallengeModule.prototype.update = function(container) {
       .attr('transform',function(d) {
         return 'rotate('+rotation(d)+','+width/2+','+height/2+') translate(0,'+(-radius/2+2*emUnit)+')';
       });
+  var hourlyArc = d3.svg.arc()
+    .innerRadius(radius/2)
+    .outerRadius(function(d) { return radius/2*(1+d/self.maxHourly); })
+    .startAngle(function(d,i) { log('arc',i,rotation(i),d); return rotation(i)*Math.PI/180; })
+    .endAngle(function(d,i) { return rotation(i+1)*Math.PI/180; });
+  var hourlyData = graph.append('svg:g');
+  hourlyData.selectAll('path.hourlyArc')
+    .data(this.hourlyData.slice(12,24))
+    .enter()
+    .append('svg:path')
+      .attr('class','hourlyArc')
+      .attr('d',hourlyArc);
+  hourlyData.attr('transform','translate('+width/2+','+height/2+')');
 }
 
 ChallengeModule.prototype.end = function() { }

@@ -131,7 +131,7 @@ Also, see http://www.uci.edu/graphic_identity/colors.php
 		cursor: pointer;
 
 #innerCircle {
-    stroke: black;
+    stroke: red;
     stroke-width: 0.5em;
     fill: lightgray;
 }
@@ -149,3 +149,8 @@ Also, see http://www.uci.edu/graphic_identity/colors.php
 }
 
 #asteroidField text.hourLabel { font-size: 1em; }
+
+#challengeGraph path.hourlyArc {
+    fill: lightblue;
+    stroke: red;
+}
