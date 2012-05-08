@@ -36,9 +36,8 @@
 	</div><!-- /header -->
 
 	<div data-role="content" >
-		<p>Welcome to the TBN EnergyApp...</p>
 		<form id='loadData' action="javascript:void(0);">
-			<label for="dataMenu0" class="select">Select a sample GreenButton:</label>
+			<label for="dataMenu0" class="select">Chose a GreenButton data file...</label>
 			<select name="dataMenu0" id="dataMenu">
 			   <option value="demo.xml">Small file for testing</option>
 			   <option value="sdge1">SDG&amp;E Coastal Single Family</option>
@@ -48,6 +47,11 @@
 		</form>
 		<div id="dropData">
 			<img id="gbIcon" src="img/gbicon256.png" />
+			<div id="dropMessage">
+				<p>
+					(Your browser does not support drag-and-drop)
+				</p>
+			</div>
 		</div>
 	</div>
 
