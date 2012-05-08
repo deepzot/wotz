@@ -40,7 +40,7 @@ PlayModule.prototype.start = function(data) {
 				newShape = Shape.rotateLeft();
 				if(self.isPossibleMovement(0,0,newShape)) {
 					Shape.State.currentShape = newShape;
-					self.draw();
+					self.drawActivePiece();
 				}
 			}
 		}
@@ -49,7 +49,7 @@ PlayModule.prototype.start = function(data) {
 			if(self.state == self.GameStates.RUNNING) {
 				if(self.isPossibleMovement(-1,0,Shape.State.currentShape)) {
 					Shape.State.x = Shape.State.x - 1;
-					self.draw();
+					self.drawActivePiece();
 				}
 			}
 		}
@@ -58,7 +58,7 @@ PlayModule.prototype.start = function(data) {
 			if(self.state == self.GameStates.RUNNING) {
 				if(self.isPossibleMovement(1,0,Shape.State.currentShape)) {
 					Shape.State.x = Shape.State.x + 1;
-					self.draw();
+					self.drawActivePiece();
 				}
 			}
 		}
@@ -67,7 +67,7 @@ PlayModule.prototype.start = function(data) {
 			if(self.state == self.GameStates.RUNNING) {
 				if(self.isPossibleMovement(0,1,Shape.State.currentShape)) {
 					Shape.State.y = Shape.State.y + 1;
-					self.draw();
+					self.drawActivePiece();
 				}
 			}
 		}
@@ -167,7 +167,6 @@ PlayModule.prototype.update = function(container) {
 //     .attr('x', padX/2)
 //     .attr('y', padY + 7*pmUnit); 
     
-  self.draw();
   gameBoard.append('svg:g').attr('id','playMessage');
   if(this.state != this.GameStates.RUNNING) {
 		this.showMessage();
@@ -313,49 +312,49 @@ PlayModule.prototype.isPossibleMovement = function(x, y, shape) {
 }
 	
 // Draw stuff
-PlayModule.prototype.draw = function() {
+PlayModule.prototype.drawActivePiece = function() {
 	var self = this;
-	// Update actice piece
 	var gameBoard = d3.select('#gameBoard');
-	var rect = gameBoard.selectAll("rect")
+	// Update active piece.
+	var activePiece = gameBoard.selectAll('rect')
 		.data(Shape.State.currentShape);
-	
-	rect.enter().append("rect")
+	activePiece.enter().append("rect")
 		.attr("width", this.x(1)-this.x(0))
 		.attr("height", this.y(1)-this.y(0))
 		.style("fill", "green");
-	
-	rect
-	//.transition()
+	activePiece
+	//.transition().duration(this.stepDelay/4)
 		.attr("x", function(d,i) { return self.x(Shape.State.x + d.x) } )
 		.attr("y", function(d,i) { return self.y(Shape.State.y + d.y) } );
-		
-	rect.exit().remove();
+	activePiece.exit().remove();
+}
 
+// Draw stuff
+PlayModule.prototype.drawTiles = function() {
+	var self = this;
+	var gameBoard = d3.select('#gameBoard');
 	// Update stored tiles
-	var ellipse = gameBoard.selectAll("ellipse")
+	var tiles = gameBoard.selectAll("ellipse")
 		.data(this.storedTiles);
-
 	// Append new tiles
-	ellipse.enter().append("ellipse")
+	tiles.enter().append("ellipse")
 		.attr("rx", this.x(.5)-this.x(0))
 		.attr("ry", this.y(.5)-this.y(0))
 		.style("stroke", "black")
 		.style("fill", "blue");
-
 	// Set attr for all tiles
-	ellipse
+	tiles
 		.attr("cx", function(d) { return self.x(d.x + .5); })
 		.attr("cy", function(d) { return self.y(d.y + .5); });
-		
 	// Remove cleared tiles
-	ellipse.exit().remove();
-
+	tiles.exit().remove();
 }
 
 // Move active piece down or add it to the stored tiles	
 PlayModule.prototype.step = function() {
 	var self = this;
+	var gameBoard = d3.select('#gameBoard');
+	
 	// Check if we can move active piece down
 	if(this.isPossibleMovement(0,1,Shape.State.currentShape)) {
 		Shape.State.y = Shape.State.y + 1;
@@ -397,7 +396,10 @@ PlayModule.prototype.step = function() {
 		// Create a new piece
 		this.createNewPiece();
 	}
-	this.draw();
+	
+	this.drawActivePiece();
+	this.drawTiles();
+		
 }
 
 // Iterates through each row and returns the number
