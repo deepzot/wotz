@@ -73,8 +73,20 @@ DemoApp.prototype.start = function() {
                 $('#dropMessage p').text('Maximum size is 4Mb, sorry.');
               }
               else {
-                $('#dropMessage p').text('Loading...');
                 dropBusy = true;                
+                $('#dropMessage p').text('Loading...');
+                $.mobile.showPageLoadingMsg();
+                var reader = new FileReader();
+                reader.onload = function(event) {
+                  var text = event.target.result;
+                  log('FileReader loaded',text.length,'bytes');
+                  self.loadComplete($.parseXML(text));
+                }
+                reader.onerror = function() {
+                  log('FileReader error');
+                  self.loadError();
+                }
+                reader.readAsText(file);
               }
             }
           }
@@ -90,6 +102,7 @@ DemoApp.prototype.start = function() {
     // Use the protocol and hostname where the app is running.
     target = location.protocol + '//' + location.hostname + '/gbdata/' + target;
     log('loading',target);
+    $('#dropMessage p').text('Loading...');
     $.mobile.showPageLoadingMsg();
     // Start loading the file in the background
     $.ajax({
@@ -97,27 +110,11 @@ DemoApp.prototype.start = function() {
       url: target,
       dataType: 'xml',
       success: function(xml) {
-        log('loaded');
-        self.data = new GreenButtonData(xml);
-        $.mobile.hidePageLoadingMsg();
-        if(self.data.errorMessage) {
-          // Ajax requested completed ok, but there is a problem with the xml content.
-          log('load error',self.data.errorMessage);
-          $('#loadErrorMessage').text(self.data.errorMessage);
-          $('#loadErrorDialog').click();
-        }
-        else {
-          // Everything looks good.
-          log('parsed',self.data.nReadings,'readings');
-          $.mobile.changePage($('#intro'));
-        }
+        self.loadComplete(xml);
       },
       error: function(jqXHR, textStatus, errorThrown) {
-        // Ajax request resulted in an error.
-        log('error',textStatus,errorThrown);
-        $.mobile.hidePageLoadingMsg();
-        $('#loadErrorMessage').text('The GreenButton data you requested cannot be loaded.');
-        $('#loadErrorDialog').click();
+        log('ajaxError',textStatus,errorThrown);
+        self.loadError();
       }
     });
     return false; // prevent further form submission
@@ -157,6 +154,29 @@ DemoApp.prototype.start = function() {
       self.module.update(self.container);
     }
   });
+}
+
+DemoApp.prototype.loadError = function() {
+  $.mobile.hidePageLoadingMsg();
+  $('#loadErrorMessage').text('The GreenButton data you requested cannot be loaded.');
+  $('#loadErrorDialog').click();
+}
+
+DemoApp.prototype.loadComplete = function(xml) {
+  log('loadComplete');
+  this.data = new GreenButtonData(xml);
+  $.mobile.hidePageLoadingMsg();
+  if(this.data.errorMessage) {
+    // Ajax requested completed ok, but there is a problem with the xml content.
+    log('load error',this.data.errorMessage);
+    $('#loadErrorMessage').text(this.data.errorMessage);
+    $('#loadErrorDialog').click();
+  }
+  else {
+    // Everything looks good.
+    log('parsed',this.data.nReadings,'readings');
+    $.mobile.changePage($('#intro'));
+  }
 }
 
 // De-activates any current module.
