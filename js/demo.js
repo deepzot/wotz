@@ -51,6 +51,9 @@ DemoApp.prototype.start = function() {
           $('#gbIcon').css({ 'opacity' : 0.4 });
         })
         .on('drop', function(event) {
+          // This should be redundant if our dragover handler is correctly signaling
+          // if we are currently droppable.
+          if(dropBusy) return false;
           // The next two lines are redundant with 'return false' but protect us
           // against an exception before we return.
           event.stopPropagation();
@@ -73,14 +76,21 @@ DemoApp.prototype.start = function() {
                 $('#dropMessage p').text('Maximum size is 4Mb, sorry.');
               }
               else {
-                dropBusy = true;                
                 $('#dropMessage p').text('Loading...');
                 $.mobile.showPageLoadingMsg();
                 var reader = new FileReader();
                 reader.onload = function(event) {
                   var text = event.target.result;
                   log('FileReader loaded',text.length,'bytes');
-                  self.loadComplete($.parseXML(text));
+                  try {
+                    var xml = $.parseXML(text);
+                    dropBusy = self.loadComplete(xml);
+                  }
+                  catch(e) {
+                    log('XML parse error');
+                    $('#loadErrorMessage').text("Your data appears to be corrupted (invalid XML).");
+                    $('#loadErrorDialog').click();
+                  }
                 }
                 reader.onerror = function() {
                   log('FileReader error');
@@ -90,6 +100,7 @@ DemoApp.prototype.start = function() {
               }
             }
           }
+          $('#dropMessage p').text('...or drop your data here.');
           return false;
         });
     }
@@ -171,11 +182,13 @@ DemoApp.prototype.loadComplete = function(xml) {
     log('load error',this.data.errorMessage);
     $('#loadErrorMessage').text(this.data.errorMessage);
     $('#loadErrorDialog').click();
+    return false;
   }
   else {
     // Everything looks good.
     log('parsed',this.data.nReadings,'readings');
     $.mobile.changePage($('#intro'));
+    return true;
   }
 }
 
