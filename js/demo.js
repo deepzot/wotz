@@ -34,7 +34,26 @@ DemoApp.prototype.start = function() {
   if(window.File && window.FileReader) {
     var xhr = new XMLHttpRequest();
     if(xhr.upload) {
+      var dropBusy = false;
+      $('#gbIcon').css({ 'opacity' : 0.4 });
       $('#dropMessage p').text('...or drop your data here.');
+      $('#dropData')
+        .on('dragover', function(event) {
+          if(!dropBusy) {
+            $('#gbIcon').css({ 'opacity' : 1.0 });
+            // Must return false to indicate that this element is droppable.
+            return false;
+          }
+        })
+        .on('dragleave', function() {
+          $('#gbIcon').css({ 'opacity' : 0.4 });
+        })
+        .on('drop', function(event) {
+          log('drop',dropBusy);
+          $('#gbIcon').css({ 'opacity' : 0.4 });        
+          dropBusy = true;
+          return false;
+        });
     }
   }
 
