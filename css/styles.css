@@ -1,4 +1,7 @@
-#disclaimer {
+/* Hides the exit button in the disclaimer dialog so users must click accept */
+#disclaimer div[data-role="header"] a { display: none; }
+
+#disclaimerText {
     font-size: 0.8em;
 }
 
