@@ -44,3 +44,24 @@
     stroke: #464;
     cursor: pointer;
 }
+
+#gameBoard {
+    font-size: 100%;
+}
+
+#gameBoard text {
+    stroke: black;
+    fill: white;
+    text-anchor: middle;
+    text-shadow: none;
+}
+
+#gameBoard text.scoreLabel { font-size: 2em; }
+#gameBoard text.levelLabel { font-size: 2em; }
+#gameBoard text.rowCountLabel { font-size: 2em; }
+
+#playMessage text {
+		font-weight: bold;
+		stroke: #464;
+		cursor: pointer;
+}
