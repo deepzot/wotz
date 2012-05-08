@@ -3,7 +3,7 @@
 
 <head>
 	<meta charset="utf-8">
-	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1.0, user-scalable=no">
 	<title>EnergyApp</title>
 
 	<!-- http://developer.apple.com/library/safari/documentation/appleapplications/reference/SafariHTMLRef/Articles/MetaTags.html -->
@@ -36,12 +36,27 @@
 	</div><!-- /header -->
 
 	<div data-role="content" >
-		<p>Welcome to the TBN EnergyApp...</p>
-		<form id='loadData' action="javascript:void(0);">	
-			<label for="url">Where is your GreenButton data?</label>
-			<input type="url" name="url" id="url" value="http://darkmatter.ps.uci.edu/gbdata/demo.xml" />
+		<form id='loadData' action="javascript:void(0);">
+			<label for="dataMenu_">Chose a GreenButton data sample...</label>
+			<select name="dataMenu_" id="dataMenu">
+			   <option value="demo.xml">Small file for testing</option>
+			   <option value="Coastal_Multi_Family_Jan_1_2011_to_Jan_1_2012.xml">Coastal Multi-Family Customer</option>
+			   <option value="Coastal_Single_Family_Jan_1_2011_to_Jan_1_2012.xml">Coastal Single-Family Customer</option>
+			   <option value="Desert_Multi_Family_Jan_1_2011_to_Jan_1_2012.xml">Desert Multi-Family Customer</option>
+			   <option value="Desert_Single_Family_Jan_1_2011_to_Jan_1_2012.xml">Desert Single-Family Customer</option>
+			   <option value="Inland_Multi_Family_Jan_1_2011_to_Jan_1_2012.xml">Inland Multi-Family Customer</option>
+			   <option value="Inland_Single_Family_Jan_1_2011_to_Jan_1_2012.xml">Inland Single-Family Customer</option>
+			   <option value="Mountain_Multi_Family_Jan_1_2011_to_Jan_1_2012.xml">Mountain Multi-Family Customer</option>
+			   <option value="Mountain_Single_Family_Jan_1_2011_to_Jan_1_2012.xml">Mountain Single-Family Customer</option>
+			</select>
 			<input type='submit' value='Load' />
 		</form>
+		<div id="dropData">
+			<img id="gbIcon" src="img/gbicon256.png" />
+			<div id="dropMessage">
+				<p></p>
+			</div>
+		</div>
 	</div>
 
 	<a href="#loadError" data-rel="dialog" id="loadErrorDialog" style="display:none">loadError</a>
@@ -71,7 +86,7 @@
 		<p>
 			This data covers the period <span class="firstDate"></span> to <span class="lastDate"></span>
 			with <span class="nReadings"></span> readings. Since no timezone information is available in
-			the data, we are assuming Eastern Standard Time (GMT-5).
+			the data, we are assuming Pacific Standard Time (GMT-8).
 		</p>
 		<p>
 			This demonstration will start on <span class="startDate"></span> and provides a "Jump" button

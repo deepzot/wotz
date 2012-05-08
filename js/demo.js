@@ -30,10 +30,91 @@ DemoApp.prototype.start = function() {
     })(module));
   }
 
+  // Enable drag-and-drop, if possible.
+  if(window.File && window.FileList && window.FileReader) {
+    var xhr = new XMLHttpRequest();
+    if(xhr.upload) {
+      var dropBusy = false;
+      $('#gbIcon').css({ 'opacity' : 0.4 });
+      $('#dropMessage p').text('...or drop your data here.');
+      $('#dropData')
+        .on('dragover', function(event) {
+          if(!dropBusy) {
+            $('#dropMessage p').text('Drop Here!');
+            $('#gbIcon').css({ 'opacity' : 1.0 });
+            // Must return false to indicate that this element is droppable.
+            return false;
+          }
+        })
+        .on('dragleave', function() {
+          $('#dropMessage p').text('...or drop your data here.');
+          $('#gbIcon').css({ 'opacity' : 0.4 });
+        })
+        .on('drop', function(event) {
+          // This should be redundant if our dragover handler is correctly signaling
+          // if we are currently droppable.
+          if(dropBusy) return false;
+          // The next two lines are redundant with 'return false' but protect us
+          // against an exception before we return.
+          event.stopPropagation();
+          event.preventDefault();
+          // jQuery events do not expose the new drag-and-drop properties, so
+          // we need to dig into the raw DOM event instead.
+          var raw = event.originalEvent;
+          if(raw.dataTransfer && raw.dataTransfer.files) {
+            var files = raw.dataTransfer.files;
+            if(files.length != 1) {
+              $('#dropMessage p').text('Only one file, please.');
+            }
+            else {
+              var file = files[0];
+              log('dropped',file.name,file.type,file.size);
+              if(file.type != 'text/xml') {
+                $('#dropMessage p').text('Only GreenButton data, please.');
+              }
+              else if(file.size > 4000000) {
+                $('#dropMessage p').text('Maximum size is 4Mb, sorry.');
+              }
+              else {
+                $('#dropMessage p').text('Loading...');
+                $.mobile.showPageLoadingMsg();
+                var reader = new FileReader();
+                reader.onload = function(event) {
+                  var text = event.target.result;
+                  log('FileReader loaded',text.length,'bytes');
+                  try {
+                    var xml = $.parseXML(text);
+                    dropBusy = self.loadComplete(xml);
+                  }
+                  catch(e) {
+                    log('XML parse error');
+                    $('#loadErrorMessage').text("Your data appears to be corrupted (invalid XML).");
+                    $('#loadErrorDialog').click();
+                  }
+                  $('#dropMessage p').text('...or drop your data here.');
+                }
+                reader.onerror = function() {
+                  log('FileReader error');
+                  self.loadError();
+                  $('#dropMessage p').text('...or drop your data here.');
+                }
+                reader.readAsText(file);
+              }
+            }
+          }
+          return false;
+        });
+    }
+  }
+
   // Implement the welcome handler.
   $('#loadData').submit(function() {
-    var target = $('input[name=url]').val();
+    var target = $('#dataMenu').val();
+    log('target',target);
+    // Use the protocol and hostname where the app is running.
+    target = location.protocol + '//' + location.hostname + '/gbdata/' + target;
     log('loading',target);
+    $('#dropMessage p').text('Loading...');
     $.mobile.showPageLoadingMsg();
     // Start loading the file in the background
     $.ajax({
@@ -41,27 +122,11 @@ DemoApp.prototype.start = function() {
       url: target,
       dataType: 'xml',
       success: function(xml) {
-        log('loaded');
-        self.data = new GreenButtonData(xml);
-        $.mobile.hidePageLoadingMsg();
-        if(self.data.errorMessage) {
-          // Ajax requested completed ok, but there is a problem with the xml content.
-          log('load error',self.data.errorMessage);
-          $('#loadErrorMessage').text(self.data.errorMessage);
-          $('#loadErrorDialog').click();
-        }
-        else {
-          // Everything looks good.
-          log('parsed',self.data.nReadings,'readings');
-          $.mobile.changePage($('#intro'));
-        }
+        self.loadComplete(xml);
       },
       error: function(jqXHR, textStatus, errorThrown) {
-        // Ajax request resulted in an error.
-        log('error',textStatus,errorThrown);
-        $.mobile.hidePageLoadingMsg();
-        $('#loadErrorMessage').text('The GreenButton data you requested cannot be loaded.');
-        $('#loadErrorDialog').click();
+        log('ajaxError',textStatus,errorThrown);
+        self.loadError();
       }
     });
     return false; // prevent further form submission
@@ -101,9 +166,31 @@ DemoApp.prototype.start = function() {
       self.module.update(self.container);
     }
   });
-  
-  // Use the protocol and hostname where the app is running for the datafile default
-  $('#url').val(location.protocol+'//'+location.hostname+'/gbdata/demo.xml');
+}
+
+DemoApp.prototype.loadError = function() {
+  $.mobile.hidePageLoadingMsg();
+  $('#loadErrorMessage').text('The GreenButton data you requested cannot be loaded.');
+  $('#loadErrorDialog').click();
+}
+
+DemoApp.prototype.loadComplete = function(xml) {
+  log('loadComplete');
+  this.data = new GreenButtonData(xml);
+  $.mobile.hidePageLoadingMsg();
+  if(this.data.errorMessage) {
+    // Ajax requested completed ok, but there is a problem with the xml content.
+    log('load error',this.data.errorMessage);
+    $('#loadErrorMessage').text(this.data.errorMessage);
+    $('#loadErrorDialog').click();
+    return false;
+  }
+  else {
+    // Everything looks good.
+    log('parsed',this.data.nReadings,'readings');
+    $.mobile.changePage($('#intro'));
+    return true;
+  }
 }
 
 // De-activates any current module.

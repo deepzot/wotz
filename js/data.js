@@ -1,7 +1,7 @@
 // Represents a GreenButton data file.
 function GreenButtonData(xml) {
   var self = this;
-  this.tzOffset = -5*3600; // assume EST=GMT-5
+  this.tzOffset = -8*3600; // assume PST=GMT-8
   this.errorMessage = null;
   this.readings = new Array();
   this.dateOffset = 0;

@@ -1,3 +1,24 @@
+#dropData {
+    position: relative;
+}
+
+#gbIcon {
+    display: block;
+    margin-left: auto;
+    margin-right: auto;
+    position: relative;
+}
+
+#dropMessage {
+    position: absolute;
+    bottom: 15px;
+    width: 100%;
+}
+
+#dropMessage p {
+    text-align: center;
+}
+
 #moduleContent {
     margin: 0;
     padding: 0;
