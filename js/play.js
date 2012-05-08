@@ -8,7 +8,7 @@ function PlayModule() {
   this.storedTiles = null;
   this.numTilesX = 10;
   this.numTilesY = 15;
-  this.rowsPerLevel = 10;
+  this.rowsPerLevel = 3;
   this.stepDelay = null;
   this.x = null;
   this.y = null;
@@ -25,8 +25,10 @@ function PlayModule() {
 PlayModule.prototype.start = function(data) {
 	self = this;
   log('play start',data.current);
-  this.initNewGame();
-  this.setState(this.GameStates.READY);
+  if(this.state == null) {
+  	this.initNewGame();
+  	this.setState(this.GameStates.READY);
+  }
   
 	// Listen for keydown events
 	d3.select(window).on("keydown", function() {
@@ -104,16 +106,21 @@ PlayModule.prototype.update = function(container) {
   var width = $('#gameBoard').width(), height = $('#gameBoard').height();
   gameBoard.attr('width',width).attr('height',height);
   // Prepare tile scaling functions
-  var padX = Math.floor(.1*width);
-  var padY = Math.floor(.1*height);
+  var padX = Math.floor(0.2*width);
+  var effectiveWidth = width-2*padX;
+  var effectiveHeight = height;
+  var tileSize = Math.min(height/this.numTilesY,width/this.numTilesX);
+  var padX = (width-tileSize*this.numTilesX)/2;
+  var padY = (height-tileSize*this.numTilesY)/2;
+  log(tileSize);
 	self.x = d3.scale.linear()
-		.domain([0, self.numTilesX])
-		.range([padX,width-padX]);
+		.domain([0,this.numTilesX])
+		.range([padX,width-1-padX]);
 	self.y = d3.scale.linear()
-		.domain([0, self.numTilesY])
-		.range([padY,height-1]);
+		.domain([0, this.numTilesY])
+		.range([padY,height-1-padY]);
 	// Draw multiple horizontal lines
-	for (var i=0; i <= self.numTilesY; i++) {
+	for (var i=0; i <= this.numTilesY; i++) {
 			gameBoard.append("svg:line")
 					.attr("x1", self.x(0))
 					.attr("y1", self.y(i))
@@ -130,6 +137,36 @@ PlayModule.prototype.update = function(container) {
 					.attr("y2", self.y(self.numTilesY))
 					.style("stroke", "rgb(6,120,155)")
 	};
+  // Calculate a nominal scaling unit for labels.
+  var pmUnit = $('#gameBoard').css('font-size');
+  if(pmUnit.slice(-2) == 'px') {
+    pmUnit = parseFloat(pmUnit);
+  }
+  else {
+    pmUnit = 10;
+  }
+  // Add score label.
+  var scoreLabel = gameBoard.selectAll('text.scoreLabel').data([this.score]);
+  scoreLabel.enter().append('svg:text')
+    .attr('class','scoreLabel')
+    .text(function(d) { return 'Score: ' + d; })
+    .attr('x', padX/2)
+    .attr('y', padY + 3*pmUnit);
+  // Add level label.
+  var levelLabel = gameBoard.selectAll('text.levelLabel').data([this.level]);
+  levelLabel.enter().append('svg:text')
+    .attr('class','levelLabel')
+    .text(function(d) { return 'Level: ' + d; })
+    .attr('x', width-1-padX/2)
+    .attr('y', padY + 3*pmUnit);
+  // Add row count label.
+//   var rowCountLabel = gameBoard.selectAll('text.rowCountLabel').data([this.rowCount]);
+//   rowCountLabel.enter().append('svg:text')
+//     .attr('class','rowCountLabel')
+//     .text(function(d) { return 'Rows Cleared: ' + d; })
+//     .attr('x', padX/2)
+//     .attr('y', padY + 7*pmUnit); 
+    
   self.draw();
   gameBoard.append('svg:g').attr('id','playMessage');
   if(this.state != this.GameStates.RUNNING) {
@@ -137,7 +174,10 @@ PlayModule.prototype.update = function(container) {
 	}
 }
 
-PlayModule.prototype.end = function() { clearInterval(this.intervalID); }
+PlayModule.prototype.end = function() {
+	this.setState(this.GameStates.PAUSE);
+	//clearInterval(this.intervalID); 
+}
 
 PlayModule.prototype.initNewGame = function() {
 	this.state = this.GameStates.READY;
@@ -274,7 +314,7 @@ PlayModule.prototype.isPossibleMovement = function(x, y, shape) {
 	
 // Draw stuff
 PlayModule.prototype.draw = function() {
-	self = this;
+	var self = this;
 	// Update actice piece
 	var gameBoard = d3.select('#gameBoard');
 	var rect = gameBoard.selectAll("rect")
@@ -315,7 +355,7 @@ PlayModule.prototype.draw = function() {
 
 // Move active piece down or add it to the stored tiles	
 PlayModule.prototype.step = function() {
-	self = this;
+	var self = this;
 	// Check if we can move active piece down
 	if(this.isPossibleMovement(0,1,Shape.State.currentShape)) {
 		Shape.State.y = Shape.State.y + 1;
@@ -336,10 +376,24 @@ PlayModule.prototype.step = function() {
 		if(this.rowCount >= this.rowsPerLevel*this.level) {
 			this.level++;
 			this.stepDelay = Math.floor(this.stepDelay * 0.9);
+			clearInterval(this.intervalID);
+			this.intervalID = setInterval(function() { self.step(); },this.stepDelay);
 		}
 		
 		this.score += 10 * numClearedRows;
 		this.score++;
+		var gameBoard = d3.select('#gameBoard');
+		var scoreLabel = gameBoard.selectAll('text.scoreLabel')
+			.data([this.score])
+			.text(function(d) { return 'Score: ' + d; });
+		var levelLabel = gameBoard.selectAll('text.levelLabel')
+			.data([this.level])
+			.text(function(d) { return 'Level: ' + d; });
+// 		var rowCountLabel = gameBoard.selectAll('text.rowCountLabel')
+// 			.data([this.rowCount])
+// 			.text(function(d) { return 'Rows Cleared: ' + d; });
+		//scoreLabel.exit().remove();
+
 		// Create a new piece
 		this.createNewPiece();
 	}
@@ -379,8 +433,8 @@ PlayModule.prototype.deleteRow = function(y) {
 }
 
 PlayModule.prototype.setState = function(newState) {
-	self = this;
-	oldState = this.state;
+	var self = this;
+	var oldState = this.state;
 	this.state = newState;
 		
 	if(newState == this.GameStates.RUNNING && oldState != this.GameStates.RUNNING) {
@@ -394,7 +448,7 @@ PlayModule.prototype.setState = function(newState) {
 		// pause game
 		clearInterval(this.intervalID);
 		// display pause message
-		this.currentMessage = ['Touch to unpause...'];
+		this.currentMessage = ['Touch to resume...'];
 		this.showMessage();
 	}
 	else if(newState == this.GameStates.READY){
@@ -406,7 +460,7 @@ PlayModule.prototype.setState = function(newState) {
 		// end game
 		clearInterval(this.intervalID);
 		// display game over message
-		this.currentMessage = ['Game over!','Score : ' + this.score,'Total Rows Cleared : ' + this.rowCount];
+		this.currentMessage = ['Game over!','Touch to play again...'];
 		this.showMessage();
 	}
 	return;
