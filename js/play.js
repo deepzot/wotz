@@ -29,8 +29,10 @@ PlayModule.prototype.start = function(data) {
   	this.initNewGame();
   	this.setState(this.GameStates.READY);
   }
-  this.drawActivePiece();
-  this.drawTiles();
+  else {
+  	this.drawActivePiece();
+  	this.drawTiles();
+  }
 	// Listen for keydown events
 	d3.select(window).on("keydown", function() {
 		var keyCode = d3.event.keyCode;
