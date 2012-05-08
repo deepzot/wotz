@@ -91,16 +91,17 @@ DemoApp.prototype.start = function() {
                     $('#loadErrorMessage').text("Your data appears to be corrupted (invalid XML).");
                     $('#loadErrorDialog').click();
                   }
+                  $('#dropMessage p').text('...or drop your data here.');
                 }
                 reader.onerror = function() {
                   log('FileReader error');
                   self.loadError();
+                  $('#dropMessage p').text('...or drop your data here.');
                 }
                 reader.readAsText(file);
               }
             }
           }
-          $('#dropMessage p').text('...or drop your data here.');
           return false;
         });
     }
