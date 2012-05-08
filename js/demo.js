@@ -10,6 +10,9 @@ DemoApp.prototype.start = function() {
   // Use 'self' as an alias for 'this' when we are in a context that hides 'this'
   var self = this;
   
+  // Show the disclaimer dialog.
+  $('#showDisclaimerDialog').click();
+  
   // Attach toolbar selection handlers for each of our modules.
   for(var index = 0; index < this.modules.length; index++) {
     var module = this.modules[index];
