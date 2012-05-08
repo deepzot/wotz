@@ -30,6 +30,14 @@ DemoApp.prototype.start = function() {
     })(module));
   }
 
+  // Enable drag-and-drop, if possible.
+  if(window.File && window.FileReader) {
+    var xhr = new XMLHttpRequest();
+    if(xhr.upload) {
+      $('#dropMessage p').text('...or drop your data here.');
+    }
+  }
+
   // Implement the welcome handler.
   $('#loadData').submit(function() {
     var target = $('#dataMenu').val();
