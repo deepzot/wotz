@@ -1,85 +1,153 @@
-// These are all the variables we need to track
-// the game
-var mode;
-var storedTiles;
-var score;
-var timer;
-var stepDelay;
-var HEIGHT = 15, WIDTH = 12;
-var ROWSPERLEVEL = 10;
-var x, y;
-var gameBoard;
-var level;
-var rowCounter;
-//////////////////////
 function PlayModule() {
   this.id = 'play';
   this.label = 'Play';
+  this.state = null;
+  this.score = null;
+  this.level = null;
+  this.rowCount = null;
+  this.storedTiles = null;
+  this.numTilesX = 10;
+  this.numTilesY = 15;
+  this.rowsPerLevel = 10;
+  this.stepDelay = null;
+  this.x = null;
+  this.y = null;
+  this.GameStates = {
+  	PAUSE : {value: 0, name: "Pause"}, 
+  	READY: {value: 1, name: "Ready"}, 
+  	RUNNING : {value: 2, name: "Running"},
+  	LOSE : {value: 3, name: "Lose"}
+	};
+	this.intervalID = null;
+	this.currentMessage = null;
 }
 
 PlayModule.prototype.start = function(data) {
+	self = this;
   log('play start',data.current);
-  setMode(GameMode.READY);
+  this.initNewGame();
+  this.setState(this.GameStates.READY);
+  
+	// Listen for keydown events
+	d3.select(window).on("keydown", function() {
+		var keyCode = d3.event.keyCode;
+		// Up Arrow
+		if (keyCode == 38) {
+			if(self.state == self.GameStates.RUNNING) {
+				// Rotate shape 
+				newShape = Shape.rotateLeft();
+				if(self.isPossibleMovement(0,0,newShape)) {
+					Shape.State.currentShape = newShape;
+					self.draw();
+				}
+			}
+		}
+		// Left Arrow
+		else if(keyCode == 37) {
+			if(self.state == self.GameStates.RUNNING) {
+				if(self.isPossibleMovement(-1,0,Shape.State.currentShape)) {
+					Shape.State.x = Shape.State.x - 1;
+					self.draw();
+				}
+			}
+		}
+		// Right Arrow
+		else if(keyCode == 39) {
+			if(self.state == self.GameStates.RUNNING) {
+				if(self.isPossibleMovement(1,0,Shape.State.currentShape)) {
+					Shape.State.x = Shape.State.x + 1;
+					self.draw();
+				}
+			}
+		}
+		// Down Arrow
+		else if(keyCode == 40) {
+			if(self.state == self.GameStates.RUNNING) {
+				if(self.isPossibleMovement(0,1,Shape.State.currentShape)) {
+					Shape.State.y = Shape.State.y + 1;
+					self.draw();
+				}
+			}
+		}
+		// Space bar
+		else if(keyCode == 32) {
+			if(self.state == self.GameStates.RUNNING) {
+				// Pause game
+				self.setState(self.GameStates.PAUSE);
+			}
+			else if(self.state == self.GameStates.PAUSE) {
+				// Resume game
+				self.setState(self.GameStates.RUNNING);
+			}
+			else if (self.state == self.GameStates.READY) {
+				// Start a new game
+				self.setState(self.GameStates.RUNNING);
+			}
+			else if (self.state == self.GameStates.LOSE) {
+				// Set up new game
+				self.initNewGame();
+				self.setState(self.GameStates.READY);
+			}
+		}
+		return;
+	}); // End Listen for key down events
 }
 
 PlayModule.prototype.update = function(container) {
+	var self = this;
   log('play update');
   container.empty();
-  
-  gameBoard = d3.select('#moduleContent').append("svg")
+  // Draw game board
+  var gameBoard = d3.select('#moduleContent').append("svg:svg")
     .attr('class','graphics')
     .attr('id', 'gameBoard');
-        
   var width = $('#gameBoard').width(), height = $('#gameBoard').height();
-  
-  var pad = Math.floor(width * .2);
-  log(pad);
-  
-
-	log(width);
-	log(height);
-	
-	x = d3.scale.linear()
-		.domain([0, WIDTH])
-		.range([0,width]);
-	
-	y = d3.scale.linear()
-		.domain([0, HEIGHT])
-		.range([0, height]);
-			
-	// Using for loop to draw multiple horizontal lines
-	for (var i=0; i <= HEIGHT; i++) {
+  gameBoard.attr('width',width).attr('height',height);
+  // Prepare tile scaling functions
+  var padX = Math.floor(.1*width);
+  var padY = Math.floor(.1*height);
+	self.x = d3.scale.linear()
+		.domain([0, self.numTilesX])
+		.range([padX,width-padX]);
+	self.y = d3.scale.linear()
+		.domain([0, self.numTilesY])
+		.range([padY,height-1]);
+	// Draw multiple horizontal lines
+	for (var i=0; i <= self.numTilesY; i++) {
 			gameBoard.append("svg:line")
-					.attr("x1", x(0))
-					.attr("y1", y(i))
-					.attr("x2", x(WIDTH))
-					.attr("y2", y(i))
+					.attr("x1", self.x(0))
+					.attr("y1", self.y(i))
+					.attr("x2", self.x(self.numTilesX))
+					.attr("y2", self.y(i))
 					.style("stroke", "rgb(6,120,155)")
 	};
-	 
 	// Using for loop to draw multiple vertical lines
-	for (var i=0; i <= WIDTH; i++) {
+	for (var i=0; i <= self.numTilesX; i++) {
 			gameBoard.append("svg:line")
-					.attr("x1", x(i))
-					.attr("y1", y(0))
-					.attr("x2", x(i))
-					.attr("y2", y(HEIGHT))
+					.attr("x1", self.x(i))
+					.attr("y1", self.y(0))
+					.attr("x2", self.x(i))
+					.attr("y2", self.y(self.numTilesY))
 					.style("stroke", "rgb(6,120,155)")
 	};
-  
-  draw();
+  self.draw();
+  gameBoard.append('svg:g').attr('id','playMessage');
+  if(this.state != this.GameStates.RUNNING) {
+		this.showMessage();
+	}
 }
 
-PlayModule.prototype.end = function() { clearTimeout(timer) }
+PlayModule.prototype.end = function() { clearInterval(this.intervalID); }
 
-function initNewGame() {
-	mode = GameMode.READY;
-	storedTiles = []; // initTiles(recent);
-	score = 0;
-	stepDelay = 1000;
-	Shape.init(WIDTH/2,-1,Shape.randomShape());
-	level = 1;
-	rowCounter = 0;
+PlayModule.prototype.initNewGame = function() {
+	this.state = this.GameStates.READY;
+	this.storedTiles = []; // initTiles(recent);
+	this.score = 0;
+	this.stepDelay = 1000; // in milliseconds
+	Shape.init(Math.floor(this.numTilesX/2),-1,Shape.randomShape());
+	this.level = 1;
+	this.rowCount = 0;
+	this.currentMessage = ['Touch to play!'];
 }
 
 // Our active shape
@@ -166,246 +234,224 @@ var Shape = {
   	}
   	return newShape;
   } 
-}
+};
 
-// Possible game "modes"
-var GameMode = {
-  PAUSE : {value: 0, name: "Pause"}, 
-  READY: {value: 1, name: "Ready"}, 
-  RUNNING : {value: 2, name: "Running"},
-  LOSE : {value: 3, name: "Lose"}
+// Create a new piece
+PlayModule.prototype.createNewPiece = function() {
+	Shape.State.y = -1;
+	Shape.State.x = Math.floor(this.numTilesX/2);
+	Shape.State.currentShape = Shape.randomShape();
 }
-
-// Listen for keydown events
-d3.select(window).on("keydown", function() {
-	var keyCode = d3.event.keyCode;
-	// Up Arrow
-	if (keyCode == 38) {
-		if(mode == GameMode.RUNNING) {
-			// Rotate shape 
-			newShape = Shape.rotateLeft();
-			if(isPossibleMovement(0,0,newShape)) {
-				Shape.State.currentShape = newShape;
-				draw();
-			}
-		}
-	}
-	// Left Arrow
-	else if(keyCode == 37) {
-		if(mode == GameMode.RUNNING) {
-			if(isPossibleMovement(-1,0,Shape.State.currentShape)) {
-				Shape.State.x = Shape.State.x - 1;
-				draw();
-			}
-		}
-	}
-	// Right Arrow
-	else if(keyCode == 39) {
-		if(mode == GameMode.RUNNING) {
-			if(isPossibleMovement(1,0,Shape.State.currentShape)) {
-				Shape.State.x = Shape.State.x + 1;
-				draw();
-			}
-		}
-	}
-	// Down Arrow
-	else if(keyCode == 40) {
-		if(mode == GameMode.RUNNING) {
-			if(isPossibleMovement(0,1,Shape.State.currentShape)) {
-				Shape.State.y = Shape.State.y + 1;
-				draw();
-			}
-		}
-	}
-	// Space bar
-	else if(keyCode == 32) {
-		if(mode == GameMode.RUNNING) {
-			// Pause game
-			setMode(GameMode.PAUSE);
-		}
-		else if(mode == GameMode.PAUSE) {
-			// Resume game
-			setMode(GameMode.RUNNING);
-		}
-		else if (mode == GameMode.READY) {
-			// Start a new game
-			setMode(GameMode.RUNNING);
-		}
-		else if (mode == GameMode.LOSE) {
-			// Set up new game
-			initNewGame();
-			setMode(GameMode.READY);
-		}
-	}
-	return;
-}); // End Listen for key down events
 
 // Collision detection
-function isPossibleMovement(x, y, shape) {
+PlayModule.prototype.isPossibleMovement = function(x, y, shape) {
 	// Iterate through shape tiles
 	for(var i = 0; i < shape.length; i++) {
 		// Check collision with walls.
 		if(x + shape[i].x + Shape.State.x < 0) {
 			return false;
 		}
-		else if(x + shape[i].x + Shape.State.x > WIDTH-1) {
+		else if(x + shape[i].x + Shape.State.x > this.numTilesX-1) {
 			return false;
 		}
 		// Don't worry about the top of the game board
 		//else if(y + shape[i].y + Shape.State.y < 0) {
 		//	return false;
 		//}
-		else if(y + shape[i].y + Shape.State.y > HEIGHT-1 ){
+		else if(y + shape[i].y + Shape.State.y > this.numTilesY-1 ){
 			return false;
 		}
 	// Check for collision with stored tiles.
-	for(var j = 0; j < storedTiles.length; j++) {
-			if( storedTiles[j].x == x + shape[i].x + Shape.State.x && storedTiles[j].y == y + shape[i].y + Shape.State.y) {
+	for(var j = 0; j < this.storedTiles.length; j++) {
+			if( this.storedTiles[j].x == x + shape[i].x + Shape.State.x 
+			&& this.storedTiles[j].y == y + shape[i].y + Shape.State.y) {
 				return false;
 			}
 		}
 	}
 	return true;
-};
+}
 	
 // Draw stuff
-function draw() {
+PlayModule.prototype.draw = function() {
+	self = this;
 	// Update actice piece
+	var gameBoard = d3.select('#gameBoard');
 	var rect = gameBoard.selectAll("rect")
 		.data(Shape.State.currentShape);
 	
 	rect.enter().append("rect")
-		.attr("width", x(1))
-		.attr("height", y(1))
+		.attr("width", this.x(1)-this.x(0))
+		.attr("height", this.y(1)-this.y(0))
 		.style("fill", "green");
 	
 	rect
 	//.transition()
-		.attr("x", function(d,i) { return x(Shape.State.x + d.x) } )
-		.attr("y", function(d,i) { return y(Shape.State.y + d.y) } );
+		.attr("x", function(d,i) { return self.x(Shape.State.x + d.x) } )
+		.attr("y", function(d,i) { return self.y(Shape.State.y + d.y) } );
 		
 	rect.exit().remove();
 
 	// Update stored tiles
 	var ellipse = gameBoard.selectAll("ellipse")
-		.data(storedTiles);
+		.data(this.storedTiles);
 
 	// Append new tiles
 	ellipse.enter().append("ellipse")
-		.attr("rx", x(.5))
-		.attr("ry", y(.5))
+		.attr("rx", this.x(.5)-this.x(0))
+		.attr("ry", this.y(.5)-this.y(0))
 		.style("stroke", "black")
 		.style("fill", "blue");
 
 	// Set attr for all tiles
 	ellipse
-		.attr("cx", function(d) { return x(d.x + .5); })
-		.attr("cy", function(d) { return y(d.y + .5); });
+		.attr("cx", function(d) { return self.x(d.x + .5); })
+		.attr("cy", function(d) { return self.y(d.y + .5); });
 		
 	// Remove cleared tiles
 	ellipse.exit().remove();
-};
+
+}
 
 // Move active piece down or add it to the stored tiles	
-function step() {
+PlayModule.prototype.step = function() {
+	self = this;
 	// Check if we can move active piece down
-	if(isPossibleMovement(0,1,Shape.State.currentShape)) {
+	if(this.isPossibleMovement(0,1,Shape.State.currentShape)) {
 		Shape.State.y = Shape.State.y + 1;
 	}
 	else {
 		// Add tiles to stored tiles
 		Shape.State.currentShape.forEach( function(p){
-			storedTiles.push({x: Shape.State.x + p.x, y: Shape.State.y + p.y});
+			self.storedTiles.push({x: Shape.State.x + p.x, y: Shape.State.y + p.y});
 			// Check tiles are in top row
 			if( Shape.State.y + p.y == 0 ){
-				setMode(GameMode.LOSE);
+				self.setState(self.GameStates.LOSE);
 			}
 		});
 		// Clear filled rows	
-		var numClearedRows = deletePossibleRows();
-		rowCounter += numClearedRows;
+		var numClearedRows = this.deletePossibleRows();
+		this.rowCount += numClearedRows;
 		
-		if(rowCounter >= ROWSPERLEVEL * level) {
-			level++;
-			stepDelay = Math.floor(stepDelay * 0.9);
+		if(this.rowCount >= this.rowsPerLevel*this.level) {
+			this.level++;
+			this.stepDelay = Math.floor(this.stepDelay * 0.9);
 		}
 		
-		score += 10 * numClearedRows;
-		score++;
+		this.score += 10 * numClearedRows;
+		this.score++;
 		// Create a new piece
-		createNewPiece();
+		this.createNewPiece();
 	}
-	draw();
-};
+	this.draw();
+}
 
 // Iterates through each row and returns the number
 // of filled rows that are removed
-function deletePossibleRows(){
+PlayModule.prototype.deletePossibleRows = function(){
+	self = this;
 	var rowsDeleted = 0;
-	for(var j = 0; j < HEIGHT; j++){
-		if( WIDTH == storedTiles.filter(function(d) {
+	for(var j = 0; j < this.numTilesY; j++){
+		if( this.numTilesX == this.storedTiles.filter(function(d) {
 			return (d.y == j);
 		}).length) {
-			deleteRow(j);
+			self.deleteRow(j);
 			rowsDeleted++;
 		}
 	}
 	return rowsDeleted;
-};
+}
 
 // Removes the tiles in the specified row and shifts 
 // all the tiles above down one row.
-function deleteRow(y) {
+PlayModule.prototype.deleteRow = function(y) {
 	// Get a list of tiles that does not include any 
 	// from the specified row.
-	storedTiles = storedTiles.filter(function(d) {
+	this.storedTiles = this.storedTiles.filter(function(d) {
 		return (d.y != y);
 	});
 	// Shift tiles that are above the specfied row down by one
-	for(var i = 0; i < storedTiles.length; i++){
-		if( storedTiles[i].y < y) {
-			storedTiles[i].y = storedTiles[i].y + 1;
+	for(var i = 0; i < this.storedTiles.length; i++){
+		if( this.storedTiles[i].y < y) {
+			this.storedTiles[i].y = this.storedTiles[i].y + 1;
 		}	
 	};
-};
-	
-function createNewPiece() {
-	Shape.State.y = -1;
-	Shape.State.x = WIDTH/2;
-	Shape.State.currentShape = Shape.randomShape();
-};
-	
-function setMode(newMode) {
-	oldMode = mode;
-	mode = newMode;
+}
+
+PlayModule.prototype.setState = function(newState) {
+	self = this;
+	oldState = this.state;
+	this.state = newState;
 		
-	if(newMode == GameMode.RUNNING && oldMode != GameMode.RUNNING) {
+	if(newState == this.GameStates.RUNNING && oldState != this.GameStates.RUNNING) {
 		// playing game
-		update();
+		this.intervalID = setInterval(function() { self.step(); },this.stepDelay);
+		// hide all messages
+		this.currentMessage = ['Playing...'];
+		this.hideMessage();
 	}
-	else if(newMode == GameMode.PAUSE){
+	else if(newState == this.GameStates.PAUSE){
 		// pause game
-		clearTimeout(timer);
+		clearInterval(this.intervalID);
+		// display pause message
+		this.currentMessage = ['Touch to unpause...'];
+		this.showMessage();
 	}
-	else if(newMode == GameMode.READY){
+	else if(newState == this.GameStates.READY){
 		// init game
-		initNewGame();
+		this.initNewGame();
+		// display ready to start message
 	}
-	else if(newMode == GameMode.LOSE){
+	else if(newState == this.GameStates.LOSE){
 		// end game
-		clearTimeout(timer);
-		log(score);
-		log(rowCounter);
-		log(level);
-		log(stepDelay);
+		clearInterval(this.intervalID);
+		// display game over message
+		this.currentMessage = ['Game over!','Score : ' + this.score,'Total Rows Cleared : ' + this.rowCount];
+		this.showMessage();
 	}
-	
 	return;
-};
-	
-function update() {
-	if (mode == GameMode.RUNNING) {
-		step();
-	}
-	timer = setTimeout(update,stepDelay);
-};
+}
+
+PlayModule.prototype.hideMessage = function() {
+	var message = d3.select('#playMessage').attr('opacity',0);
+	message.selectAll('text').remove();
+}
+
+PlayModule.prototype.showMessage = function() {
+  var gameBoard = d3.select('#gameBoard');
+  var width = $('#gameBoard').width(), height = $('#gameBoard').height();
+  var message = d3.select('#playMessage').attr('opacity',0);
+  var msgLength = this.currentMessage.length;
+  message.selectAll('text').remove();
+  message.selectAll('text').data(this.currentMessage)
+    .enter().append('svg:text')
+      .text(function(d) { return d; })
+      .attr('font-size','10px')
+      .attr('x',0)
+      .attr('y',function(d,i) { return 15*(i-(msgLength-1)/2); });
+  var bbox = $('#playMessage')[0].getBBox();
+  var scaleFactor = Math.min(0.95*width/bbox.width,0.95*height/bbox.height);
+  var dx = (width/2)/scaleFactor;
+  var dy = (height/2)/scaleFactor;
+  message
+    .attr('transform','scale('+scaleFactor+') translate(' + dx + ',' + dy + ')')
+    .attr('stroke-width',(2/scaleFactor)+'px');
+  message.attr('opacity',1);
+
+  var self = this;
+  message.on('click',function() {
+		if(self.state == self.GameStates.PAUSE) {
+			// Resume game
+			self.setState(self.GameStates.RUNNING);
+		}
+		else if (self.state == self.GameStates.READY) {
+			// Start a new game
+			self.setState(self.GameStates.RUNNING);
+		}
+		else if (self.state == self.GameStates.LOSE) {
+			// Set up new game
+			self.initNewGame();
+			self.setState(self.GameStates.READY);
+		}
+  });
+}

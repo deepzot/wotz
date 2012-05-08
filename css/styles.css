@@ -44,3 +44,16 @@
     stroke: #464;
     cursor: pointer;
 }
+
+#gameBoard text {
+    stroke: none;
+    fill: white;
+    text-anchor: middle;
+    text-shadow: none;
+}
+
+#playMessage text {
+		font-weight: bold;
+		stroke: #464;
+		cursor: pointer;
+}
