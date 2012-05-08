@@ -31,7 +31,7 @@ DemoApp.prototype.start = function() {
   }
 
   // Enable drag-and-drop, if possible.
-  if(window.File && window.FileReader) {
+  if(window.File && window.FileList && window.FileReader) {
     var xhr = new XMLHttpRequest();
     if(xhr.upload) {
       var dropBusy = false;
@@ -40,18 +40,44 @@ DemoApp.prototype.start = function() {
       $('#dropData')
         .on('dragover', function(event) {
           if(!dropBusy) {
+            $('#dropMessage p').text('Drop Here!');
             $('#gbIcon').css({ 'opacity' : 1.0 });
             // Must return false to indicate that this element is droppable.
             return false;
           }
         })
         .on('dragleave', function() {
+          $('#dropMessage p').text('...or drop your data here.');
           $('#gbIcon').css({ 'opacity' : 0.4 });
         })
         .on('drop', function(event) {
-          log('drop',dropBusy);
-          $('#gbIcon').css({ 'opacity' : 0.4 });        
-          dropBusy = true;
+          // The next two lines are redundant with 'return false' but protect us
+          // against an exception before we return.
+          event.stopPropagation();
+          event.preventDefault();
+          // jQuery events do not expose the new drag-and-drop properties, so
+          // we need to dig into the raw DOM event instead.
+          var raw = event.originalEvent;
+          if(raw.dataTransfer && raw.dataTransfer.files) {
+            var files = raw.dataTransfer.files;
+            if(files.length != 1) {
+              $('#dropMessage p').text('Only one file, please.');
+            }
+            else {
+              var file = files[0];
+              log('dropped',file.name,file.type,file.size);
+              if(file.type != 'text/xml') {
+                $('#dropMessage p').text('Only GreenButton data, please.');
+              }
+              else if(file.size > 4000000) {
+                $('#dropMessage p').text('Maximum size is 4Mb, sorry.');
+              }
+              else {
+                $('#dropMessage p').text('Loading...');
+                dropBusy = true;                
+              }
+            }
+          }
           return false;
         });
     }
