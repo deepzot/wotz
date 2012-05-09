@@ -25,8 +25,7 @@ var svg = d3.select("body").append("svg:svg")
     .attr("height", h)
     
 // Draw boarders, background stuff
-var borders = svg.append('g');
-borders.selectAll('line')
+var borders = svg.selectAll('line')
 	.data([[0,0,w,0],[0,0,0,h],[w,0,w,h],[0,h,w,h]])
 .enter().append("svg:line")
 	.style("stroke","black")
@@ -48,8 +47,7 @@ homeRect
 		.attr("fill","yellow");
 		
 // Create Fired shots array and svg group
-var shots = svg.append('g');
-var raybeams = [];
+var firedShots = [];
 
 // Create some random baddies
 createRandomBaddie = function() {
@@ -60,7 +58,6 @@ createRandomBaddie = function() {
     path: [x, y],
   };
 }
-var baddies = svg.append('g');
 var randomBaddies = d3.range(nBaddies).map(createRandomBaddie);
 
 // The heartbeat
@@ -79,17 +76,17 @@ d3.timer(function() {
     if (y < 0 || y > h) path[1] = Math.abs(h - y);
 	}
 	// Update fired shots and detect collisions with baddies
-  for (var i = 0; i < raybeams.length; i++) {
-    var raybeam = raybeams[i],
-        path = raybeam.path,
-        dx = raybeam.vx,
-        dy = raybeam.vy,
+  for (var i = 0; i < firedShots.length; i++) {
+    var shot = firedShots[i],
+        path = shot.path,
+        dx = shot.vx,
+        dy = shot.vy,
         x = path[0] += dx,
         y = path[1] += dy;
 
     // Remove when we get to a wall
-    if (x < 0 || x > w) {raybeams.splice(i,1); i--; continue;}
-    if (y < 0 || y > h) {raybeams.splice(i,1); i--; continue;}
+    if (x < 0 || x > w) {firedShots.splice(i,1); i--; continue;}
+    if (y < 0 || y > h) {firedShots.splice(i,1); i--; continue;}
     
     // Collision detection
     for (var j = 0; j < randomBaddies.length; j++) {
@@ -101,7 +98,7 @@ d3.timer(function() {
 				// Remove baddie and shot
 				randomBaddies.splice(j,1);
 				j--;
-				raybeams.splice(i,1);
+				firedShots.splice(i,1);
 				i--;
 				continue;
 			}
@@ -130,33 +127,35 @@ svg.on("mousedown", function(d) {
 	var speed = 2;
 	var vx = speed*Math.cos(theta), vy = speed*Math.sin(theta);
 	// Add shot to the list of shotsfired
-	var raybeam = {path:origin, vx:vx, vy:vy};
-	raybeams.push(raybeam);
+	var shot = {path:origin, vx:vx, vy:vy};
+	firedShots.push(shot);
 });
 
 
 redraw = function() {
 	// Update baddies
-	var ellipses = baddies.selectAll("ellipse")
+	var baddies = svg.selectAll("ellipse.baddies")
 		.data(randomBaddies);
-	ellipses.enter().append("svg:ellipse")
+	baddies.enter().append("svg:ellipse")
+		.attr('class','baddies')
     .attr("rx", 4.5)
     .attr("ry", 3.5)
     .style('fill','white');
-  ellipses.attr("transform", function(d) {
+  baddies.attr("transform", function(d) {
     return "translate(" + d.path + ")rotate(" + Math.atan2(d.vy, d.vx) * degrees + ")";
   });
-	ellipses.exit()
+	baddies.exit()
 		.remove();	
 	// Update fired shots
-	var circles = shots.selectAll('circle')
-		.data(raybeams);
-	circles.enter().append('svg:circle')
+	var shots = svg.selectAll('circle.shots')
+		.data(firedShots);
+	shots.enter().append('svg:circle')
+		.attr('class','shots')
 		.attr("r",2)
 		.attr('fill','blue');
-	circles
+	shots
 		.attr("transform", function(d) { return "translate(" + d.path + ")" });
-	circles.exit()
+	shots.exit()
 		.remove();
 };
 
