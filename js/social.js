@@ -14,7 +14,7 @@ function shareOnFacebook(message) {
     name: 'I\'m using GBAPP!',
     caption: 'This is the caption.',
     description: message,
-    link: 'http://darkmatter.ps.uci.edu/gbtest/'
+    link: 'http://darkmatter.ps.uci.edu/gbtest/',
     picture: 'http://darkmatter.ps.uci.edu/gbtest/img/apple-touch-icon-72x72-precomposed.png'
   }, 
   function(response) {
