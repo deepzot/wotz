@@ -15,7 +15,7 @@ function Facebook() {
     FB.Event.subscribe('auth.statusChange', function(response) {
       if (response.authResponse) {
         log('facebookStatusChange',response);
-        self.loggedIn = true;
+        self.login();
       }
     });
   };
@@ -29,31 +29,37 @@ function Facebook() {
    }(document));
 }
 
-Facebook.prototype.share = function(message) {
-  log('sharing on facebook',message);
-  if(!this.loggedIn) {
-    log('not logged in yet.');
-    return false;
-  }
-  FB.ui({
-      method: 'feed',
-      name: 'I\'m using GBAPP!',
-      caption: 'This is the caption.',
-      description: message,
-      link: 'http://darkmatter.ps.uci.edu/gbtest/',
-      picture: 'http://darkmatter.ps.uci.edu/gbtest/img/apple-touch-icon-72x72-precomposed.png'
-    }, 
-    function(response) {
-      log('shareOnFacebook', response);
-  });
-  return false;  
+Facebook.prototype.login = function() {
+  this.loggedIn = true;
 }
 
-Facebook.prototype.handleStatusChange = function(response) {
-  if (response.authResponse) {
-    log('facebookStatusChange',response);
-    this.loggedIn = true;
+Facebook.prototype.share = function(message) {
+  log('sharing on facebook',message);
+  self = this;
+  if(!this.loggedIn) {
+    log('not logged in yet.');
+    FB.login(function(response) {
+       if (response.authResponse) {
+         self.login();
+         self.share(message);
+       }
+    });
   }
+  else {
+    // Already logged in...
+    FB.ui({
+        method: 'feed',
+        name: 'I\'m using GBAPP!',
+        caption: 'This is the caption.',
+        description: message,
+        link: 'http://darkmatter.ps.uci.edu/gbtest/',
+        picture: 'http://darkmatter.ps.uci.edu/gbtest/img/apple-touch-icon-72x72-precomposed.png'
+      }, 
+      function(response) {
+        log('shareOnFacebook', response);
+    });
+  }
+  return false;  
 }
 
 function share(activeModule) {
