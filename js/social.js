@@ -35,7 +35,7 @@ Facebook.prototype.doLoginLogout = function() {
     log('logging out');
     FB.logout();
     this.loggedIn = false;
-    $('#loginButton').text('login');
+    $('#loginButton .ui-btn-text').text('login');
     $('#shareButton').button('enable');
   }
   else {
@@ -50,7 +50,7 @@ Facebook.prototype.doLoginLogout = function() {
 
 Facebook.prototype.login = function() {
   this.loggedIn = true;
-  $('#loginButton').text('logout');
+  $('#loginButton .ui-btn-text').text('logout');
   if($('#shareButton').is(':visible')) {
     $('#shareButton').button('enable');
   }
