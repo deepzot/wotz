@@ -139,7 +139,7 @@ DemoApp.prototype.start = function() {
   $('#startDemo').click(function() {
     log('starting');
     self.reset();
-    $.mobile.changePage($('#demo'));
+    $.mobile.changePage($('#demo'), { changeHash: false });
     facebook.updateButtons();
   });
   
@@ -198,7 +198,7 @@ DemoApp.prototype.loadComplete = function(xml) {
   else {
     // Everything looks good.
     log('parsed',this.data.nReadings,'readings');
-    $.mobile.changePage($('#intro'));
+    $.mobile.changePage($('#intro'), { changeHash: false });
     return true;
   }
 }
