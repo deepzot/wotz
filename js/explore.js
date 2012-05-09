@@ -22,44 +22,22 @@ ExploreModule.prototype.start = function(data) {
 
 ExploreModule.prototype.update = function(container) {
   var self = this;
-  this.container = container;
-  var graphics = new Graphics(container,'exploreGraph');
-/**  
   // Remember our container in case we need to redraw under our own control.
-  this.container = $(container);
-  // Draw a graph of these readings.
-  this.container.empty();
-  var graph = d3.select(this.container.get(0)).append("svg:svg")
-    .attr('class','graphics')
-    .attr('id', 'exploreGraph');
-  var width = this.container.width(), height = this.container.height();
-  graph.attr('width',width).attr('height',height);
-  // Initialize SVG definitions.
-  var defs = graph.append('svg:defs');
-**/
-  graphics.defs.append('svg:linearGradient')
-    .attr('id', 'skyGradient')
-    .attr('gradientUnits', 'userSpaceOnUse')
-    .attr('x1','0%').attr('y1','0%')
-    .attr('x2','100%').attr('y2','0%')
-    .call(function(gradient) {
-      gradient.append('svg:stop').attr('offset', '5%')
-        .attr('style', 'stop-color:rgb(180,150,150);stop-opacity:1');
-      gradient.append('svg:stop').attr('offset', '20%')
-        .attr('style', 'stop-color:rgb(180,180,255);stop-opacity:1');
-      gradient.append('svg:stop').attr('offset', '30%')
-        .attr('style', 'stop-color:rgb(180,180,255);stop-opacity:1');
-      gradient.append('svg:stop').attr('offset', '45%')
-        .attr('style', 'stop-color:rgb(180,150,150);stop-opacity:1');
-      gradient.append('svg:stop').attr('offset', '55%')
-        .attr('style', 'stop-color:rgb(180,150,150);stop-opacity:1');
-      gradient.append('svg:stop').attr('offset', '70%')
-        .attr('style', 'stop-color:rgb(180,180,255);stop-opacity:1');
-      gradient.append('svg:stop').attr('offset', '80%')
-        .attr('style', 'stop-color:rgb(180,180,255);stop-opacity:1');
-      gradient.append('svg:stop').attr('offset', '95%')
-        .attr('style', 'stop-color:rgb(180,150,150);stop-opacity:1');
-    });
+  this.container = container;
+  // Create a new SVG graphics element that fills our container.
+  var graphics = new Graphics(container,'exploreGraph');
+  // Create a linear sky gradient
+  graphics.addLinearGradient('skyGradient','userSpaceOnUse',['0%','0%','100%','0%'],
+    [
+      [ '5%','rgb(180,180,255)','1'],
+      ['20%','rgb(180,180,255)','1'],
+      ['30%','rgb(180,180,255)','1'],
+      ['45%','rgb(180,150,150)','1'],
+      ['55%','rgb(180,150,150)','1'],
+      ['70%','rgb(180,180,255)','1'],
+      ['80%','rgb(180,180,255)','1'],
+      ['95%','rgb(180,150,150)','1']
+    ]);
   graphics.defs.append('svg:radialGradient')
     .attr('id','sunGradient')
     .attr('gradientUnits','objectBoundingBox')
@@ -71,33 +49,20 @@ ExploreModule.prototype.update = function(container) {
       gradient.append('svg:stop').attr('offset', '100%')
         .attr('style', 'stop-color:rgb(255,245,140);stop-opacity:0');
     });
-  graphics.defs.append('svg:linearGradient')
-    .attr('id','seaGradient')
-    .attr('gradientUnits', 'objectBoundingBox')
-    .attr('x1','0%').attr('y1','0%')
-    .attr('x2','0%').attr('y2','100%')
-    .call(function(gradient) {
-      gradient.append('svg:stop').attr('offset', '0%')
-        .attr('style', 'stop-color:rgb(75,120,100);stop-opacity:1');
-      gradient.append('svg:stop').attr('offset', '15%')
-        .attr('style', 'stop-color:rgb(50,100,100);stop-opacity:1');
-      gradient.append('svg:stop').attr('offset', '100%')
-        .attr('style', 'stop-color:rgb(28,0,100);stop-opacity:1');
-    });
-  graphics.defs.append('svg:linearGradient')
-    .attr('id','hillGradient')
-    .attr('gradientUnits', 'objectBoundingBox')
-    .attr('x1','0%').attr('y1','100%')
-    .attr('x2','0%').attr('y2','0%')
-    .call(function(gradient) {
-      gradient.append('svg:stop').attr('offset', '0%')
-        .attr('style', 'stop-color:rgb(233,240,161);stop-opacity:1');
-      gradient.append('svg:stop').attr('offset', '20%')
-        .attr('style', 'stop-color:rgb(83,156,50);stop-opacity:1');
-      gradient.append('svg:stop').attr('offset', '100%')
-        .attr('style', 'stop-color:rgb(97,102,107);stop-opacity:1');
-    });
-
+  // Create a linear sea gradient.
+  graphics.addLinearGradient('seaGradient','objectBoundingBox',['0%','0%','0%','100%'],
+    [
+      [  '0%','rgb(75,120,100)','1'],
+      [ '15%','rgb(50,100,100)','1'],
+      ['100%','rgb(28,0,100)','1']
+    ]);
+  // Create a linear hill gradient.
+  graphics.addLinearGradient('hillGradient','objectBoundingBox',['0%','100%','0%','0%'],
+    [
+      [  '0%','rgb(233,240,161)','1'],
+      [ '20%','rgb(83,156,50)','1'],
+      ['100%','rgb(97,102,107)','1']
+    ]);
   // Prepare axis scaling functions.
   var x = d3.scale.linear()
     .domain([0,48])
