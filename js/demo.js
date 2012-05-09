@@ -135,14 +135,6 @@ DemoApp.prototype.start = function() {
     return false; // prevent further form submission
   });
 
-  // Implement the intro handler.
-  $('#startDemo').click(function() {
-    log('starting');
-    self.reset();
-    $.mobile.changePage($('#demo'));
-    facebook.updateButtons();
-  });
-  
   // Register login handler.
   $('#loginButton').click(function() { facebook.doLoginLogout(); });
 
@@ -192,7 +184,9 @@ DemoApp.prototype.loadComplete = function(xml) {
   else {
     // Everything looks good.
     log('parsed',this.data.nReadings,'readings');
-    $.mobile.changePage($('#intro'));
+    this.reset();
+    $.mobile.changePage($('#demo'));
+    facebook.updateButtons();
     return true;
   }
 }
