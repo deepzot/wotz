@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <script type="text/javascript" src="http://mbostock.github.com/d3/d3.js?1.29.1"></script>
+    <style type="text/css">
+
+body {
+  background: gray;
+}
+
+ellipse {
+  fill: #fff;
+}
+
+    </style>
+  </head>
+  <body>
+    <script type="text/javascript">
+
+var w = 500,
+    h = 400,
+    nBaddies = 5,
+    degrees = 180 / Math.PI;
+
+var randomBaddies = d3.range(nBaddies).map(function() {
+  var x = Math.random() * w, y = Math.random() * h;
+  return {
+    vx: Math.random() - .5,
+    vy: Math.random() - .5,
+    path: [x, y],
+    count: 0
+  };
+});
+
+var svg = d3.select("body").append("svg:svg")
+    .attr("width", w)
+    .attr("height", h);
+    
+var border = svg.selectAll("svg")
+	.data([
+		{x1:0,y1:0,x2:w,y2:0},
+		{x1:0,y1:0,x2:0,y2:h},
+		{x1:w,y1:0,x2:w,y2:h},
+		{x1:0,y1:h,x2:w,y2:h}]
+		)
+	.enter().append("svg:line")
+	.style("stroke","black")
+	.attr("x1",function(d){ return d.x1; })
+	.attr("y1",function(d){ return d.y1; })
+	.attr("x2",function(d){ return d.x2; })
+	.attr("y2",function(d){ return d.y2; });
+	
+var homeRadius = 10;
+	
+var home = svg.selectAll("circle")
+		.data([[w/2,h/2]])
+	.enter()
+		.append('svg:circle')
+		.attr("transform", function(d) { return "translate(" + d[0] + "," + d[1] + ")" })
+		.attr("r",homeRadius)
+		.attr("fill","yellow");
+
+d3.timer(function() {
+  for (var i = 0; i < randomBaddies.length; i++) {
+    var randomBaddie = randomBaddies[i],
+        path = randomBaddie.path,
+        dx = randomBaddie.vx,
+        dy = randomBaddie.vy,
+        x = path[0] += dx,
+        y = path[1] += dy,
+        speed = Math.sqrt(dx * dx + dy * dy);
+
+    // Wrap around the walls.
+    if (x < 0 || x > w) path[0] = Math.abs(w - x);
+    if (y < 0 || y > h) path[1] = Math.abs(h - y);
+    
+		if( isCollision({x:w/2,y:h/2},{x:x,y:y},homeRadius) ){
+			randomBaddies.splice(i,1);
+			console.log(path,w/2,h/2);
+			i--;
+		}	
+	}	
+	redraw();
+});
+
+// Listen for keydown events
+d3.select(window).on("keydown", function() {
+		var keyCode = d3.event.keyCode;
+		console.log(keyCode);
+		if(keyCode == 32) {
+			var x = Math.random()*w, y = Math.random()*h;
+			randomBaddies.push({vx: Math.random() - .5,vy: Math.random() - .5,path: [x, y]});
+		}
+});
+
+
+redraw = function() {
+	var baddies = svg.selectAll("ellipse")
+		.data(randomBaddies);
+	
+	baddies.enter().append("svg:ellipse")
+    .attr("rx", 4)
+    .attr("ry", 4);
+
+  baddies.attr("transform", function(d) {
+    return "translate(" + d.path + ")rotate(" + Math.atan2(d.vy, d.vx) * degrees + ")";
+  });
+		
+	baddies.exit().remove();
+}
+
+isCollision = function(point,pos,r) {
+	var dx = point.x - pos.x;
+	var dy = point.y - pos.y;
+	var dist = Math.sqrt(dx * dx + dy * dy);
+	if( dist <= r ){
+		console.log(dist);
+		return true;
+	}
+	return false;
+};
+
+    </script>
+  </body>
+</html>
