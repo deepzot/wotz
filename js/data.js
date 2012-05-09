@@ -66,7 +66,15 @@ function GreenButtonData(xml) {
   $('.firstDate').text(this.firstDate.toLocaleDateString());
   $('.nReadings').text(this.nReadings);
   $('.lastDate').text(this.lastDate.toLocaleDateString());
-  $('.startDate').text(this.startDate.toLocaleString());
+  $('.startDate').text(this.startDate.toLocaleDateString());
+  var tzString = "GMT";
+  if(this.tzOffset < 0) {
+    tzString += "-" + Math.round(-this.tzOffset/3600);
+  }
+  else {
+    tzString += "+" + Math.round(+this.tzOffset/3600);
+  }
+  $('.timeZone').text(tzString);
 }
 
 // Returns the average energy consumption by hour of the day (0-23) for the data seen so far.
