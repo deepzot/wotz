@@ -268,6 +268,10 @@ ExploreModule.prototype.getNextMessage = function() {
   this.currentMessage = newMessage;
 }
 
+ExploreModule.prototype.getShareText = function() {
+  return this.currentMessage;
+}
+
 // Fetches and analyzes the data corresponding to this.dayOffset
 ExploreModule.prototype.getData = function() {
   // Fetch the data from our source.

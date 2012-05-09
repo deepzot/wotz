@@ -90,7 +90,12 @@ Facebook.prototype.share = function(message) {
 function share(activeModule) {
   var message = 'GBAPP is amazing.';
   if(activeModule) {
-    message = 'I like the "' + activeModule.label + '" module.';
+    if(activeModule.getShareText) {
+      message = activeModule.getShareText();
+    }
+    else {
+      message = 'I like the "' + activeModule.label + '" module.';
+    }
   }
   facebook.share(message);
 }
