@@ -44,17 +44,28 @@ function GreenButtonData(xml) {
   });
   // Give up now if there was a problem with the data content.
   if(this.errorMessage) return;
-  // Set our current position.
   this.nReadings = this.readings.length;
-  this.startIndex = this.coerceIndex(Math.ceil((7*86400)/this.duration));
+  this.firstDate = this.getDateTime(0);
+  this.lastDate = this.getDateTime(this.nReadings);
+  // Set our current position...
+  var when = new Date();
+  var year = when.getFullYear();
+  // Can we match an available date except for the year?
+  while(when > this.lastDate) {
+    when.setFullYear(--year);
+  }
+  this.startIndex = this.getIndex(when);
+  // Do we have at least 2 weeks of history?
+  if(this.startIndex < 14*this.readingsPerDay) {
+    // As a last resort, use the end of the available data.
+    this.startIndex = this.nReadings-1;
+  }
+  this.startDate = this.getDateTime(this.startIndex);
   this.reset();
   // Insert info about this datafile into our document.
-  this.firstDate = this.getDateTime(0);
   $('.firstDate').text(this.firstDate.toLocaleDateString());
   $('.nReadings').text(this.nReadings);
-  this.lastDate = this.getDateTime(this.nReadings);
   $('.lastDate').text(this.lastDate.toLocaleDateString());
-  this.startDate = this.getDateTime(this.startIndex);
   $('.startDate').text(this.startDate.toLocaleString());
 }
 
