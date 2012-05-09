@@ -16,23 +16,13 @@ function Graphics(container,name) {
   this.defs = this.graph.append('svg:defs');
 }
 
-Graphics.prototype.addLinearGradient = function(name,units,vector,stops) {
-  var gradient = this.defs.append('svg:linearGradient')
-    .attr('id',name)
-    .attr('gradientUnits',units)
-    .attr('x1',vector[0]).attr('y1',vector[1])
-    .attr('x2',vector[2]).attr('y2',vector[3]);
-  for(var index = 0; index < stops.length; ++index) {
-    var stop = stops[index];
-    gradient.append('svg:stop')
-      .attr('offset',stop[0])
-      .attr('style','stop-color:'+stop[1]+';stop-opacity:'+stop[2]);
-  }
-  return gradient;
-}
-
-Graphics.prototype.addRadialGradient = function(attrs,stops) {
-  var gradient = this.defs.append('svg:radialGradient');
+// Creates a new gradient in our definitions section. The type should
+// be 'linear' or 'radial'. For a linear gradient you should normally
+// provide the following attributes: units,x1,y1,x2,y2. For a radial
+// gradient you should normally provide: units,cx,cy,r. The units should
+// be either 'userSpaceOnUse' or 'objectBoundingBox'.
+Graphics.prototype.addGradient = function(type,attrs,stops) {
+  var gradient = this.defs.append('svg:'+type+'Gradient');
   for(var key in attrs) {
     gradient.attr(key,attrs[key]);
   }

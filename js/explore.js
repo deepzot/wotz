@@ -27,7 +27,8 @@ ExploreModule.prototype.update = function(container) {
   // Create a new SVG graphics element that fills our container.
   var graphics = new Graphics(container,'exploreGraph');
   // Create a linear sky gradient.
-  graphics.addLinearGradient('skyGradient','userSpaceOnUse',['0%','0%','100%','0%'],
+  graphics.addGradient('linear',
+    {id:'skyGradient',gradientUnits:'userSpaceOnUse',x1:'0%',y1:'0%',x2:'100%',y2:'0%'},
     [
       [ '5%','rgb(180,180,255)','1'],
       ['20%','rgb(180,180,255)','1'],
@@ -39,21 +40,23 @@ ExploreModule.prototype.update = function(container) {
       ['95%','rgb(180,150,150)','1']
     ]);
   // Create a radial sun gradient.
-  graphics.addRadialGradient(
+  graphics.addGradient('radial',
     {id:'sunGradient',gradientUnits:'objectBoundingBox',cx:'50%',cy:'0%',r:'25%'},
     [
       [  '0%','rgb(255,245,140)','0.75'],
       ['100%','rgb(255,245,140)','0']
     ]);
   // Create a linear sea gradient.
-  graphics.addLinearGradient('seaGradient','objectBoundingBox',['0%','0%','0%','100%'],
+  graphics.addGradient('linear',
+    {id:'seaGradient',gradientUnits:'objectBoundingBox',x1:'0%',y1:'0%',x2:'0%',y2:'100%'},
     [
       [  '0%','rgb(75,120,100)','1'],
       [ '15%','rgb(50,100,100)','1'],
       ['100%','rgb(28,0,100)','1']
     ]);
   // Create a linear hill gradient.
-  graphics.addLinearGradient('hillGradient','objectBoundingBox',['0%','100%','0%','0%'],
+  graphics.addGradient('linear',
+    {id:'hillGradient',gradientUnits:'objectBoundingBox',x1:'0%',y1:'100%',x2:'0%',y2:'0%'},
     [
       [  '0%','rgb(233,240,161)','1'],
       [ '20%','rgb(83,156,50)','1'],
