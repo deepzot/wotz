@@ -12,6 +12,14 @@ function Graphics(container,name) {
   this.width = this.container.width();
   this.height = this.container.height();
   this.graph.attr('width',this.width).attr('height',this.height);
+  // Fetch and save the nominal font size in this element.
+  this.fontSize = this.container.css('font-size');
+  if(this.fontSize.slice(-2) == 'px') {
+    this.fontSize = parseFloat(this.fontSize);
+  }
+  else {
+    this.fontSize = 16;
+  }  
   // Create an empty SVG definitions section.
   this.defs = this.graph.append('svg:defs');
 }

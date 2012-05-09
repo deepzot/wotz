@@ -118,14 +118,6 @@ ExploreModule.prototype.update = function(container) {
   graphics.graph.append('svg:path')
     .attr('fill','url(#seaGradient)')
     .attr('d',sea(seaData));
-  // Calculate a nominal scaling unit for labels.
-  var emUnit = $('#exploreGraph').css('font-size');
-  if(emUnit.slice(-2) == 'px') {
-    emUnit = parseFloat(emUnit);
-  }
-  else {
-    emUnit = 10;
-  }
   // Add time-of-day labels.
   var labelPos = null;
   var timeLabels = graphics.graph.selectAll('text.timeLabel');
@@ -142,7 +134,7 @@ ExploreModule.prototype.update = function(container) {
     .attr('class','timeLabel')
     .text(function(d,i) { return d; })
     .attr('x', labelPos)
-    .attr('y', graphics.height-emUnit);
+    .attr('y', graphics.height-graphics.fontSize);
   // Add day-of-week labels.
   var weekDay = d3.time.format('%a');
   var fullDate = d3.time.format('%m/%d');
@@ -163,14 +155,14 @@ ExploreModule.prototype.update = function(container) {
       .attr('class','dayLabel')
       .text(formatter)
       .attr('x', function(d,i) { return x(24*i+12); })
-      .attr('y', graphics.height-3*emUnit);
+      .attr('y', graphics.height-3*graphics.fontSize);
   // Add navigation labels.
   if(this.displayRange[0] >= this.dataSource.readingsPerDay) {
     graphics.graph.append('svg:text')
       .attr('class','leftArrow')
       .text('<')
       .attr('x',x(0.5))
-      .attr('y', graphics.height-3*emUnit)
+      .attr('y', graphics.height-3*graphics.fontSize)
       .on('click', function() { self.navBack(); });
   }
   if(this.displayRange[1] <= this.dataSource.current - this.dataSource.readingsPerDay) {
@@ -178,7 +170,7 @@ ExploreModule.prototype.update = function(container) {
       .attr('class','rightArrow')
       .text('>')
       .attr('x',x(47.5))
-      .attr('y', graphics.height-3*emUnit)
+      .attr('y', graphics.height-3*graphics.fontSize)
       .on('click', function() { self.navForward(); });
   }
   // Show the current message.
