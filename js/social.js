@@ -28,8 +28,6 @@ function Facebook() {
      ref.parentNode.insertBefore(js, ref);
    }(document));
 
-   // Hide the share button until we are logged in.
-   
 }
 
 Facebook.prototype.doLoginLogout = function() {
@@ -50,7 +48,9 @@ Facebook.prototype.doLoginLogout = function() {
 Facebook.prototype.login = function() {
   this.loggedIn = true;
   $('#loginButton').text('logout');
-  $('#shareButton').button('enable');
+  if($('#shareButton').visible()) {
+    $('#shareButton').button('enable');
+  }
 }
 
 Facebook.prototype.share = function(message) {
