@@ -48,7 +48,7 @@ Facebook.prototype.doLoginLogout = function() {
 Facebook.prototype.login = function() {
   this.loggedIn = true;
   $('#loginButton').text('logout');
-  if($('#shareButton').visible()) {
+  if($('#shareButton').is(':visible')) {
     $('#shareButton').button('enable');
   }
 }
