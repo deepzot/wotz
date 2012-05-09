@@ -32,11 +32,14 @@ function Facebook() {
 
 Facebook.prototype.doLoginLogout = function() {
   if(this.loggedIn) {
+    log('logging out');
     FB.logout();
     this.loggedIn = false;
     $('#loginButton').text('login');
+    $('#shareButton').button('enable');
   }
   else {
+    log('logging in');
     FB.login(function(response) {
        if (response.authResponse) {
          self.login();
