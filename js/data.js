@@ -73,7 +73,7 @@ GreenButtonData.prototype.updateCurrent = function(index) {
   while(this.current < index) {
     var value = this.readings[this.current];
     var when = this.getDateTime(this.current);
-
+    
     if(value > this.maxValue) this.maxValue = value;
 
     var hour = when.getHours();
@@ -103,6 +103,20 @@ GreenButtonData.prototype.reset = function() {
 GreenButtonData.prototype.getDateTime = function(index) {
   index = typeof index !== 'undefined' ? index : this.current;
   return new Date(1000*(this.start + index*this.duration - this.tzOffset));
+}
+
+// Returns the index corresponding to the specified date and time. If no date and time are
+// specifiec, uses the current date and time.
+GreenButtonData.prototype.getIndex = function(when) {
+  when = typeof when !== 'undefined' ? when : new Date();
+  // Calculate the seconds offset of when
+  var offset = when.getTime()/1000. + this.tzOffset - this.start;
+  // Calculate the corresponding index
+  var index = Math.floor(offset/this.duration);
+  // Truncate to the available readings, if necessary.
+  if(index <= 0) return 0;
+  if(index >= this.nReadings-1) return this.nReadings - 1;
+  return index;
 }
 
 // Returns an array of energy readings covering a range of days specified by (first,last)
