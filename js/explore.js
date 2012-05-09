@@ -269,7 +269,7 @@ ExploreModule.prototype.getNextMessage = function() {
 }
 
 ExploreModule.prototype.getShareText = function() {
-  return this.currentMessage;
+  return this.currentMessage.join(' ');
 }
 
 // Fetches and analyzes the data corresponding to this.dayOffset
