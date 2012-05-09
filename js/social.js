@@ -35,8 +35,7 @@ Facebook.prototype.doLoginLogout = function() {
     log('logging out');
     FB.logout();
     this.loggedIn = false;
-    $('#loginButton .ui-btn-text').text('login');
-    $('#shareButton').button('enable');
+    this.updateButtons();
   }
   else {
     log('logging in');
@@ -48,12 +47,21 @@ Facebook.prototype.doLoginLogout = function() {
   }
 }
 
+Facebook.prototype.updateButtons = function() {
+  log('facebook.updateButtons',this.loggedIn);
+  if(this.loggedIn) {
+    $('#loginButton .ui-btn-text').text('logout');
+    $('#shareButton').removeClass('ui-disabled');
+  }
+  else {
+    $('#loginButton .ui-btn-text').text('login');
+    $('#shareButton').addClass('ui-disabled');
+  }
+}
+
 Facebook.prototype.login = function() {
   this.loggedIn = true;
-  $('#loginButton .ui-btn-text').text('logout');
-  if($('#shareButton').is(':visible')) {
-    $('#shareButton').button('enable');
-  }
+  this.updateButtons();
 }
 
 Facebook.prototype.share = function(message) {

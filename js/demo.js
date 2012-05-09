@@ -140,8 +140,7 @@ DemoApp.prototype.start = function() {
     log('starting');
     self.reset();
     $.mobile.changePage($('#demo'));
-    // Only enable share button if a login has already been confirmed.
-    $('#shareButton').button(facebook.loggedIn ? 'enable':'disable');
+    facebook.updateButtons();
   });
   
   // Register reset handler.
