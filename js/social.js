@@ -11,12 +11,11 @@ function shareOnFacebook(message) {
   log('sharing on facebook');
   FB.ui({
     method: 'feed',
-    message: message,
     name: 'I\'m using GBAPP!',
     caption: 'This is the caption.',
-    description: 'This is the description.',
+    description: message,
     link: 'http://darkmatter.ps.uci.edu/gbtest/'
-    //picture: 'http://www.facebookmobileweb.com/getting-started/img/facebook_icon_large.png'
+    picture: 'http://darkmatter.ps.uci.edu/gbtest/img/apple-touch-icon-72x72-precomposed.png'
   }, 
   function(response) {
     log('shareOnFacebook', response);
