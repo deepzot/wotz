@@ -143,12 +143,6 @@ DemoApp.prototype.start = function() {
     facebook.updateButtons();
   });
   
-  // Register reset handler.
-  $('#resetButton,#endOfDataDialog').click(function() { self.reset(); });
-
-  // Register jump handler.
-  $('#jumpButton').click(function() { self.jump(); });
-  
   // Register login handler.
   $('#loginButton').click(function() { facebook.doLoginLogout(); });
 
