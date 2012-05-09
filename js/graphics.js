@@ -30,3 +30,17 @@ Graphics.prototype.addLinearGradient = function(name,units,vector,stops) {
   }
   return gradient;
 }
+
+Graphics.prototype.addRadialGradient = function(attrs,stops) {
+  var gradient = this.defs.append('svg:radialGradient');
+  for(var key in attrs) {
+    gradient.attr(key,attrs[key]);
+  }
+  for(var index = 0; index < stops.length; ++index) {
+    var stop = stops[index];
+    gradient.append('svg:stop')
+      .attr('offset',stop[0])
+      .attr('style','stop-color:'+stop[1]+';stop-opacity:'+stop[2]);
+  }
+  return gradient;
+}
