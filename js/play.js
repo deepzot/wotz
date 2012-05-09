@@ -1,7 +1,7 @@
 function PlayModule() {
   this.id = 'play';
   this.label = 'Play';
-  this.game = new Tetris();
+  this.game = new Asteroids();
 }
 
 PlayModule.prototype.start = function(data) {

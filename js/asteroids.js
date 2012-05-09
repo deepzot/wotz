@@ -4,8 +4,9 @@ function Asteroids() {
 	this.x = null;
 	this.y = null;
 	// Create Fired shots array and svg group
-	var firedShots = [];
+	this.firedShots = [];
 	this.svg = null;
+	this.randomBaddies = null;
 }
 
 Asteroids.prototype.start = function(data) { 
@@ -45,11 +46,11 @@ Asteroids.prototype.start = function(data) {
 						baddieX = randomBaddie.path[0],
 						baddieY = randomBaddie.path[1];
 				// *** hardcoded baddieRadius+shotRadius ** FIXME
-				if(self.isCollision({x:x,y:y},{x:baddieX,y:baddieY},6)){
+				if(self.isCollision({x:x,y:y},{x:baddieX,y:baddieY},randomBaddie.r+shot.r)){
 					// Remove baddie and shot
-					randomBaddies.splice(j,1);
+					self.randomBaddies.splice(j,1);
 					j--;
-					firedShots.splice(i,1);
+					self.firedShots.splice(i,1);
 					i--;
 					continue;
 				}
@@ -70,7 +71,8 @@ Asteroids.prototype.start = function(data) {
 Asteroids.prototype.update = function(container) {
   this.svg = d3.select('#moduleContent').append("svg:svg")
     .attr('class','graphics')
-    .attr('id', 'asteroidField');
+    .attr('id', 'asteroidField')
+    .style('background','gray');
   var width = $('#asteroidField').width(), height = $('#asteroidField').height();
   //svg.attr('width',width).attr('height',height);
   
@@ -83,17 +85,9 @@ Asteroids.prototype.update = function(container) {
 		
 	// Draw boarders, background stuff
 	var self = this;
-	var borders = svg.selectAll('line')
-		.data([[0,0,1,0],[0,0,0,1],[1,0,1,1],[0,1,1,1]])
-	.enter().append("svg:line")
-		.style("stroke","black")
-		.attr("x1",function(d){ return self.x(d[0]); })
-		.attr("y1",function(d){ return self.y(d[1]); })
-		.attr("x2",function(d){ return self.x(d[2]); })
-		.attr("y2",function(d){ return self.y(d[3]); });
 
 	// Draw our home
-	var homeRect = svg.selectAll('rect')
+	var homeRect = this.svg.selectAll('rect')
 			.data([{path:[.5,.5],w:.02,h:.02}])
 		.enter()
 			.append('svg:rect');
@@ -104,18 +98,18 @@ Asteroids.prototype.update = function(container) {
 			.attr("fill","yellow");
 			
 	// Listen for mouse click events
-	svg.on("mousedown", function(d) {
+	this.svg.on("click", function(d) {
 		// Get mouse x,y coordinates relative to svg container
 		var path = d3.mouse(this);
 		// Calculate angle relative to origin at home
 		var origin = [.5,.5];
 		var theta = Math.atan2(path[1]/height - origin[1], path[0]/width - origin[0]);
 		// Calculate velocity
-		var speed = .02;
+		var speed = .01;
 		var vx = speed*Math.cos(theta), vy = speed*Math.sin(theta);
 		// Add shot to the list of shotsfired
 		var shot = {path:origin, vx:vx, vy:vy, r:.005};
-		firedShots.push(shot);
+		self.firedShots.push(shot);
 	});
 }
 
@@ -125,15 +119,14 @@ Asteroids.prototype.end = function() {
 
 // Create some random baddies
 Asteroids.prototype.createRandomBaddie = function() {
-	var x = Math.random() * w, y = Math.random() * h;
+	var x = Math.random(), y = Math.random();
   return {
-    vx: (Math.random()*2 - 1)/100,
-    vy: (Math.random()*2 - 1)/100,
-    path: [x, y]
-    r: .04
+    vx: (Math.random()*2 - 1)/100/4,
+    vy: (Math.random()*2 - 1)/100/4,
+    path: [x, y],
+    r: .008
   };
 }
-
 
 Asteroids.prototype.redraw = function() {
 	var self = this;
@@ -142,8 +135,8 @@ Asteroids.prototype.redraw = function() {
 		.data(this.randomBaddies);
 	baddies.enter().append("svg:ellipse")
 		.attr('class','baddies')
-    .attr("rx", 4.5/100)
-    .attr("ry", 3.5/100)
+    .attr("rx", function(d) { return self.x(d.r*1.25) })
+    .attr("ry", function(d) { return self.x(d.r*0.75) })
     .style('fill','white');
   baddies.attr("transform", function(d) {
     return "translate(" + self.x(d.path[0]) + ',' + self.y(d.path[1]) + ")rotate(" + Math.atan2(d.vy, d.vx) * self.degrees + ")";
@@ -155,7 +148,7 @@ Asteroids.prototype.redraw = function() {
 		.data(this.firedShots);
 	shots.enter().append('svg:circle')
 		.attr('class','shots')
-		.attr("r", this.x(2/100))
+		.attr("r", function(d) { return self.x(d.r) })
 		.attr('fill','blue');
 	shots
 		.attr("transform", function(d) { return "translate(" + self.x(d.path[0]) + ',' + self.y(d.path[1]) + ")" });
