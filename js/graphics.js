@@ -12,7 +12,7 @@ function Graphics(container,name) {
   // Fill our container.
   this.width = this.container.width();
   this.height = this.container.height();
-  this.graph.attr('width',width).attr('height',height);
+  this.graph.attr('width',this.width).attr('height',this.height);
   // Create an empty SVG definitions section.
-  var this.defs = graph.append('svg:defs');
+  this.defs = this.graph.append('svg:defs');
 }

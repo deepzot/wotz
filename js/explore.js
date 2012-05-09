@@ -22,18 +22,22 @@ ExploreModule.prototype.start = function(data) {
 
 ExploreModule.prototype.update = function(container) {
   var self = this;
-  // Remember our container in case we need to redraw under our own control.
   this.container = container;
+  var graphics = new Graphics(container,'exploreGraph');
+/**  
+  // Remember our container in case we need to redraw under our own control.
+  this.container = $(container);
   // Draw a graph of these readings.
-  container.empty();
-  var graph = d3.select('#moduleContent').append("svg:svg")
+  this.container.empty();
+  var graph = d3.select(this.container.get(0)).append("svg:svg")
     .attr('class','graphics')
     .attr('id', 'exploreGraph');
-  var width = $('#moduleContent').width(), height = $('#moduleContent').height();
+  var width = this.container.width(), height = this.container.height();
   graph.attr('width',width).attr('height',height);
   // Initialize SVG definitions.
   var defs = graph.append('svg:defs');
-  defs.append('svg:linearGradient')
+**/
+  graphics.defs.append('svg:linearGradient')
     .attr('id', 'skyGradient')
     .attr('gradientUnits', 'userSpaceOnUse')
     .attr('x1','0%').attr('y1','0%')
@@ -56,7 +60,7 @@ ExploreModule.prototype.update = function(container) {
       gradient.append('svg:stop').attr('offset', '95%')
         .attr('style', 'stop-color:rgb(180,150,150);stop-opacity:1');
     });
-  defs.append('svg:radialGradient')
+  graphics.defs.append('svg:radialGradient')
     .attr('id','sunGradient')
     .attr('gradientUnits','objectBoundingBox')
     .attr('cx','50%').attr('cy','0%')
@@ -67,7 +71,7 @@ ExploreModule.prototype.update = function(container) {
       gradient.append('svg:stop').attr('offset', '100%')
         .attr('style', 'stop-color:rgb(255,245,140);stop-opacity:0');
     });
-  defs.append('svg:linearGradient')
+  graphics.defs.append('svg:linearGradient')
     .attr('id','seaGradient')
     .attr('gradientUnits', 'objectBoundingBox')
     .attr('x1','0%').attr('y1','0%')
@@ -80,7 +84,7 @@ ExploreModule.prototype.update = function(container) {
       gradient.append('svg:stop').attr('offset', '100%')
         .attr('style', 'stop-color:rgb(28,0,100);stop-opacity:1');
     });
-  defs.append('svg:linearGradient')
+  graphics.defs.append('svg:linearGradient')
     .attr('id','hillGradient')
     .attr('gradientUnits', 'objectBoundingBox')
     .attr('x1','0%').attr('y1','100%')
@@ -97,29 +101,29 @@ ExploreModule.prototype.update = function(container) {
   // Prepare axis scaling functions.
   var x = d3.scale.linear()
     .domain([0,48])
-    .range([0,width-1]);
+    .range([0,graphics.width-1]);
   var y = d3.scale.linear()
     .domain([0,self.dataSource.maxValue])
-    .range([height-1,0]);
+    .range([graphics.height-1,0]);
   // Draw the background sky.
-  graph.append('svg:rect')
+  graphics.graph.append('svg:rect')
     .attr('fill','url(#skyGradient)')
     .attr('x',0)
     .attr('y',0)
-    .attr('width',width)
-    .attr('height',height);
-  graph.append('svg:rect')
+    .attr('width',graphics.width)
+    .attr('height',graphics.height);
+  graphics.graph.append('svg:rect')
     .attr('fill','url(#sunGradient)')
     .attr('x',0)
     .attr('y',0)
-    .attr('width',width/2)
-    .attr('height',height);
-  graph.append('svg:rect')
+    .attr('width',graphics.width/2)
+    .attr('height',graphics.height);
+  graphics.graph.append('svg:rect')
     .attr('fill','url(#sunGradient)')
-    .attr('x',width/2)
+    .attr('x',graphics.width/2)
     .attr('y',0)
-    .attr('width',width/2)
-    .attr('height',height);
+    .attr('width',graphics.width/2)
+    .attr('height',graphics.height);
   // Draw land heights.
   var land = d3.svg.area()
     .x(function(d,i) { return x((i-0.5)/self.dataSource.readingsPerHour); })
@@ -131,23 +135,23 @@ ExploreModule.prototype.update = function(container) {
     .y0(land.y0())
     .y1(land.y1())
     .interpolate('basis');
-  graph.append('svg:path')
+  graphics.graph.append('svg:path')
     .attr('class','land1')
     .attr('d',land(this.landHeight));
-  graph.append('svg:path')
+  graphics.graph.append('svg:path')
     .attr('class','land2')
     .attr('d',land(this.landHeight2));
-  graph.append('svg:path')
+  graphics.graph.append('svg:path')
     .attr('fill','url(#hillGradient)')
     .attr('d',hills(this.landHeight3));
   // Draw a base-load sea level.
   var sea = d3.svg.area()
     .x(function(d,i) { return x(6*i); })
     .y1(function(d,i) { return y(self.minValue*(1.05+0.05*Math.sin(Math.PI*i/2))); })
-    .y0(height)
+    .y0(graphics.height)
     .interpolate('basis');
   var seaData = [0,0,0,0,0,0,0,0,0];
-  graph.append('svg:path')
+  graphics.graph.append('svg:path')
     .attr('fill','url(#seaGradient)')
     .attr('d',sea(seaData));
   // Calculate a nominal scaling unit for labels.
@@ -160,9 +164,9 @@ ExploreModule.prototype.update = function(container) {
   }
   // Add time-of-day labels.
   var labelPos = null;
-  var timeLabels = graph.selectAll('text.timeLabel');
+  var timeLabels = graphics.graph.selectAll('text.timeLabel');
   // Use 4 or 7 labels, depending on how much space we have available.
-  if(width > 500) {
+  if(graphics.width > 500) {
     timeLabels = timeLabels.data(['6am','noon','6pm','midnight','6am','noon','6pm']);
     labelPos = function(d,i) { return x(6*(i+1)); };
   }
@@ -174,7 +178,7 @@ ExploreModule.prototype.update = function(container) {
     .attr('class','timeLabel')
     .text(function(d,i) { return d; })
     .attr('x', labelPos)
-    .attr('y', height-emUnit);
+    .attr('y', graphics.height-emUnit);
   // Add day-of-week labels.
   var weekDay = d3.time.format('%a');
   var fullDate = d3.time.format('%m/%d');
@@ -187,7 +191,7 @@ ExploreModule.prototype.update = function(container) {
     // Display MM/DD for days more than a week ago.
     formatter = function(d,i) { return fullDate(self.dataSource.getDateTime(d)); }
   }
-  graph.selectAll('text.dayLabel')
+  graphics.graph.selectAll('text.dayLabel')
     .data([
       this.displayRange[0] + 12*this.dataSource.readingsPerHour,
       this.displayRange[1] - 12*this.dataSource.readingsPerHour ])
@@ -195,26 +199,26 @@ ExploreModule.prototype.update = function(container) {
       .attr('class','dayLabel')
       .text(formatter)
       .attr('x', function(d,i) { return x(24*i+12); })
-      .attr('y', height-3*emUnit);
+      .attr('y', graphics.height-3*emUnit);
   // Add navigation labels.
   if(this.displayRange[0] >= this.dataSource.readingsPerDay) {
-    graph.append('svg:text')
+    graphics.graph.append('svg:text')
       .attr('class','leftArrow')
       .text('<')
       .attr('x',x(0.5))
-      .attr('y', height-3*emUnit)
+      .attr('y', graphics.height-3*emUnit)
       .on('click', function() { self.navBack(); });
   }
   if(this.displayRange[1] <= this.dataSource.current - this.dataSource.readingsPerDay) {
-    graph.append('svg:text')
+    graphics.graph.append('svg:text')
       .attr('class','rightArrow')
       .text('>')
       .attr('x',x(47.5))
-      .attr('y', height-3*emUnit)
+      .attr('y', graphics.height-3*emUnit)
       .on('click', function() { self.navForward(); });
   }
   // Show the current message.
-  graph.append('svg:g').attr('id','exploreMessage');
+  graphics.graph.append('svg:g').attr('id','exploreMessage');
   this.showMessage();
 }
 
