@@ -1,5 +1,5 @@
-/* Hides the exit button in the disclaimer dialog so users must click accept */
-#disclaimer div[data-role="header"] a { display: none; }
+/* Used to hide close (X) button in dialogs */
+.hideLinks a { display: none !important; }
 
 #disclaimerText {
     font-size: 0.8em;

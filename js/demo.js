@@ -135,20 +135,6 @@ DemoApp.prototype.start = function() {
     return false; // prevent further form submission
   });
 
-  // Implement the intro handler.
-  $('#startDemo').click(function() {
-    log('starting');
-    self.reset();
-    $.mobile.changePage($('#demo'), { changeHash: false });
-    facebook.updateButtons();
-  });
-  
-  // Register reset handler.
-  $('#resetButton,#endOfDataDialog').click(function() { self.reset(); });
-
-  // Register jump handler.
-  $('#jumpButton').click(function() { self.jump(); });
-  
   // Register login handler.
   $('#loginButton').click(function() { facebook.doLoginLogout(); });
 
@@ -198,7 +184,9 @@ DemoApp.prototype.loadComplete = function(xml) {
   else {
     // Everything looks good.
     log('parsed',this.data.nReadings,'readings');
-    $.mobile.changePage($('#intro'), { changeHash: false });
+    this.reset();
+    $.mobile.changePage($('#demo'));
+    facebook.updateButtons();
     return true;
   }
 }

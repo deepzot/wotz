@@ -44,18 +44,37 @@ function GreenButtonData(xml) {
   });
   // Give up now if there was a problem with the data content.
   if(this.errorMessage) return;
-  // Set our current position.
   this.nReadings = this.readings.length;
-  this.startIndex = this.coerceIndex(Math.ceil((7*86400)/this.duration));
+  this.firstDate = this.getDateTime(0);
+  this.lastDate = this.getDateTime(this.nReadings);
+  // Set our current position...
+  var when = new Date();
+  var year = when.getFullYear();
+  // Can we match an available date except for the year?
+  while(when > this.lastDate) {
+    when.setFullYear(--year);
+  }
+  this.startIndex = this.getIndex(when);
+  // Do we have at least 2 weeks of history?
+  if(this.startIndex < 14*this.readingsPerDay) {
+    // As a last resort, use the end of the available data.
+    this.startIndex = this.nReadings-1;
+  }
+  this.startDate = this.getDateTime(this.startIndex);
   this.reset();
   // Insert info about this datafile into our document.
-  this.firstDate = this.getDateTime(0);
   $('.firstDate').text(this.firstDate.toLocaleDateString());
   $('.nReadings').text(this.nReadings);
-  this.lastDate = this.getDateTime(this.nReadings);
   $('.lastDate').text(this.lastDate.toLocaleDateString());
-  this.startDate = this.getDateTime(this.startIndex);
-  $('.startDate').text(this.startDate.toLocaleString());
+  $('.startDate').text(this.startDate.toLocaleDateString());
+  var tzString = "GMT";
+  if(this.tzOffset < 0) {
+    tzString += "-" + Math.round(-this.tzOffset/3600);
+  }
+  else {
+    tzString += "+" + Math.round(+this.tzOffset/3600);
+  }
+  $('.timeZone').text(tzString);
 }
 
 // Returns the average energy consumption by hour of the day (0-23) for the data seen so far.
@@ -73,7 +92,7 @@ GreenButtonData.prototype.updateCurrent = function(index) {
   while(this.current < index) {
     var value = this.readings[this.current];
     var when = this.getDateTime(this.current);
-
+    
     if(value > this.maxValue) this.maxValue = value;
 
     var hour = when.getHours();
@@ -103,6 +122,20 @@ GreenButtonData.prototype.reset = function() {
 GreenButtonData.prototype.getDateTime = function(index) {
   index = typeof index !== 'undefined' ? index : this.current;
   return new Date(1000*(this.start + index*this.duration - this.tzOffset));
+}
+
+// Returns the index corresponding to the specified date and time. If no date and time are
+// specifiec, uses the current date and time.
+GreenButtonData.prototype.getIndex = function(when) {
+  when = typeof when !== 'undefined' ? when : new Date();
+  // Calculate the seconds offset of when
+  var offset = when.getTime()/1000. + this.tzOffset - this.start;
+  // Calculate the corresponding index
+  var index = Math.floor(offset/this.duration);
+  // Truncate to the available readings, if necessary.
+  if(index <= 0) return 0;
+  if(index >= this.nReadings-1) return this.nReadings - 1;
+  return index;
 }
 
 // Returns an array of energy readings covering a range of days specified by (first,last)
