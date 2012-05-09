@@ -180,7 +180,7 @@
       xfbml      : true  // parse XFBML
     });
 
-    FB.Event.subscribe('auth.statusChange', handleFacebookStatusChange);
+    FB.Event.subscribe('auth.statusChange', facebook.handleStatusChange);
   };
 
   // Load the SDK Asynchronously
