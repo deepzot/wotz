@@ -11,8 +11,9 @@ function shareOnFacebook(message) {
   log('sharing on facebook');
   FB.ui({
     method: 'feed',
+    message: message,
     name: 'I\'m using GBAPP!',
-    caption: message,
+    caption: 'This is the caption.',
     description: 'This is the description.',
     link: 'http://darkmatter.ps.uci.edu/gbtest/'
     //picture: 'http://www.facebookmobileweb.com/getting-started/img/facebook_icon_large.png'
