@@ -140,6 +140,8 @@ DemoApp.prototype.start = function() {
     log('starting');
     self.reset();
     $.mobile.changePage($('#demo'));
+    // Hide share handler until a login has been confirmed.
+    $('#shareButton').button('disable');
   });
   
   // Register reset handler.
@@ -148,6 +150,9 @@ DemoApp.prototype.start = function() {
   // Register jump handler.
   $('#jumpButton').click(function() { self.jump(); });
   
+  // Register login handler.
+  $('#loginButton').click(function() { facebook.doLoginLogout(); });
+
   // Register share handler.
   $('#shareButton').click(function() { share(self.module); });
 

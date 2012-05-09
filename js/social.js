@@ -27,10 +27,30 @@ function Facebook() {
      js.src = "//connect.facebook.net/en_US/all.js";
      ref.parentNode.insertBefore(js, ref);
    }(document));
+
+   // Hide the share button until we are logged in.
+   
+}
+
+Facebook.prototype.doLoginLogout = function() {
+  if(this.loggedIn) {
+    FB.logout();
+    this.loggedIn = false;
+    $('#loginButton').text('login');
+  }
+  else {
+    FB.login(function(response) {
+       if (response.authResponse) {
+         self.login();
+       }
+    });
+  }
 }
 
 Facebook.prototype.login = function() {
   this.loggedIn = true;
+  $('#loginButton').text('logout');
+  $('#shareButton').button('enable');
 }
 
 Facebook.prototype.share = function(message) {
@@ -38,12 +58,6 @@ Facebook.prototype.share = function(message) {
   self = this;
   if(!this.loggedIn) {
     log('not logged in yet.');
-    FB.login(function(response) {
-       if (response.authResponse) {
-         self.login();
-         self.share(message);
-       }
-    });
   }
   else {
     // Already logged in...
