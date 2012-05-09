@@ -133,7 +133,8 @@
 	<div data-role="footer">
 		<button id="resetButton" data-mini="true" data-icon="back">reset</button>
 		<button id="jumpButton" data-mini="true" data-icon="arrow-r">jump</button>
-		<button id="shareButton" data-mini="true" data-icon="star">share</button>
+		<a id="loginButton" data-mini="true" data-ref="button" href="#">login</a>
+		<a id="shareButton" data-mini="true" data-ref="button" data-icon="star">share</a>
 	</div>
 
 	<a href="#endOfData" data-rel="dialog" id="endOfDataDialog" style="display:none">endOfData</a>
@@ -161,11 +162,18 @@
 <script src="js/libs/d3.v2.min.js"></script>
 
 <script src="js/data.js"></script>
-<script src="js/demo.js"></script>
 <script src="js/play.js"></script>
 <script src="js/explore.js"></script>
 <script src="js/challenge.js"></script>
+<script src="js/social.js"></script>
+<script src="js/demo.js"></script>
 <script src="js/script.js"></script>
+
+<!-- Load the facebook SDK (http://developers.facebook.com/docs/guides/mobile/web/#sdk) -->
+<div id="fb-root"></div>
+<script>
+facebook = new Facebook();
+</script>
 
 </body>
 </html>
