@@ -14,7 +14,15 @@ function Asteroids() {
 	this.dataSource = null;
   this.displayData = null;
   this.displayRange = [ null,null ];
+  this.currentState = null;
 }
+
+Asteroids.prototype.gameStates = {
+  PAUSE : {value: 0, name: "Pause"}, 
+  READY: {value: 1, name: "Ready"}, 
+  RUNNING : {value: 2, name: "Running"},
+  LOSE : {value: 3, name: "Lose"}
+};
 
 Asteroids.prototype.start = function(data) { 
 	var self = this;
@@ -23,68 +31,110 @@ Asteroids.prototype.start = function(data) {
 	this.baddies = null;
 	this.getData();
 	
+	if( this.currentState == null) {
+		this.setState(this.gameStates.READY);
+	}
+	this.setState(this.gameStates.RUNNING);
+	
 	this.firedShots = []
 	this.randomBaddies = d3.range(Math.floor(this.nBaddies*this.baddiesBase+.5)).map(this.createRandomBaddie);
-	// The heartbeat
-	d3.timer(function() {
-		// Update baddie positions
-		for (var i = 0; i < self.randomBaddies.length; i++) {
-			var randomBaddie = self.randomBaddies[i],
-					path = randomBaddie.path,
-					dx = randomBaddie.vx,
-					dy = randomBaddie.vy,
-					x = path[0] += dx,
-					y = path[1] += dy;
-	
-			// Wrap around the walls.
-			var padx = 10/self.graphics.width;
-			var pady = 10/self.graphics.height;
-			if (x < 0-padx || x > 1+padx) path[0] = Math.abs(1 - x);
-			if (y < 0-pady || y > 1+pady) path[1] = Math.abs(1 - y);
-		}
-		// Update fired shots and detect collisions with baddies
-		for (var i = 0; i < self.firedShots.length; i++) {
-			var shot = self.firedShots[i],
-					path = shot.path,
-					dx = shot.vx,
-					dy = shot.vy,
-					x = path[0] += dx,
-					y = path[1] += dy;
-	
-			// Remove when we get to a wall
-			if (x < 0 || x > 1 || y < 0 || y > 1) {
-				self.firedShots.splice(i,1); 
-				i--; 
-				continue;
-			}
-			
-			// Collision detection
-			for (var j = 0; j < self.randomBaddies.length; j++) {
-				var randomBaddie = self.randomBaddies[j],
-						baddieX = randomBaddie.path[0],
-						baddieY = randomBaddie.path[1];
-				// *** hardcoded baddieRadius+shotRadius ** FIXME
-				if(self.isCollision({x:self.x(x),y:self.y(y)},{x:self.x(baddieX),y:self.y(baddieY)},randomBaddie.r+shot.r)){
-					// Remove baddie and shot
-					self.randomBaddies.splice(j,1);
-					j--;
-					self.firedShots.splice(i,1);
-					i--;
-					self.randomBaddies.push(self.createRandomBaddie());
-					continue;
-				}
-			}	
-		}
-		// Update svg elements
-		self.redraw();
-	});
+
 	// Listen for keydown events
 	d3.select(window).on("keydown", function() {
 			var keyCode = d3.event.keyCode;
 			if(keyCode == 32) {
-				self.randomBaddies.push(self.createRandomBaddie());
+				if(self.currentState == self.gameStates.PAUSE) {
+					self.setState(self.gameStates.RUNNING);
+				}
+				else if(self.currentState == self.gameStates.RUNNING){
+					self.setState(self.gameStates.PAUSE);
+				}
 			}
 	});
+}
+
+Asteroids.prototype.positionLoop = function() {
+	var self = this;
+	// The heartbeat
+	d3.timer(function() {
+		// break condition
+		if (self.currentState != self.gameStates.RUNNING) {
+			return true;
+		}
+		// Update baddie positions
+		self.updateBaddiePositions();
+		self.updateFiredShotsPositions();
+		
+		// Check time
+		var d = new Date();
+		var time = d.getTime();
+		if (time - self.lastSpawn > self.spawnDelay) {
+			self.spawn();
+			self.lastSpawn = time;
+		}
+		// Update svg elements
+		self.redraw();
+
+	});
+}
+
+Asteroids.prototype.toggleTimers = function() {
+	var d = new Date();
+	var time = d.getTime();
+	this.lastSpawn = time - this.lastSpawn;
+}
+
+Asteroids.prototype.updateBaddiePositions = function() {
+	// Wall pads
+	var padx = 10/this.graphics.width;
+	var pady = 10/this.graphics.height;
+	// Update baddie positions
+	for (var i = 0; i < this.randomBaddies.length; i++) {
+		var baddie = this.randomBaddies[i],
+				path = baddie.path,
+				dx = baddie.vx,
+				dy = baddie.vy,
+				x = path[0] += dx,
+				y = path[1] += dy;
+		// Wrap around the walls.
+		if (x < 0-padx || x > 1+padx) path[0] = Math.abs(1 - x);
+		if (y < 0-pady || y > 1+pady) path[1] = Math.abs(1 - y);
+	}
+}
+
+Asteroids.prototype.updateFiredShotsPositions = function() {
+	// Update fired shots and detect collisions with baddies
+	for (var i = 0; i < this.firedShots.length; i++) {
+		var shot = this.firedShots[i],
+				path = shot.path,
+				dx = shot.vx,
+				dy = shot.vy,
+				x = path[0] += dx,
+				y = path[1] += dy;
+
+		// Remove when we get to a wall
+		if (x < 0 || x > 1 || y < 0 || y > 1) {
+			this.firedShots.splice(i,1); 
+			i--;
+			continue;
+		}
+		
+		// Collision detection
+		for (var j = 0; j < this.randomBaddies.length; j++) {
+			var randomBaddie = this.randomBaddies[j],
+					baddieX = randomBaddie.path[0],
+					baddieY = randomBaddie.path[1];
+			if(this.isCollision({x:this.x(x),y:this.y(y)},{x:this.x(baddieX),y:this.y(baddieY)},randomBaddie.r+shot.r)){
+				// Remove baddie and shot
+				this.randomBaddies.splice(j,1);
+				j--;
+				this.firedShots.splice(i,1);
+				i--;
+				this.randomBaddies.push(this.createRandomBaddie());
+				continue;
+			}
+		}	
+	}
 }
 
 Asteroids.prototype.update = function(container) {
@@ -116,17 +166,19 @@ Asteroids.prototype.update = function(container) {
 			
 	// Listen for mouse click events
 	graphics.graph.on("click", function(d) {
-		// Get mouse x,y coordinates relative to svg container
-		var path = d3.mouse(this);
-		// Calculate angle relative to origin at home
-		var origin = [.5,.5];
-		var theta = Math.atan2(path[1] - self.y(origin[1]), path[0] - self.x(origin[0]));
-		// Calculate velocity
-		var speed = .01;
-		var vx = speed*Math.cos(theta), vy = speed*Math.sin(theta);
-		// Add shot to the list of shotsfired
-		var shot = {path:origin, vx:vx, vy:vy, r:2};
-		self.firedShots.push(shot);
+		if( self.currentState == self.gameStates.RUNNING ) {
+			// Get mouse x,y coordinates relative to svg container
+			var path = d3.mouse(this);
+			// Calculate angle relative to origin at home
+			var origin = [.5,.5];
+			var theta = Math.atan2(path[1]/graphics.height - origin[1], path[0]/graphics.width - origin[0]);
+			// Calculate velocity
+			var speed = .01;
+			var vx = speed*Math.cos(theta), vy = speed*Math.sin(theta);
+			// Add shot to the list of shotsfired
+			var shot = {path:origin, vx:vx, vy:vy, r:2};
+			self.firedShots.push(shot);
+		}
 	});
 }
 
@@ -223,4 +275,47 @@ Asteroids.prototype.getData = function() {
   log(this.baddiesBase);
   log(this.baddies);
   log(this.baddiesAvg);
+}
+
+Asteroids.prototype.setState = function(newState) {
+	var self = this;
+	var oldState = this.state;
+	this.currentState = newState;
+		
+	if(newState == this.gameStates.RUNNING && oldState != this.gameStates.RUNNING) {
+		// playing game
+		this.toggleTimers();
+		this.positionLoop();
+		// hide all messages
+		//this.currentMessage = ['Playing...'];
+		//this.hideMessage();
+	}
+	else if(newState == this.gameStates.PAUSE){
+		// pause game
+		this.toggleTimers();
+		// display pause message
+		//this.currentMessage = ['Touch to resume...'];
+		//this.showMessage();
+	}
+	else if(newState == this.gameStates.READY){
+		// init game
+		this.initNewGame();
+		// display ready to start message
+	}
+	else if(newState == this.gameStates.LOSE){
+		// end game
+		//clearInterval(this.intervalID);
+		// display game over message
+		//this.currentMessage = ['Game over!','Touch to play again...'];
+		//this.showMessage();
+	}
+}
+
+Asteroids.prototype.initNewGame = function(){
+	this.spawnDelay = 5000;
+	this.lastSpawn = 0;
+}
+
+Asteroids.prototype.spawn = function() {
+	this.randomBaddies.push(this.createRandomBaddie());
 }
