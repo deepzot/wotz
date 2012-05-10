@@ -74,9 +74,14 @@ Graphics.prototype.showMessage = function(lines,fade,ymin,ymax) {
       .attr('y',function(d,i) { return 15*i; }); // line spacing is 15/10=1.5
   // Calculate the bounding box of our (invisible) message group.
   var bbox = this.messageGroup[0][0].getBBox();
+  // Calculate the target width and height (only one will actually be reached).
+  // Factors of 0.95 below give a bit of extra padding. Fixed sizes of 600,400
+  // ensure that messages don't get too large on a large display.
+  var targetWidth = Math.min(600,0.95*this.width);
+  var targetHeight = Math.min(100*lines.length,0.95*(ymax-ymin));
   // Calculate the maximum scale factor that will still fit, both horizontally
-  // and vertically. Factors of 0.95 below give a bit of extra padding.
-  var scaleFactor = Math.min(0.95*this.width/bbox.width,0.95*(ymax-ymin)/bbox.height);
+  // and vertically.
+  var scaleFactor = Math.min(targetWidth/bbox.width,targetHeight/bbox.height);
   // Calculate the offsets that would center the message on (0,0) before scaling.
   var dx0 = -(bbox.x + bbox.width/2);
   var dy0 = -(bbox.y + bbox.height/2);
