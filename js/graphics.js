@@ -47,13 +47,26 @@ Graphics.prototype.addGradient = function(type,attrs,stops) {
   return gradient;
 }
 
+Graphics.prototype.setMessageOpacity = function(opacity,fade) {
+  fade = typeof fade !== 'undefined' ? fade : false;
+  if(fade) {
+    this.messageGroup
+      .transition()
+        .duration(750) //ms
+        .attr('opacity',opacity);
+  }
+  else {
+    this.messageGroup
+      .attr('opacity',opacity);
+  }
+}
+
 // Displays the specified lines in an SVG group above whatever content has
 // already been drawn when this method is first called. Text will be scaled
 // to fit our container. If fade is true then the new text will fade in.
 // The optional ymin and ymax parameters specify the vertical bounds that
 // the text should fit inside, and default to 0 and this.height-1.
 Graphics.prototype.showMessage = function(lines,fade,ymin,ymax) {
-  fade = typeof fade !== 'undefined' ? fade : false;
   ymin = typeof ymin !== 'undefined' ? ymin : 0;
   ymax = typeof ymax !== 'undefined' ? ymax : this.height-1;
   // Create our message group now, if necessary.
@@ -61,7 +74,8 @@ Graphics.prototype.showMessage = function(lines,fade,ymin,ymax) {
     this.messageGroup = this.graph.append('svg:g').attr('class','messageGroup');
   }
   // Remove any active transform and make the message group invisible.
-  this.messageGroup.attr('transform',null).attr('opacity',0);
+  this.messageGroup.attr('transform',null);
+  this.setMessageOpacity(0,false);
   // Remove any text already in the group.
   this.messageGroup.selectAll('text').remove();
   // Add each line as a new text element via a d3 data bind. Text is
@@ -93,16 +107,7 @@ Graphics.prototype.showMessage = function(lines,fade,ymin,ymax) {
     .attr('transform','scale('+scaleFactor+') translate('+dx+','+dy+')')
     .attr('stroke-width',(2/scaleFactor)+'px');
   // Make the new message group visible.
-  if(fade) {
-    this.messageGroup
-      .transition()
-        .duration(750) // ms
-        .attr('opacity',1);
-  }
-  else {
-    this.messageGroup
-      .attr('opacity',1);
-  }
+  this.setMessageOpacity(1,fade);
   // Return a reference to the message group.
   return this.messageGroup;
 }
