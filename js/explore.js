@@ -22,10 +22,11 @@ ExploreModule.prototype.start = function(data) {
 
 ExploreModule.prototype.update = function(container) {
   var self = this;
-  // Remember our container in case we need to redraw under our own control.
-  this.container = container;
   // Create a new SVG graphics element that fills our container.
   var graphics = new Graphics(container,'exploreGraph');
+  // Remember our container and graphics for redrawing things later.
+  this.container = container;
+  this.graphics = graphics;
   // Create a linear sky gradient.
   graphics.addGradient('linear',
     {id:'skyGradient',gradientUnits:'userSpaceOnUse',x1:'0%',y1:'0%',x2:'100%',y2:'0%'},
@@ -174,40 +175,14 @@ ExploreModule.prototype.update = function(container) {
       .on('click', function() { self.navForward(); });
   }
   // Show the current message.
-  graphics.graph.append('svg:g').attr('id','exploreMessage');
+  //!!graphics.graph.append('svg:g').attr('id','exploreMessage');
   this.showMessage();
 }
 
 ExploreModule.prototype.showMessage = function() {
-  var graph = d3.select('#exploreGraph');
-  var width = $('#exploreGraph').width(), height = $('#exploreGraph').height();
-  var message = d3.select('#exploreMessage').attr('transform',null).attr('opacity',0);
-  var msgLength = this.currentMessage.length;
-  message.selectAll('text').remove();
-  message.selectAll('text').data(this.currentMessage)
-    .enter().append('svg:text')
-      .text(function(d) { return d; })
-      .attr('font-size','10px')
-      .attr('x',0)
-      .attr('y',function(d,i) { return 15*(i-(msgLength-1)/2); });
-  var bbox = $('#exploreMessage')[0].getBBox();
+  var fade = (this.messageCount != this.lastMessageCount);
   var labelBox = $('.dayLabel')[0].getBBox();
-  var scaleFactor = Math.min(0.95*width/bbox.width,0.95*labelBox.y/bbox.height);
-  var dx = (width/2)/scaleFactor;
-  // Add an extra 5px to vertically center text (original font-size is 10px)
-  var dy = (labelBox.y/2 + 5)/scaleFactor;
-  message
-    .attr('transform','scale('+scaleFactor+') translate(' + dx + ',' + dy + ')')
-    .attr('stroke-width',(2/scaleFactor)+'px');
-  // Only animate fade-in if this is the first time this message is being displayed.
-  if(this.messageCount != this.lastMessageCount) {
-    message.transition()
-    .duration(750) // ms
-    .attr('opacity',1);
-  }
-  else {
-    message.attr('opacity',1);
-  }
+  var message = this.graphics.showMessage(this.currentMessage,fade,0,labelBox.y);
   this.lastMessageCount = this.messageCount;
   var self = this;
   message.on('click',function() {

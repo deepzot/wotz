@@ -53,7 +53,6 @@
 }
 
 #exploreGraph text {
-    stroke: none;
     fill: white;
     text-anchor: middle;
     text-shadow: none;
@@ -66,6 +65,12 @@
 
 #exploreGraph path.land1 { fill: #798086; stroke: none; }
 #exploreGraph path.land2 { fill: #61666B; stroke: none; }
+
+.messageGroup text {
+    font-weight: bold;
+    stroke: #464;
+    cursor: pointer;
+}
 
 #exploreMessage text {
     font-weight: bold;
