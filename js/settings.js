@@ -31,14 +31,24 @@ function Settings() {
     var countyIndex = $('#countyMenu option:selected').val();
     if(countyIndex == -1 || self.consumptionByCounty == null || countyIndex >= self.consumptionByCounty.length) {
       // It looks like our external data isn't available. Use 2010 San Diego County data.
-      self.consumptionRate = self.serviceType == 'residential' ? 0.24277 : 1.24571;
+      self.countyName = 'San Diego County, California';
+      self.consumptionRatePerCapita = self.serviceType == 'residential' ? 0.24277 : 1.24571;
     }
     else {
       var row = self.consumptionByCounty[countyIndex];
-      self.consumptionRate = self.serviceType == 'residential' ? row.r : row.c;
+      self.countyName = row.n;
+      self.consumptionRatePerCapita = self.serviceType == 'residential' ? row.r : row.c;
     }
     // Validate the people count input (should really highlight field, etc, here)
     self.peopleCount = parseInt(self.peopleCount) || 1;
+
+    // Calculate the total average consumption rate for this county and type of service.
+    self.consumptionRate = self.peopleCount*self.consumptionRatePerCapita;
+
+    // Embed settings info in our "About" dialog.    
+    $('#aboutSettings').text('Average '+self.serviceType+' consumption by '+self.peopleCount+
+      (self.serviceType=='residential'?' people':' employees')+' in '+self.countyName+' is '+
+      d3.format('.1f')(24*self.consumptionRate)+' kWh/day.');
 
     log('settings',countyIndex,self.serviceType,self.peopleCount,self.consumptionRate);
   });
