@@ -28,19 +28,6 @@ ExploreModule.prototype.update = function(container) {
   // Remember our container and graphics for redrawing things later.
   this.container = container;
   this.graphics = graphics;
-  // Create a linear sky gradient.
-  graphics.addGradient('linear',
-    {id:'skyGradient',gradientUnits:'userSpaceOnUse',x1:'0%',y1:'0%',x2:'100%',y2:'0%'},
-    [
-      [ '5%','rgb(180,180,255)','1'],
-      ['20%','rgb(180,180,255)','1'],
-      ['30%','rgb(180,180,255)','1'],
-      ['45%','rgb(180,150,150)','1'],
-      ['55%','rgb(180,150,150)','1'],
-      ['70%','rgb(180,180,255)','1'],
-      ['80%','rgb(180,180,255)','1'],
-      ['95%','rgb(180,150,150)','1']
-    ]);
   // Create a radial sun gradient.
   graphics.addGradient('radial',
     {id:'sunGradient',gradientUnits:'objectBoundingBox',cx:'50%',cy:'0%',r:'25%'},
@@ -73,7 +60,7 @@ ExploreModule.prototype.update = function(container) {
     .range([graphics.height-1,0]);
   // Draw the background sky.
   graphics.graph.append('svg:rect')
-    .attr('fill','url(#skyGradient)')
+    .attr('id','exploreSky')
     .attr('x',0)
     .attr('y',0)
     .attr('width',graphics.width)
