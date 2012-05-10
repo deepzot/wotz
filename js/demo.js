@@ -30,7 +30,7 @@ DemoApp.prototype.start = function() {
         }
         log('starting',m.id);
         self.module = m;
-        m.start(self.data);
+        m.start(self.data,self.settings);
         m.update(self.container);
       }
     })(module));
