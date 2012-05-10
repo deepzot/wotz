@@ -92,6 +92,45 @@
 </div>
 
 <!------------------------------------------------------>
+<div data-role="page" id="settings">
+
+	<div data-role="header">
+		<h1>Settings</h1>
+	</div>
+	<div data-role="content">
+
+		<form id="settingsForm" action="javascript:void(0);">
+
+			<label for="countyMenu_" class="select">Select your county:</label>
+			<select name="countyMenu_" id="countyMenu">
+				<option value="-1">San Diego County, California</option>
+			</select>
+		
+			<fieldset data-role="controlgroup" id="serviceTypeMenu">
+				<legend>Type of service:</legend>
+				<input type="radio" name="radio-choice-1" id="radio-choice-1" value="residential" checked="checked" />
+				<label for="radio-choice-1">Residential</label>
+				<input type="radio" name="radio-choice-1" id="radio-choice-2" value="commercial" />
+				<label for="radio-choice-2">Commercial</label>
+			</fieldset>
+
+			<div data-role="fieldcontain" id="householdCountInput">
+				<label for="householdCount_">Number of people in household:</label>
+				<input type="range" name="householdCount_" id="householdCount" value="3" min="1" max="20" data-highlight="true" />
+			</div>
+
+			<div data-role="fieldcontain" id="employeeCountInput">
+				<label for="employeeCount_">Number of employees:</label>
+				<input type="number" name="employeeCount_" id="employeeCount" value="10" />
+			</div>
+
+			<input type='submit' value='Continue' />
+
+		</form>
+	</div>
+</div>
+
+<!------------------------------------------------------>
 <div data-role="page" data-title="EnergyApp" id="demo">
 
 	<div data-role="header">
@@ -128,6 +167,7 @@
 			Viewing data for <span class="firstDate"></span> &mdash; <span class="startDate"></span>
 			in timezone <span class="timeZone"></span>.
 		</p>
+		<p id="aboutSettings"></p>
 		<p>
 			App designed and created by researchers at the University of California, Irvine.
 		</p>
@@ -157,6 +197,7 @@
 <script src="http://code.jquery.com/mobile/1.1.0/jquery.mobile-1.1.0.min.js"></script>
 <script src="js/libs/d3.v2.min.js"></script>
 
+<script src="js/settings.js"></script>
 <script src="js/tetris.js"></script>
 <script src="js/asteroids.js"></script>
 <script src="js/data.js"></script>

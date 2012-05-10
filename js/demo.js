@@ -10,6 +10,9 @@ DemoApp.prototype.start = function() {
   // Use 'self' as an alias for 'this' when we are in a context that hides 'this'
   var self = this;
   
+  // Create settings now so it can get start with asynchronous loading of external data.
+  this.settings = new Settings();
+
   // Show the disclaimer dialog.
   $('#showDisclaimerDialog').click();
   
@@ -27,7 +30,7 @@ DemoApp.prototype.start = function() {
         }
         log('starting',m.id);
         self.module = m;
-        m.start(self.data);
+        m.start(self.data,self.settings);
         m.update(self.container);
       }
     })(module));
@@ -135,6 +138,12 @@ DemoApp.prototype.start = function() {
     return false; // prevent further form submission
   });
 
+  // Register submit handler that takes user from settings into the main demo.
+  $('#settingsForm input[type="submit"]').click(function() {
+    facebook.updateButtons();    
+    $.mobile.changePage($('#demo'));
+  });
+
   // Register login handler.
   $('#loginButton').click(function() { facebook.doLoginLogout(); });
 
@@ -185,8 +194,8 @@ DemoApp.prototype.loadComplete = function(xml) {
     // Everything looks good.
     log('parsed',this.data.nReadings,'readings');
     this.reset();
-    $.mobile.changePage($('#demo'));
-    facebook.updateButtons();
+    // Get the user settings next.
+    $.mobile.changePage($('#settings'));
     return true;
   }
 }

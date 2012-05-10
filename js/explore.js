@@ -8,10 +8,11 @@ function ExploreModule() {
   this.messageCount = 0;
 }
 
-ExploreModule.prototype.start = function(data) {
+ExploreModule.prototype.start = function(data,settings) {
   log('explore start at',data.getDateTime());
-  // Remember our data source.
+  // Remember our data source and settings.
   this.dataSource = data;
+  this.settings = settings;
   // Grab the most recent 2 complete days of data.
   this.dayOffset = 0;
   this.landHeight = null;
