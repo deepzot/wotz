@@ -72,12 +72,6 @@
     cursor: pointer;
 }
 
-#exploreMessage text {
-    font-weight: bold;
-    stroke: #464;
-    cursor: pointer;
-}
-
 #gameBoard {
     font-size: 100%;
 }
