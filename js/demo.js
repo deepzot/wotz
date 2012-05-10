@@ -138,6 +138,12 @@ DemoApp.prototype.start = function() {
     return false; // prevent further form submission
   });
 
+  // Register submit handler that takes user from settings into the main demo.
+  $('#settingsForm input[type="submit"]').click(function() {
+    facebook.updateButtons();    
+    $.mobile.changePage($('#demo'));
+  });
+
   // Register login handler.
   $('#loginButton').click(function() { facebook.doLoginLogout(); });
 
@@ -188,8 +194,8 @@ DemoApp.prototype.loadComplete = function(xml) {
     // Everything looks good.
     log('parsed',this.data.nReadings,'readings');
     this.reset();
-    $.mobile.changePage($('#demo'));
-    facebook.updateButtons();
+    // Get the user settings next.
+    $.mobile.changePage($('#settings'));
     return true;
   }
 }
