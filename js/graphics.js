@@ -71,16 +71,18 @@ Graphics.prototype.showMessage = function(lines,fade,ymin,ymax) {
     .enter().append('svg:text')
       .text(function(d) { return d; })
       .attr('font-size','10px')
-      .attr('y',function(d,i) { return 15*(i-center); });
+      .attr('y',function(d,i) { return 15*i; }); // line spacing is 15/10=1.5
   // Calculate the bounding box of our (invisible) message group.
   var bbox = this.messageGroup[0][0].getBBox();
   // Calculate the maximum scale factor that will still fit, both horizontally
   // and vertically. Factors of 0.95 below give a bit of extra padding.
   var scaleFactor = Math.min(0.95*this.width/bbox.width,0.95*(ymax-ymin)/bbox.height);
-  // Calculate the offsets to apply. Add an extra 5px to vertically center text
-  // (since the original font-size was 10px).
-  var dx = (this.width/2)/scaleFactor;
-  var dy = ((ymax-ymin)/2+5)/scaleFactor;
+  // Calculate the offsets that would center the message on (0,0) before scaling.
+  var dx0 = -(bbox.x + bbox.width/2);
+  var dy0 = -(bbox.y + bbox.height/2);
+  // Calculate the offsets to apply after scaling.
+  var dx = dx0 + this.width/(2*scaleFactor);
+  var dy = dy0 + (ymax-ymin)/(2*scaleFactor);
   // Apply the scale and translation transforms.
   this.messageGroup
     .attr('transform','scale('+scaleFactor+') translate('+dx+','+dy+')')
@@ -99,43 +101,3 @@ Graphics.prototype.showMessage = function(lines,fade,ymin,ymax) {
   // Return a reference to the message group.
   return this.messageGroup;
 }
-
-/**
-ExploreModule.prototype.showMessage = function() {
-  var graph = d3.select('#exploreGraph');
-  var width = $('#exploreGraph').width(), height = $('#exploreGraph').height();
-  var message = d3.select('#exploreMessage').attr('transform',null).attr('opacity',0);
-  var msgLength = this.currentMessage.length;
-  message.selectAll('text').remove();
-  message.selectAll('text').data(this.currentMessage)
-    .enter().append('svg:text')
-      .text(function(d) { return d; })
-      .attr('font-size','10px')
-      .attr('x',0)
-      .attr('y',function(d,i) { return 15*(i-(msgLength-1)/2); });
-  var bbox = $('#exploreMessage')[0].getBBox();
-  var labelBox = $('.dayLabel')[0].getBBox();
-  var scaleFactor = Math.min(0.95*width/bbox.width,0.95*labelBox.y/bbox.height);
-  var dx = (width/2)/scaleFactor;
-  // Add an extra 5px to vertically center text (original font-size is 10px)
-  var dy = (labelBox.y/2 + 5)/scaleFactor;
-  message
-    .attr('transform','scale('+scaleFactor+') translate(' + dx + ',' + dy + ')')
-    .attr('stroke-width',(2/scaleFactor)+'px');
-  // Only animate fade-in if this is the first time this message is being displayed.
-  if(this.messageCount != this.lastMessageCount) {
-    message.transition()
-    .duration(750) // ms
-    .attr('opacity',1);
-  }
-  else {
-    message.attr('opacity',1);
-  }
-  this.lastMessageCount = this.messageCount;
-  var self = this;
-  message.on('click',function() {
-    self.getNextMessage();
-    self.showMessage();
-  });
-}
-**/

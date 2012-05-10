@@ -175,7 +175,6 @@ ExploreModule.prototype.update = function(container) {
       .on('click', function() { self.navForward(); });
   }
   // Show the current message.
-  //!!graphics.graph.append('svg:g').attr('id','exploreMessage');
   this.showMessage();
 }
 
