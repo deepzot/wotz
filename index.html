@@ -103,8 +103,7 @@
 
 			<label for="countyMenu_" class="select">Select your county:</label>
 			<select name="countyMenu_" id="countyMenu">
-				<option value="1">Alameda County, California</option>
-				<option value="2">Alpine County, California</option>
+				<option value="-1">San Diego County, California</option>
 			</select>
 		
 			<fieldset data-role="controlgroup" id="serviceTypeMenu">
@@ -115,11 +114,13 @@
 				<label for="radio-choice-2">Commercial</label>
 			</fieldset>
 
-			<label for="peopleCount_" id="peopleCountLabel">Number of people in household:</label>
-			<input type="range" name="peopleCount_" id="peopleCount" value="3" min="1" max="20" data-highlight="true" />
+			<div data-role="fieldcontain" id="householdCountInput">
+				<label for="householdCount_">Number of people in household:</label>
+				<input type="range" name="householdCount_" id="householdCount" value="3" min="1" max="20" data-highlight="true" />
+			</div>
 
-			<div data-role="fieldcontain">
-				<label for="employeeCount_" id="employeeCountLabel">Number of employees:</label>
+			<div data-role="fieldcontain" id="employeeCountInput">
+				<label for="employeeCount_">Number of employees:</label>
 				<input type="number" name="employeeCount_" id="employeeCount" value="10" />
 			</div>
 
@@ -195,6 +196,7 @@
 <script src="http://code.jquery.com/mobile/1.1.0/jquery.mobile-1.1.0.min.js"></script>
 <script src="js/libs/d3.v2.min.js"></script>
 
+<script src="js/settings.js"></script>
 <script src="js/tetris.js"></script>
 <script src="js/asteroids.js"></script>
 <script src="js/data.js"></script>
