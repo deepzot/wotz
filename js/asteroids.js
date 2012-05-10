@@ -37,8 +37,10 @@ Asteroids.prototype.start = function(data) {
 					y = path[1] += dy;
 	
 			// Wrap around the walls.
-			if (x < 0 || x > 1) path[0] = Math.abs(1 - x);
-			if (y < 0 || y > 1) path[1] = Math.abs(1 - y);
+			var padx = 10/self.graphics.width;
+			var pady = 10/self.graphics.height;
+			if (x < 0-padx || x > 1+padx) path[0] = Math.abs(1 - x);
+			if (y < 0-pady || y > 1+pady) path[1] = Math.abs(1 - y);
 		}
 		// Update fired shots and detect collisions with baddies
 		for (var i = 0; i < self.firedShots.length; i++) {
@@ -86,25 +88,23 @@ Asteroids.prototype.start = function(data) {
 }
 
 Asteroids.prototype.update = function(container) {
-  var svg = d3.select('#moduleContent').append("svg:svg")
-    .attr('class','graphics')
-    .attr('id', 'asteroidField')
-    .style('background','gray');
-  var width = $('#asteroidField').width(), height = $('#asteroidField').height();
-  //svg.attr('width',width).attr('height',height);
-  
+  // Create a new SVG graphics element that fills our container.
+  var graphics = new Graphics(container,'asteroidField');
+  // Remember our container and graphics for redrawing things later.
+  this.container = container;
+  this.graphics = graphics;
+  graphics.graph
+  	.style('background', 'gray');
+  // Create scales to map positions from 'game space' to 'pixel space'
 	this.x = d3.scale.linear()
 		.domain([0,1])
-		.range([0,width-1]);
+		.range([0,graphics.width-1]);
 	this.y = d3.scale.linear()
 		.domain([0, 1])
-		.range([0,height-1]);
-		
-	// Draw boarders, background stuff
-	var self = this;
-
+		.range([0,graphics.height-1]);
 	// Draw our home
-	var homeRect = svg.selectAll('rect')
+	var self = this;
+	var homeRect = graphics.graph.selectAll('rect')
 			.data([{path:[.5,.5],w:10,h:10}])
 		.enter()
 			.append('svg:rect');
@@ -115,12 +115,12 @@ Asteroids.prototype.update = function(container) {
 			.attr("fill","yellow");
 			
 	// Listen for mouse click events
-	svg.on("click", function(d) {
+	graphics.graph.on("click", function(d) {
 		// Get mouse x,y coordinates relative to svg container
 		var path = d3.mouse(this);
 		// Calculate angle relative to origin at home
 		var origin = [.5,.5];
-		var theta = Math.atan2(path[1]/height - origin[1], path[0]/width - origin[0]);
+		var theta = Math.atan2(path[1] - self.y(origin[1]), path[0] - self.x(origin[0]));
 		// Calculate velocity
 		var speed = .01;
 		var vx = speed*Math.cos(theta), vy = speed*Math.sin(theta);
@@ -149,9 +149,9 @@ Asteroids.prototype.createRandomBaddie = function() {
 
 Asteroids.prototype.redraw = function() {
 	var self = this;
-	var svg = d3.select('#asteroidField');
+	var graphics = this.graphics;
 	// Update baddies
-	var baddies = svg.selectAll("ellipse.baddies")
+	var baddies = graphics.graph.selectAll("ellipse.baddies")
 		.data(this.randomBaddies);
 	baddies.enter().append("svg:ellipse")
 		.attr('class','baddies')
@@ -164,7 +164,7 @@ Asteroids.prototype.redraw = function() {
 	baddies.exit()
 		.remove();	
 	// Update fired shots
-	var shots = svg.selectAll('circle.shots')
+	var shots = graphics.graph.selectAll('circle.shots')
 		.data(this.firedShots);
 	shots.enter().append('svg:circle')
 		.attr('class','shots')
