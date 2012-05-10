@@ -5,8 +5,7 @@ function Asteroids() {
 	this.x = null;
 	this.y = null;
 	this.firedShots = null;
-	this.randomBaddies = null;
-	this.nBaddies = 20;
+	this.maxBaddies = 5;
 	this.interval = null;
 	// Data
 	this.dayOffset = null;
@@ -28,17 +27,10 @@ Asteroids.prototype.start = function(data) {
 	var self = this;
 	this.dataSource = data;
 	this.dayOffset = 0;
-	this.baddies = null;
 	this.getData();
-	
 	if( this.currentState == null) {
 		this.setState(this.gameStates.READY);
 	}
-	this.setState(this.gameStates.RUNNING);
-	
-	this.firedShots = []
-	this.randomBaddies = d3.range(Math.floor(this.nBaddies*this.baddiesBase+.5)).map(this.createRandomBaddie);
-
 	// Listen for keydown events
 	d3.select(window).on("keydown", function() {
 			var keyCode = d3.event.keyCode;
@@ -48,6 +40,12 @@ Asteroids.prototype.start = function(data) {
 				}
 				else if(self.currentState == self.gameStates.RUNNING){
 					self.setState(self.gameStates.PAUSE);
+				}
+				else if(self.currentState == self.gameStates.LOSE){
+					set.setState(self.gameStates.READY);
+				}
+				else if(self.currentState == self.gameStates.READY){
+					self.setState(self.gameStates.RUNNING);
 				}
 			}
 	});
@@ -64,7 +62,6 @@ Asteroids.prototype.positionLoop = function() {
 		// Update baddie positions
 		self.updateBaddiePositions();
 		self.updateFiredShotsPositions();
-		
 		// Check time
 		var d = new Date();
 		var time = d.getTime();
@@ -89,8 +86,32 @@ Asteroids.prototype.updateBaddiePositions = function() {
 	var padx = 10/this.graphics.width;
 	var pady = 10/this.graphics.height;
 	// Update baddie positions
-	for (var i = 0; i < this.randomBaddies.length; i++) {
-		var baddie = this.randomBaddies[i],
+	for (var i = 0; i < this.baddiesBase.length; i++) {
+		var baddie = this.baddiesBase[i],
+				path = baddie.path,
+				dx = baddie.vx,
+				dy = baddie.vy,
+				x = path[0] += dx,
+				y = path[1] += dy;
+		// Wrap around the walls.
+		if (x < 0-padx || x > 1+padx) path[0] = Math.abs(1 - x);
+		if (y < 0-pady || y > 1+pady) path[1] = Math.abs(1 - y);
+	}	
+	// Update baddie positions
+	for (var i = 0; i < this.baddies.length; i++) {
+		var baddie = this.baddies[i],
+				path = baddie.path,
+				dx = baddie.vx,
+				dy = baddie.vy,
+				x = path[0] += dx,
+				y = path[1] += dy;
+		// Wrap around the walls.
+		if (x < 0-padx || x > 1+padx) path[0] = Math.abs(1 - x);
+		if (y < 0-pady || y > 1+pady) path[1] = Math.abs(1 - y);
+	}	
+	// Update baddie positions
+	for (var i = 0; i < this.baddiesAvg.length; i++) {
+		var baddie = this.baddiesAvg[i],
 				path = baddie.path,
 				dx = baddie.vx,
 				dy = baddie.vy,
@@ -114,23 +135,55 @@ Asteroids.prototype.updateFiredShotsPositions = function() {
 
 		// Remove when we get to a wall
 		if (x < 0 || x > 1 || y < 0 || y > 1) {
-			this.firedShots.splice(i,1); 
+			this.firedShots.splice(i,1);
+			this.redraw();
 			i--;
 			continue;
 		}
 		
 		// Collision detection
-		for (var j = 0; j < this.randomBaddies.length; j++) {
-			var randomBaddie = this.randomBaddies[j],
-					baddieX = randomBaddie.path[0],
-					baddieY = randomBaddie.path[1];
-			if(this.isCollision({x:this.x(x),y:this.y(y)},{x:this.x(baddieX),y:this.y(baddieY)},randomBaddie.r+shot.r)){
+		for (var j = 0; j < this.baddiesBase.length; j++) {
+			var baddie = this.baddiesBase[j],
+					baddieX = baddie.path[0],
+					baddieY = baddie.path[1];
+			if(this.isCollision({x:this.x(x),y:this.y(y)},{x:this.x(baddieX),y:this.y(baddieY)},baddie.r+shot.r)){
 				// Remove baddie and shot
-				this.randomBaddies.splice(j,1);
+				this.baddiesBase.splice(j,1);
 				j--;
 				this.firedShots.splice(i,1);
 				i--;
-				this.randomBaddies.push(this.createRandomBaddie());
+				this.redraw();
+				this.baddiesBase.push(this.createRandomBaddie());
+				continue;
+			}
+		}	
+		// Collision detection
+		for (var j = 0; j < this.baddies.length; j++) {
+			var baddie = this.baddies[j],
+					baddieX = baddie.path[0],
+					baddieY = baddie.path[1];
+			if(this.isCollision({x:this.x(x),y:this.y(y)},{x:this.x(baddieX),y:this.y(baddieY)},baddie.r+shot.r)){
+				// Remove baddie and shot
+				this.baddies.splice(j,1);
+				j--;
+				this.firedShots.splice(i,1);
+				i--;
+				this.redraw();
+				continue;
+			}
+		}	
+		// Collision detection
+		for (var j = 0; j < this.baddiesAvg.length; j++) {
+			var baddie = this.baddiesAvg[j],
+					baddieX = baddie.path[0],
+					baddieY = baddie.path[1];
+			if(this.isCollision({x:this.x(x),y:this.y(y)},{x:this.x(baddieX),y:this.y(baddieY)},baddie.r+shot.r)){
+				// Remove baddie and shot
+				this.baddiesAvg.splice(j,1);
+				j--;
+				this.firedShots.splice(i,1);
+				i--;
+				this.redraw();
 				continue;
 			}
 		}	
@@ -180,10 +233,12 @@ Asteroids.prototype.update = function(container) {
 			self.firedShots.push(shot);
 		}
 	});
+	
+	this.redraw();
 }
 
 Asteroids.prototype.end = function() {
-
+	this.setState(this.gameStates.PAUSE);
 }
 
 // Create some random baddies
@@ -202,19 +257,6 @@ Asteroids.prototype.createRandomBaddie = function() {
 Asteroids.prototype.redraw = function() {
 	var self = this;
 	var graphics = this.graphics;
-	// Update baddies
-	var baddies = graphics.graph.selectAll("ellipse.baddies")
-		.data(this.randomBaddies);
-	baddies.enter().append("svg:ellipse")
-		.attr('class','baddies')
-    .attr("rx", function(d) { return d.r*1.25 })
-    .attr("ry", function(d) { return d.r*0.75 })
-    .style('fill','white');
-  baddies.attr("transform", function(d) {
-    return "translate(" + self.x(d.path[0]) + ',' + self.y(d.path[1]) + ")rotate(" + Math.atan2(self.y(d.vy), self.x(d.vx)) * self.degrees + ")";
-  });
-	baddies.exit()
-		.remove();	
 	// Update fired shots
 	var shots = graphics.graph.selectAll('circle.shots')
 		.data(this.firedShots);
@@ -226,6 +268,60 @@ Asteroids.prototype.redraw = function() {
 		.attr("transform", function(d) { return "translate(" + self.x(d.path[0]) + ',' + self.y(d.path[1]) + ")" });
 	shots.exit()
 		.remove();
+	// Update baddies
+	var baddies = graphics.graph.selectAll("ellipse.baddiesValue")
+		.data(this.baddies);
+	baddies.enter().append("svg:ellipse")
+		.attr('class','baddiesValue')
+		.attr('id','value')
+    .attr("rx", function(d) { return d.r*1.25 })
+    .attr("ry", function(d) { return d.r*0.75 })
+    .style('fill','orange')
+    .style('fill-opacity', 0)
+  .transition()
+  	.duration(2000)
+  	.style('fill-opacity', 1);
+  baddies.attr("transform", function(d) {
+    return "translate(" + self.x(d.path[0]) + ',' + self.y(d.path[1]) + ")rotate(" + Math.atan2(self.y(d.vy), self.x(d.vx)) * self.degrees + ")";
+  });
+	baddies.exit()
+		.remove();
+	// Update baddies
+	var baddiesBase = graphics.graph.selectAll("ellipse.baddiesBase")
+		.data(this.baddiesBase);
+	baddiesBase.enter().append("svg:ellipse")
+		.attr('class','baddiesBase')
+		.attr('id','base')
+    .attr("rx", function(d) { return d.r*1.25 })
+    .attr("ry", function(d) { return d.r*0.75 })
+    .style('fill','darkblue')
+    .style('fill-opacity', 0)
+  .transition()
+  	.duration(2000)
+  	.style('fill-opacity', 1);
+  baddiesBase.attr("transform", function(d) {
+    return "translate(" + self.x(d.path[0]) + ',' + self.y(d.path[1]) + ")rotate(" + Math.atan2(self.y(d.vy), self.x(d.vx)) * self.degrees + ")";
+  });
+	baddiesBase.exit()
+		.remove();	
+	// Update baddies
+	var baddiesAvg = graphics.graph.selectAll("ellipse.baddiesAvg")
+		.data(this.baddiesAvg);
+	baddiesAvg.enter().append("svg:ellipse")
+		.attr('class','baddiesAvg')
+		.attr('id','avg')
+    .attr("rx", function(d) { return d.r*1.25 })
+    .attr("ry", function(d) { return d.r*0.75 })
+    .style('fill','purple')
+    .style('fill-opacity', 0)
+  .transition()
+  	.duration(2000)
+  	.style('fill-opacity', 1);
+  baddiesAvg.attr("transform", function(d) {
+    return "translate(" + self.x(d.path[0]) + ',' + self.y(d.path[1]) + ")rotate(" + Math.atan2(self.y(d.vy), self.x(d.vx)) * self.degrees + ")";
+  });
+	baddiesAvg.exit()
+		.remove();	
 };
 
 // Returns true if point and pos are within a distrance r of each other
@@ -257,24 +353,21 @@ Asteroids.prototype.getData = function() {
   	if(value > maxValue) maxValue = value;
   }
   this.minValue = minValue;
-  this.baddiesBase = minValue / maxValue;
+  this.baseValue = minValue / maxValue;
 
-  if(this.baddies == null) {
-    this.baddies = new Array(size);
-    this.baddiesAvg = new Array(24);
+  if(this.values == null) {
+    this.values = new Array(size);
+    this.avgValues = new Array(24);
   }
   for(var i = 0; i < size; ++i) {
-    this.baddies[i] = this.displayData[i]/maxValue;
+    this.values[i] = this.displayData[i]/maxValue;
   }
   for(var i = 0; i < 24; ++i) {
     var hourAvg = this.dataSource.averageByHour(i);
     hourAvg = minValue + 0.5*(hourAvg - minValue);
     hourAvg = Math.max(hourAvg,minValue);
-    this.baddiesAvg[i] = hourAvg/maxValue;
+    this.avgValues[i] = hourAvg/maxValue;
   }
-  log(this.baddiesBase);
-  log(this.baddies);
-  log(this.baddiesAvg);
 }
 
 Asteroids.prototype.setState = function(newState) {
@@ -312,10 +405,28 @@ Asteroids.prototype.setState = function(newState) {
 }
 
 Asteroids.prototype.initNewGame = function(){
-	this.spawnDelay = 5000;
+	this.spawnDelay = 10000;
 	this.lastSpawn = 0;
+	this.hourOffset = 0;
+	this.firedShots = []
+	// Initial baddies
+	this.numBaddiesBase = Math.floor(this.maxBaddies*this.baseValue+.5);
+	this.baddiesBase = d3.range(this.numBaddiesBase).map(this.createRandomBaddie);
+	this.baddies = []
+	this.baddiesAvg = []
 }
 
 Asteroids.prototype.spawn = function() {
-	this.randomBaddies.push(this.createRandomBaddie());
+	this.numBaddies = Math.floor(this.maxBaddies*this.values[this.hourOffset]+.5);
+	this.numBaddiesAvg = Math.floor(this.maxBaddies*this.avgValues[this.hourOffset]+.5);
+	// Append wave of new baddies
+	this.baddies = $.merge(this.baddies,d3.range(this.numBaddies).map(this.createRandomBaddie));
+	this.baddiesAvg = $.merge(this.baddiesAvg,d3.range(this.numBaddiesAvg).map(this.createRandomBaddie));
+	log(this.hourOffset);
+	if( this.hourOffset < this.baddies.length ) {
+		this.hourOffset++;
+	}
+	else {
+		this.setState(this.gameStates.LOSE);
+	}
 }
