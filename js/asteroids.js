@@ -5,15 +5,15 @@ function Asteroids() {
 	this.x = null;
 	this.y = null;
 	this.firedShots = null;
-	this.maxBaddies = 5;
-	this.interval = null;
-	// Data
+	this.maxBaddies = 3;
+	this.spawnDelay = 10000;
+  this.currentState = null;
 	this.dayOffset = null;
 	this.hourOffset = null;
+	// Data
 	this.dataSource = null;
   this.displayData = null;
   this.displayRange = [ null,null ];
-  this.currentState = null;
 }
 
 Asteroids.prototype.gameStates = {
@@ -26,11 +26,10 @@ Asteroids.prototype.gameStates = {
 Asteroids.prototype.start = function(data) { 
 	var self = this;
 	this.dataSource = data;
-	this.dayOffset = 0;
-	this.getData();
 	if( this.currentState == null) {
 		this.setState(this.gameStates.READY);
 	}
+	this.getData();
 	// Listen for keydown events
 	d3.select(window).on("keydown", function() {
 			var keyCode = d3.event.keyCode;
@@ -62,19 +61,36 @@ Asteroids.prototype.positionLoop = function() {
 		// Update baddie positions
 		self.updateBaddiePositions();
 		self.updateFiredShotsPositions();
+		self.totalLiveBaddies = self.baddies.length + self.baddiesBase.length + self.baddiesAvg.length;
+		
+		if(self.totalLiveBaddies == 0) {
+			self.lastSpawn = self.spawnDelay;
+		}
 		// Check time
 		var d = new Date();
 		var time = d.getTime();
 		if (time - self.lastSpawn > self.spawnDelay) {
 			self.spawn();
 			self.lastSpawn = time;
+			log(self.hourOffset);
+			if( self.hourOffset < self.values.length ) {
+				self.hourOffset++;
+			}
+			else {
+				// Get data from previous day
+				self.hourOffset = 0;
+				self.dayOffset--;
+				self.getData();
+				// new round?
+				self.setState(self.gameStates.LOSE);
+			}
 		}
 		// Update svg elements
 		self.redraw();
-
 	});
 }
 
+// This function is used to both pause and unpause timers
 Asteroids.prototype.toggleTimers = function() {
 	var d = new Date();
 	var time = d.getTime();
@@ -83,8 +99,8 @@ Asteroids.prototype.toggleTimers = function() {
 
 Asteroids.prototype.updateBaddiePositions = function() {
 	// Wall pads
-	var padx = 10/this.graphics.width;
-	var pady = 10/this.graphics.height;
+	var padx = this.padx;
+	var pady = this.pady;
 	// Update baddie positions
 	for (var i = 0; i < this.baddiesBase.length; i++) {
 		var baddie = this.baddiesBase[i],
@@ -153,7 +169,6 @@ Asteroids.prototype.updateFiredShotsPositions = function() {
 				this.firedShots.splice(i,1);
 				i--;
 				this.redraw();
-				this.baddiesBase.push(this.createRandomBaddie());
 				continue;
 			}
 		}	
@@ -197,7 +212,7 @@ Asteroids.prototype.update = function(container) {
   this.container = container;
   this.graphics = graphics;
   graphics.graph
-  	.style('background', 'gray');
+  	.style('background', 'lightblue');
   // Create scales to map positions from 'game space' to 'pixel space'
 	this.x = d3.scale.linear()
 		.domain([0,1])
@@ -205,18 +220,39 @@ Asteroids.prototype.update = function(container) {
 	this.y = d3.scale.linear()
 		.domain([0, 1])
 		.range([0,graphics.height-1]);
+		
+	this.histy = d3.scale.linear()
+		.domain([0,1])
+		.range([graphics.height-1,.8*(graphics.height-1)]);	
+	
+	// 10 pixel pads around walls to make wrap around transitions look smooth
+	this.padx = 10/this.graphics.width;
+	this.pady = 10/this.graphics.height;
 	// Draw our home
 	var self = this;
-	var homeRect = graphics.graph.selectAll('rect')
-			.data([{path:[.5,.5],w:10,h:10}])
-		.enter()
-			.append('svg:rect');
+	var homeRect = graphics.graph.selectAll('rect.home')
+		.data([{path:[.5,.5],w:10,h:10}])
+	.enter()
+		.append('svg:rect')
+		.attr('class','home');
 	homeRect
-			.attr("transform", function(d) { return "translate(" + (self.x(d.path[0]) - d.w/2) + ',' + (self.y(d.path[1]) - d.h/2) + ")"; })
-			.attr("width", function(d) { return d.w; } )
-			.attr("height", function(d) { return d.h; } )
-			.attr("fill","yellow");
+		.attr("transform", function(d) { return "translate(" + (self.x(d.path[0]) - d.w/2) + ',' + (self.y(d.path[1]) - d.h/2) + ")"; })
+		.attr("width", function(d) { return d.w; } )
+		.attr("height", function(d) { return d.h; } )
+		.attr("fill","yellow");
 			
+	// Draw histogram
+	graphics.graph.selectAll('rect.hist')
+		.data(this.values)
+	.enter().append('svg:rect')
+		.attr('class','hist')
+		.attr('x', function(d,i) { return self.x(i/24) })
+		.attr('y', function(d) { return self.histy(d) })
+		.attr('width', self.x(1/24) )
+		.attr('height', function(d) { return graphics.height - self.histy(d) })
+		.style('fill', 'steelblue')
+		.style('stroke', 'white');
+		
 	// Listen for mouse click events
 	graphics.graph.on("click", function(d) {
 		if( self.currentState == self.gameStates.RUNNING ) {
@@ -276,11 +312,11 @@ Asteroids.prototype.redraw = function() {
 		.attr('id','value')
     .attr("rx", function(d) { return d.r*1.25 })
     .attr("ry", function(d) { return d.r*0.75 })
-    .style('fill','orange')
+    .style('fill','darkgray')
     .style('fill-opacity', 0)
   .transition()
-  	.duration(2000)
-  	.style('fill-opacity', 1);
+  	.duration(1000)
+  	.style('fill-opacity', .75);
   baddies.attr("transform", function(d) {
     return "translate(" + self.x(d.path[0]) + ',' + self.y(d.path[1]) + ")rotate(" + Math.atan2(self.y(d.vy), self.x(d.vx)) * self.degrees + ")";
   });
@@ -297,8 +333,8 @@ Asteroids.prototype.redraw = function() {
     .style('fill','darkblue')
     .style('fill-opacity', 0)
   .transition()
-  	.duration(2000)
-  	.style('fill-opacity', 1);
+  	.duration(1000)
+  	.style('fill-opacity', .75);
   baddiesBase.attr("transform", function(d) {
     return "translate(" + self.x(d.path[0]) + ',' + self.y(d.path[1]) + ")rotate(" + Math.atan2(self.y(d.vy), self.x(d.vx)) * self.degrees + ")";
   });
@@ -312,16 +348,30 @@ Asteroids.prototype.redraw = function() {
 		.attr('id','avg')
     .attr("rx", function(d) { return d.r*1.25 })
     .attr("ry", function(d) { return d.r*0.75 })
-    .style('fill','purple')
+    .style('fill','green')
     .style('fill-opacity', 0)
   .transition()
-  	.duration(2000)
-  	.style('fill-opacity', 1);
+  	.duration(1000)
+  	.style('fill-opacity', .75);
   baddiesAvg.attr("transform", function(d) {
     return "translate(" + self.x(d.path[0]) + ',' + self.y(d.path[1]) + ")rotate(" + Math.atan2(self.y(d.vy), self.x(d.vx)) * self.degrees + ")";
   });
 	baddiesAvg.exit()
 		.remove();	
+	
+	// Highlight active hour
+	graphics.graph.selectAll('rect.hist')
+		.style('fill', function(d,i) {
+			if(i+1 == self.hourOffset){
+				return 'red';
+			}
+			else if (i + 1 < self.hourOffset){
+				return 'darkred';
+			}
+			else {
+				return 'steelblue';
+			}
+		});
 };
 
 // Returns true if point and pos are within a distrance r of each other
@@ -368,6 +418,9 @@ Asteroids.prototype.getData = function() {
     hourAvg = Math.max(hourAvg,minValue);
     this.avgValues[i] = hourAvg/maxValue;
   }
+  log(this.values);
+  log(this.avgValues);
+  log(this.baseValue);
 }
 
 Asteroids.prototype.setState = function(newState) {
@@ -405,28 +458,21 @@ Asteroids.prototype.setState = function(newState) {
 }
 
 Asteroids.prototype.initNewGame = function(){
-	this.spawnDelay = 10000;
-	this.lastSpawn = 0;
+	this.lastSpawn = this.spawnDelay;
+	this.dayOffset = 0;
 	this.hourOffset = 0;
-	this.firedShots = []
-	// Initial baddies
-	this.numBaddiesBase = Math.floor(this.maxBaddies*this.baseValue+.5);
-	this.baddiesBase = d3.range(this.numBaddiesBase).map(this.createRandomBaddie);
-	this.baddies = []
-	this.baddiesAvg = []
+	this.firedShots = [];
+	this.baddies = [];
+	this.baddiesAvg = [];
+	this.baddiesBase = [];
 }
 
 Asteroids.prototype.spawn = function() {
 	this.numBaddies = Math.floor(this.maxBaddies*this.values[this.hourOffset]+.5);
 	this.numBaddiesAvg = Math.floor(this.maxBaddies*this.avgValues[this.hourOffset]+.5);
+	this.numBaddiesBase = Math.floor(this.maxBaddies*this.baseValue+.5);
 	// Append wave of new baddies
 	this.baddies = $.merge(this.baddies,d3.range(this.numBaddies).map(this.createRandomBaddie));
 	this.baddiesAvg = $.merge(this.baddiesAvg,d3.range(this.numBaddiesAvg).map(this.createRandomBaddie));
-	log(this.hourOffset);
-	if( this.hourOffset < this.baddies.length ) {
-		this.hourOffset++;
-	}
-	else {
-		this.setState(this.gameStates.LOSE);
-	}
+	this.baddiesBase = $.merge(this.baddiesBase,d3.range(this.numBaddiesBase).map(this.createRandomBaddie));
 }
