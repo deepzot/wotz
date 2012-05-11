@@ -5,7 +5,7 @@ function Asteroids() {
 	this.x = null;
 	this.y = null;
 	this.maxBaddies = 3;
-	this.spawnDelay = 3*1000;
+	this.spawnDelay = 10*1000;
   this.currentState = null;
 	// Data
 	this.dataSource = null;
@@ -38,7 +38,7 @@ Asteroids.prototype.start = function(data) {
 					self.setState(self.gameStates.PAUSE);
 				}
 				else if(self.currentState == self.gameStates.LOSE){
-					set.setState(self.gameStates.READY);
+					self.setState(self.gameStates.READY);
 				}
 				else if(self.currentState == self.gameStates.READY){
 					self.setState(self.gameStates.RUNNING);
@@ -78,14 +78,22 @@ Asteroids.prototype.positionLoop = function() {
 				self.dayOffset--;
 				self.getData();
 				// new round?
-				self.initNewRound();
 				self.setState(self.gameStates.PAUSE);
+				self.initNewRound();
+				self.showMessage();
 				// Draw histogram
-				graphics.graph.selectAll('rect.hist')
-					.data(self.values)
-					.attr('y', function(d) { return self.histy(d) })
-					.attr('height', function(d) { return graphics.height - self.histy(d) })
+				var hist = graphics.graph.selectAll('rect.hist')
+					.data(self.values);
+				hist.enter().append('svg:rect')
+					.attr('class','hist')
+					.attr('x', function(d,i) { return self.x(i/24) })
+					.attr('width', self.x(1/24) )
 					.style('fill', 'steelblue')
+					.style('stroke', 'white');
+				hist
+					.attr('y', function(d) { return self.histy(d) })
+					.attr('height', function(d) { return graphics.height - self.histy(d) });
+				hist.exit().remove();					
 			}
 			// Draw hour label
 			graphics.graph.selectAll('text.hourLabel')
@@ -125,6 +133,10 @@ Asteroids.prototype.updateBaddiePositions = function() {
 		// Wrap around the walls.
 		if (x < 0-padx || x > 1+padx) path[0] = Math.abs(1 - x);
 		if (y < 0-pady || y > 1+pady) path[1] = Math.abs(1 - y);
+		if(this.isCollision({x:this.x(x),y:this.y(y)},{x:this.x(.5),y:this.y(.5)},baddie.r+5)){
+			this.setState(this.gameStates.LOSE);
+			break;
+		}
 	}	
 	// Update baddie positions
 	for (var i = 0; i < this.baddies.length; i++) {
@@ -137,6 +149,10 @@ Asteroids.prototype.updateBaddiePositions = function() {
 		// Wrap around the walls.
 		if (x < 0-padx || x > 1+padx) path[0] = Math.abs(1 - x);
 		if (y < 0-pady || y > 1+pady) path[1] = Math.abs(1 - y);
+		if(this.isCollision({x:this.x(x),y:this.y(y)},{x:this.x(.5),y:this.y(.5)},baddie.r+5*Math.sqrt(2))){
+			this.setState(this.gameStates.LOSE);
+			break;
+		}
 	}	
 	// Update baddie positions
 	for (var i = 0; i < this.baddiesAvg.length; i++) {
@@ -149,6 +165,10 @@ Asteroids.prototype.updateBaddiePositions = function() {
 		// Wrap around the walls.
 		if (x < 0-padx || x > 1+padx) path[0] = Math.abs(1 - x);
 		if (y < 0-pady || y > 1+pady) path[1] = Math.abs(1 - y);
+		if(this.isCollision({x:this.x(x),y:this.y(y)},{x:this.x(.5),y:this.y(.5)},baddie.r+5*Math.sqrt(2))){
+			this.setState(this.gameStates.LOSE);
+			break;
+		}
 	}
 }
 
@@ -300,10 +320,12 @@ Asteroids.prototype.update = function(container) {
 	});
 	
 	this.redraw();
+  this.showMessage();
 }
 
 Asteroids.prototype.end = function() {
 	this.setState(this.gameStates.PAUSE);
+	d3.select(window).on("keydown", function() { return 0;} );
 }
 
 // Create some random baddies
@@ -447,9 +469,6 @@ Asteroids.prototype.getData = function() {
     hourAvg = Math.max(hourAvg,minValue);
     this.avgValues[i] = hourAvg/maxValue;
   }
-  //log(this.values);
-  //log(this.avgValues);
-  //log(this.baseValue);
 }
 
 Asteroids.prototype.setState = function(newState) {
@@ -462,33 +481,34 @@ Asteroids.prototype.setState = function(newState) {
 		this.toggleTimers();
 		this.positionLoop();
 		// hide all messages
-		//this.currentMessage = ['Playing...'];
-		//this.hideMessage();
+		this.messagesVisible = false;
+		this.currentMessage = ['Playing!'];
+		this.showMessage();
 	}
 	else if(newState == this.gameStates.PAUSE){
 		// pause game
 		this.toggleTimers();
 		// display pause message
-		//this.currentMessage = ['Touch to resume...'];
-		//this.showMessage();
+		this.messagesVisible = true;
+		this.currentMessage = ['Tap To Resume!'];
+		this.showMessage();
 	}
 	else if(newState == this.gameStates.READY){
 		// init game
 		this.initNewGame();
-		// display ready to start message
+		//this.showMessage();
 	}
 	else if(newState == this.gameStates.LOSE){
-		// end game
-		//clearInterval(this.intervalID);
-		// display game over message
-		//this.currentMessage = ['Game over!','Touch to play again...'];
-		//this.showMessage();
+		this.currentMessage = ['Game over!','Tap to play again!'];
+		this.messagesVisible = true;
+		this.showMessage();
 	}
 }
 
 Asteroids.prototype.initNewGame = function(){
 	this.dayOffset = 0;
 	this.initNewRound();
+	this.currentMessage = ['New Game!','Tap to start!'];
 }
 
 Asteroids.prototype.initNewRound = function() {
@@ -498,14 +518,45 @@ Asteroids.prototype.initNewRound = function() {
 	this.baddies = [];
 	this.baddiesAvg = [];
 	this.baddiesBase = [];
+	this.messagesVisible = true;
+	this.currentMessage = ['Next Day!','Tap to start!']
 }
 
 Asteroids.prototype.spawn = function() {
+	// Calculate number of baddies to spawn for this hour interval
 	this.numBaddies = Math.floor(this.maxBaddies*this.values[this.hourOffset]+.5);
+	this.numBaddies = this.numBaddies*this.numBaddies;
 	this.numBaddiesAvg = Math.floor(this.maxBaddies*this.avgValues[this.hourOffset]+.5);
 	this.numBaddiesBase = Math.floor(this.maxBaddies*this.baseValue+.5);
 	// Append wave of new baddies
-	this.baddies = $.merge(this.baddies,d3.range(this.numBaddies*this.numBaddies).map(this.createRandomBaddie));
+	this.baddies = $.merge(this.baddies,d3.range(this.numBaddies).map(this.createRandomBaddie));
 	this.baddiesAvg = $.merge(this.baddiesAvg,d3.range(this.numBaddiesAvg).map(this.createRandomBaddie));
 	this.baddiesBase = $.merge(this.baddiesBase,d3.range(this.numBaddiesBase).map(this.createRandomBaddie));
+}
+
+Asteroids.prototype.showMessage = function() {
+	log(this.currentMessage);
+  var message = this.graphics.showMessage(this.currentMessage,0);
+  if(!this.messagesVisible) this.graphics.setMessageOpacity(0);
+  var self = this;
+  message.on('click',function() {
+		if(self.currentState == self.gameStates.PAUSE) {
+			// Resume game
+			self.setState(self.gameStates.RUNNING);
+		}
+		else if (self.currentState == self.gameStates.READY) {
+			// Start game
+			self.setState(self.gameStates.RUNNING);
+		}
+		else if (self.currentState == self.gameStates.LOSE) {
+			// Set up a new game
+			self.setState(self.gameStates.READY);
+		}
+  });
+  // Show the current callout.
+  //this.graphics.clearCallouts();
+  //var call = this.currentCallout;
+  //if(call) {
+  //  this.graphics.addCallout(this.xScale(call.x),this.yScale(call.y),call.url);
+  //}
 }
