@@ -17,8 +17,15 @@ ExploreModule.prototype.start = function(data,settings) {
   this.dayOffset = 0;
   this.landHeight = null;
   this.getData();
-  // Display the next message.
+  // Update our message.
   this.getNextMessage();
+  // Add a hide/show text UI element in the footer.
+  var footer = $('#demo div[data-role="footer"]');
+  footer.append('<a id="exploreMsgOnOff" href="#" data-role="button" data-mini="true">hide messages</a>')
+    .trigger('create');
+  $('#exploreMsgOnOff').click(function() {
+    log('on/off click');
+  });
 }
 
 ExploreModule.prototype.update = function(container) {
