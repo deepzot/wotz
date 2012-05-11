@@ -102,12 +102,22 @@ ExploreModule.prototype.update = function(container) {
     .attr('fill','url(#hillGradient)')
     .attr('d',hills(this.landHeight3));
   // Draw a base-load sea level.
+  var nCycles = 8;
+  var seaAmplitude = 0.025;
+  var seaData = [ [0,1+seaAmplitude] ];
+  var seaX = d3.scale.linear().domain([0,nCycles]).range([0,graphics.width-1]);
+  for(var cycle = 0; cycle < nCycles; ++cycle) {
+    seaData.push([seaX(cycle+0.25),1+2*seaAmplitude]);
+    seaData.push([seaX(cycle+0.50),1+seaAmplitude]);
+    seaData.push([seaX(cycle+0.75),1]);
+    seaData.push([seaX(cycle+1.00),1+seaAmplitude]);
+  }
+  log(seaData);
   var sea = d3.svg.area()
-    .x(function(d,i) { return x(6*i); })
-    .y1(function(d,i) { return y(self.minValue*(1.05+0.05*Math.sin(Math.PI*i/2))); })
+    .x(function(d,i) { return d[0]; })
+    .y1(function(d,i) { return y(self.minValue*d[1]); })
     .y0(graphics.height)
     .interpolate('basis');
-  var seaData = [0,0,0,0,0,0,0,0,0];
   graphics.graph.append('svg:path')
     .attr('fill','url(#seaGradient)')
     .attr('d',sea(seaData));
