@@ -28,13 +28,17 @@ ExploreModule.prototype.update = function(container) {
   // Remember our container and graphics for redrawing things later.
   this.container = container;
   this.graphics = graphics;
-  // Create a radial sun gradient.
+  // Create a pair of radial sun gradients.
   graphics.addGradient('radial',
-    {id:'sunGradient',gradientUnits:'objectBoundingBox',cx:'50%',cy:'0%',r:'25%'},
+    {class:'sunGradient',gradientUnits:'userSpaceOnUse',cx:'25%',cy:'8%',r:'10%'},
     [
       [  '0%','rgb(255,245,140)','0.75'],
       ['100%','rgb(255,245,140)','0']
     ]);
+  var leftSun = $('.sunGradient');
+  var rightSun = leftSun.clone().insertAfter(leftSun);
+  leftSun.attr('id','leftSun');
+  rightSun.attr('id','rightSun').attr('cx','75%');
   // Create a linear sea gradient.
   graphics.addGradient('linear',
     {id:'seaGradient',gradientUnits:'objectBoundingBox',x1:'0%',y1:'0%',x2:'0%',y2:'100%'},
@@ -66,13 +70,13 @@ ExploreModule.prototype.update = function(container) {
     .attr('width',graphics.width)
     .attr('height',graphics.height);
   graphics.graph.append('svg:rect')
-    .attr('fill','url(#sunGradient)')
+    .attr('fill','url(#leftSun)')
     .attr('x',0)
     .attr('y',0)
     .attr('width',graphics.width/2)
     .attr('height',graphics.height);
   graphics.graph.append('svg:rect')
-    .attr('fill','url(#sunGradient)')
+    .attr('fill','url(#rightSun)')
     .attr('x',graphics.width/2)
     .attr('y',0)
     .attr('width',graphics.width/2)
