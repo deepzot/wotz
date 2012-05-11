@@ -23,9 +23,27 @@ ExploreModule.prototype.start = function(data,settings) {
   var footer = $('#demo div[data-role="footer"]');
   footer.append('<a id="exploreMsgOnOff" href="#" data-role="button" data-mini="true">hide messages</a>')
     .trigger('create');
+  this.messagesVisible = true;
+  self = this;
   $('#exploreMsgOnOff').click(function() {
-    log('on/off click');
+    if(self.messagesVisible) {
+      self.messagesVisible = false;
+      self.graphics.setMessageOpacity(0);
+      $('#exploreMsgOnOff .ui-btn-text').text('show messages');
+    }
+    else {
+      self.messagesVisible = true;
+      self.graphics.setMessageOpacity(1);
+      $('#exploreMsgOnOff .ui-btn-text').text('hide messages');
+    }
+    return false;
   });
+}
+
+ExploreModule.prototype.end = function() {
+  this.displayData = null;
+  // Clean up the footer.
+    $('#exploreMsgOnOff').remove();
 }
 
 ExploreModule.prototype.update = function(container) {
@@ -196,11 +214,14 @@ ExploreModule.prototype.showMessage = function() {
   var fade = (this.messageCount != this.lastMessageCount);
   var labelBox = $('.dayLabel')[0].getBBox();
   var message = this.graphics.showMessage(this.currentMessage,fade,0,labelBox.y);
+  if(!this.messagesVisible) this.graphics.setMessageOpacity(0);
   this.lastMessageCount = this.messageCount;
   var self = this;
   message.on('click',function() {
-    self.getNextMessage();
-    self.showMessage();
+    if(self.messagesVisible) {
+      self.getNextMessage();
+      self.showMessage();
+    }
   });
 }
 
@@ -266,8 +287,4 @@ ExploreModule.prototype.navForward = function() {
   this.dayOffset++;
   this.getData();
   this.update(this.container);
-}
-
-ExploreModule.prototype.end = function() {
-  this.displayData = null;
 }

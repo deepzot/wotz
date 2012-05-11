@@ -48,6 +48,7 @@ Graphics.prototype.addGradient = function(type,attrs,stops) {
 }
 
 Graphics.prototype.setMessageOpacity = function(opacity,fade) {
+  if(null == this.messageGroup) return;
   fade = typeof fade !== 'undefined' ? fade : false;
   if(fade) {
     this.messageGroup
