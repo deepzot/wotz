@@ -4,12 +4,9 @@ function Asteroids() {
 	this.degrees = 180 / Math.PI;
 	this.x = null;
 	this.y = null;
-	this.firedShots = null;
 	this.maxBaddies = 3;
-	this.spawnDelay = 3000;
+	this.spawnDelay = 3*1000;
   this.currentState = null;
-	this.dayOffset = null;
-	this.hourOffset = null;
 	// Data
 	this.dataSource = null;
   this.displayData = null;
@@ -72,18 +69,34 @@ Asteroids.prototype.positionLoop = function() {
 		if (time - self.lastSpawn > self.spawnDelay) {
 			self.spawn();
 			self.lastSpawn = time;
-			log(self.hourOffset);
+			graphics = self.graphics;
 			if( self.hourOffset < self.values.length ) {
 				self.hourOffset++;
 			}
 			else {
 				// Get data from previous day
-				self.hourOffset = 0;
 				self.dayOffset--;
 				self.getData();
 				// new round?
+				self.initNewRound();
 				self.setState(self.gameStates.PAUSE);
+				// Draw histogram
+				graphics.graph.selectAll('rect.hist')
+					.data(self.values)
+					.attr('y', function(d) { return self.histy(d) })
+					.attr('height', function(d) { return graphics.height - self.histy(d) })
+					.style('fill', 'steelblue')
 			}
+			// Draw hour label
+			graphics.graph.selectAll('text.hourLabel')
+				.data([self.hourOffset])
+				.transition()
+				.text(function(d) { 
+					format = d3.time.format("%I %p");
+					return format(new Date(2012, 1, 5, d-1));
+					})
+				.attr('x', function(d) { return self.x((d-1+.5)/24); })
+				.style('opacity',1);
 		}
 		// Update svg elements
 		self.redraw();
@@ -157,6 +170,7 @@ Asteroids.prototype.updateFiredShotsPositions = function() {
 			continue;
 		}
 		
+		var removed = false;
 		// Collision detection
 		for (var j = 0; j < this.baddiesBase.length; j++) {
 			var baddie = this.baddiesBase[j],
@@ -169,9 +183,10 @@ Asteroids.prototype.updateFiredShotsPositions = function() {
 				this.firedShots.splice(i,1);
 				i--;
 				this.redraw();
-				continue;
+				break;
 			}
 		}	
+		if(removed) continue;
 		// Collision detection
 		for (var j = 0; j < this.baddies.length; j++) {
 			var baddie = this.baddies[j],
@@ -184,9 +199,10 @@ Asteroids.prototype.updateFiredShotsPositions = function() {
 				this.firedShots.splice(i,1);
 				i--;
 				this.redraw();
-				continue;
+				break;
 			}
 		}	
+		if(removed) continue;
 		// Collision detection
 		for (var j = 0; j < this.baddiesAvg.length; j++) {
 			var baddie = this.baddiesAvg[j],
@@ -199,7 +215,7 @@ Asteroids.prototype.updateFiredShotsPositions = function() {
 				this.firedShots.splice(i,1);
 				i--;
 				this.redraw();
-				continue;
+				break;
 			}
 		}	
 	}
@@ -258,9 +274,13 @@ Asteroids.prototype.update = function(container) {
 		.data([this.hourOffset])
 	.enter().append('svg:text')
 		.attr('class','hourLabel')
-		.text(function(d) { return d; })
-		.attr('x', function(d) { return self.x((d+.5)/24) })
+		.text(function(d) { 
+			format = d3.time.format("%I %p");
+			return format(new Date(2012, 1, 5, d-1));
+			})
+		.attr('x', function(d) { return self.x((d-1+.5)/24); })
 		.attr('y', self.histy(1) - graphics.fontSize)
+		.style('opacity',0);
 		
 	// Listen for mouse click events
 	graphics.graph.on("click", function(d) {
@@ -381,15 +401,6 @@ Asteroids.prototype.redraw = function() {
 				return 'steelblue';
 			}
 		});
-		
-	// Draw hour label
-	graphics.graph.selectAll('text.hourLabel')
-		.data([this.hourOffset])
-		.text(function(d) { 
-			format = d3.time.format("%I %p");
-			return format(new Date(2012, 1, 5, d-1));
-			})
-		.attr('x', function(d) { return self.x((d-1+.5)/24); })
 };
 
 // Returns true if point and pos are within a distrance r of each other
@@ -476,8 +487,12 @@ Asteroids.prototype.setState = function(newState) {
 }
 
 Asteroids.prototype.initNewGame = function(){
-	this.lastSpawn = this.spawnDelay;
 	this.dayOffset = 0;
+	this.initNewRound();
+}
+
+Asteroids.prototype.initNewRound = function() {
+	this.lastSpawn = this.spawnDelay;
 	this.hourOffset = 0;
 	this.firedShots = [];
 	this.baddies = [];
@@ -490,7 +505,7 @@ Asteroids.prototype.spawn = function() {
 	this.numBaddiesAvg = Math.floor(this.maxBaddies*this.avgValues[this.hourOffset]+.5);
 	this.numBaddiesBase = Math.floor(this.maxBaddies*this.baseValue+.5);
 	// Append wave of new baddies
-	this.baddies = $.merge(this.baddies,d3.range(this.numBaddies).map(this.createRandomBaddie));
+	this.baddies = $.merge(this.baddies,d3.range(this.numBaddies*this.numBaddies).map(this.createRandomBaddie));
 	this.baddiesAvg = $.merge(this.baddiesAvg,d3.range(this.numBaddiesAvg).map(this.createRandomBaddie));
 	this.baddiesBase = $.merge(this.baddiesBase,d3.range(this.numBaddiesBase).map(this.createRandomBaddie));
 }
