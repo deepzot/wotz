@@ -112,7 +112,6 @@ ExploreModule.prototype.update = function(container) {
     seaData.push([seaX(cycle+0.75),1]);
     seaData.push([seaX(cycle+1.00),1+seaAmplitude]);
   }
-  log(seaData);
   var sea = d3.svg.area()
     .x(function(d,i) { return d[0]; })
     .y1(function(d,i) { return y(self.minValue*d[1]); })
@@ -138,6 +137,12 @@ ExploreModule.prototype.update = function(container) {
     .text(function(d,i) { return d; })
     .attr('x', labelPos)
     .attr('y', graphics.height-graphics.fontSize);
+  // Add vertical lines for each hour label.
+  timeLabels.enter().append('svg:line')
+    .attr('class','timeLine')
+    .attr('x1',labelPos).attr('x2',labelPos)
+    .attr('y1',0.5*graphics.fontSize)
+    .attr('y2',function(d,i) { return graphics.height- (d=='noon' ? 5:2.5)*graphics.fontSize; });
   // Add day-of-week labels.
   var weekDay = d3.time.format('%a');
   var fullDate = d3.time.format('%m/%d');
