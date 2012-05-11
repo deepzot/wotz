@@ -4,8 +4,10 @@ function ExploreModule() {
   this.dataSource = null;
   this.displayData = null;
   this.displayRange = [ null,null ];
-  // Reset messaging.
+  // Reset messaging and callouts.
   this.messageCount = 0;
+  this.currentMessage = null;
+  this.currentCallout = null;
 }
 
 ExploreModule.prototype.start = function(data,settings) {
@@ -81,10 +83,10 @@ ExploreModule.prototype.update = function(container) {
       ['100%','rgb(97,102,107)','1']
     ]);
   // Prepare axis scaling functions.
-  var x = d3.scale.linear()
+  this.xScale = d3.scale.linear()
     .domain([0,48])
     .range([0,graphics.width-1]);
-  var y = d3.scale.linear()
+  this.yScale = d3.scale.linear()
     .domain([0,self.dataSource.maxValue])
     .range([graphics.height-1,0]);
   // Draw the background sky.
@@ -108,12 +110,12 @@ ExploreModule.prototype.update = function(container) {
     .attr('height',graphics.height);
   // Draw land heights.
   var land = d3.svg.area()
-    .x(function(d,i) { return x((i-0.5)/self.dataSource.readingsPerHour); })
-    .y0(y(this.minValue))
-    .y1(function(d,i) { return y(d); })
+    .x(function(d,i) { return self.xScale((i-0.5)/self.dataSource.readingsPerHour); })
+    .y0(self.yScale(this.minValue))
+    .y1(function(d,i) { return self.yScale(d); })
     .interpolate('linear');
   var hills = d3.svg.area()
-    .x(function(d,i) { return x(i-0.5); })
+    .x(function(d,i) { return self.xScale(i-0.5); })
     .y0(land.y0())
     .y1(land.y1())
     .interpolate('basis');
@@ -139,7 +141,7 @@ ExploreModule.prototype.update = function(container) {
   }
   var sea = d3.svg.area()
     .x(function(d,i) { return d[0]; })
-    .y1(function(d,i) { return y(self.minValue*d[1]); })
+    .y1(function(d,i) { return self.yScale(self.minValue*d[1]); })
     .y0(graphics.height)
     .interpolate('basis');
   graphics.graph.append('svg:path')
@@ -151,11 +153,11 @@ ExploreModule.prototype.update = function(container) {
   // Use 4 or 7 labels, depending on how much space we have available.
   if(graphics.width > 500) {
     timeLabels = timeLabels.data(['6am','noon','6pm','midnight','6am','noon','6pm']);
-    labelPos = function(d,i) { return x(6*(i+1)); };
+    labelPos = function(d,i) { return self.xScale(6*(i+1)); };
   }
   else {
     timeLabels = timeLabels.data(['6am','6pm','6am','6pm']);
-    labelPos = function(d,i) { return x(12*i+6); };
+    labelPos = function(d,i) { return self.xScale(12*i+6); };
   }
   timeLabels.enter().append('svg:text')
     .attr('class','timeLabel')
@@ -187,14 +189,14 @@ ExploreModule.prototype.update = function(container) {
     .enter().append('svg:text')
       .attr('class','dayLabel')
       .text(formatter)
-      .attr('x', function(d,i) { return x(24*i+12); })
+      .attr('x', function(d,i) { return self.xScale(24*i+12); })
       .attr('y', graphics.height-3*graphics.fontSize);
   // Add navigation labels.
   if(this.displayRange[0] >= this.dataSource.readingsPerDay) {
     graphics.graph.append('svg:text')
       .attr('class','leftArrow')
       .text('<')
-      .attr('x',x(0.5))
+      .attr('x',self.xScale(0.5))
       .attr('y', graphics.height-3*graphics.fontSize)
       .on('click', function() { self.navBack(); });
   }
@@ -202,14 +204,12 @@ ExploreModule.prototype.update = function(container) {
     graphics.graph.append('svg:text')
       .attr('class','rightArrow')
       .text('>')
-      .attr('x',x(47.5))
+      .attr('x',self.xScale(47.5))
       .attr('y', graphics.height-3*graphics.fontSize)
       .on('click', function() { self.navForward(); });
   }
-  // Show the current message.
+  // Show the current message and any associated callout.
   this.showMessage();
-  // Display a callout for testing.
-  this.graphics.addCallout(x(12),y(0.4*this.minValue));
 }
 
 ExploreModule.prototype.showMessage = function() {
@@ -225,18 +225,45 @@ ExploreModule.prototype.showMessage = function() {
       self.showMessage();
     }
   });
+  // Show the current callout.
+  this.graphics.clearCallouts();
+  var call = this.currentCallout;
+  if(call) {
+    this.graphics.addCallout(this.xScale(call.x),this.yScale(call.y),call.url);
+  }
 }
 
 ExploreModule.prototype.getNextMessage = function() {
-  this.messageCount++;
-  var newMessage;
-  if(this.messageCount == 1) {
-    newMessage = ['Welcome to your','energy-use landscape.','Touch to continue...'];
+  var msg,call=null;
+  switch(++this.messageCount) {
+  case 1:
+    msg = ['Welcome to your','energy-use landscape.','Touch to continue...'];
+    break;
+  case 2:
+    msg = ['The sea level show your','base consumption by','things that are always on.'];
+    call = { x:9, y:this.minValue };
+    break;
+  case 3:
+    msg = ['The skyline shows your','peak consumption by','things that turn on and off.'];
+    var hr = 24+18; // 6pm on second day
+    call = { x:hr, y:this.getConsumption(hr) };
+    break;
+  case 4:
+    msg = ['You are viewing the last',' two days. Use the arrow below', 'to go back in time.'];
+    break;
+  case 5:
+    msg = ['Use the button below to','hide or show these messages.'];
+    break;
+  case 6:
+    msg = ['Some clouds have silver', 'linings. Click one for more', 'information on a topic.'];
+    call = { x:2.5, y:0.95*this.dataSource.maxValue, url: this.settings.moreInfoURL };
+    break;
+  default:
+    msg = ['Here is message','number '+this.messageCount];
   }
-  else {
-    newMessage = ['Here is message','number '+this.messageCount];
-  }
-  this.currentMessage = newMessage;
+  this.currentMessage = msg;
+  if(call && !('url' in call)) call.url = null;
+  this.currentCallout = call;
 }
 
 ExploreModule.prototype.getShareText = function() {
@@ -255,7 +282,6 @@ ExploreModule.prototype.getData = function() {
     if(value < minValue) minValue = value;
   }
   this.minValue = minValue;
-  this.baseLoad = 1.1*minValue;
   // Calculate an array of land heights.
   if(this.landHeight == null) {
     this.landHeight = new Array(size+2);
@@ -275,6 +301,16 @@ ExploreModule.prototype.getData = function() {
     hourAvg = Math.max(hourAvg,minValue);
     this.landHeight3[i+1] = this.landHeight3[i+25] = hourAvg;
   }
+}
+
+// Returns the consumption rate in Watts for the specified hour offset relative to the
+// start of the two days being display, ie, the input range is [0,48). Fractional
+// hour offsets are allowed and will take advantage of multiple samples per hour
+// if these are available.
+ExploreModule.prototype.getConsumption = function(hourOffset) {
+  var index = Math.floor(this.dataSource.readingsPerHour*hourOffset);
+  if(index < 0 || null == this.displayData || index >= this.displayData.length) return 0;
+  return this.displayData[index];
 }
 
 // Handles a request to view earlier data.
