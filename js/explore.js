@@ -8,6 +8,8 @@ function ExploreModule() {
   this.messageCount = 0;
   this.currentMessage = null;
   this.currentCallout = null;
+  // Number formatting helper.
+  this.format = d3.format(".1f");
 }
 
 ExploreModule.prototype.start = function(data,settings) {
@@ -182,10 +184,12 @@ ExploreModule.prototype.update = function(container) {
     // Display MM/DD for days more than a week ago.
     formatter = function(d,i) { return fullDate(self.dataSource.getDateTime(d)); }
   }
+  var dayData = [
+    this.displayRange[0] + 12*this.dataSource.readingsPerHour,
+    this.displayRange[1] - 12*this.dataSource.readingsPerHour ];
+  this.dayLabel = [ formatter(dayData[0]), formatter(dayData[1]) ];
   graphics.graph.selectAll('text.dayLabel')
-    .data([
-      this.displayRange[0] + 12*this.dataSource.readingsPerHour,
-      this.displayRange[1] - 12*this.dataSource.readingsPerHour ])
+    .data(dayData)
     .enter().append('svg:text')
       .attr('class','dayLabel')
       .text(formatter)
@@ -249,14 +253,43 @@ ExploreModule.prototype.getNextMessage = function() {
     call = { x:hr, y:this.getConsumption(hr) };
     break;
   case 4:
-    msg = ['You are viewing the last',' two days. Use the arrow below', 'to go back in time.'];
+    var total = (this.dayUsage[0]+this.dayUsage[1])/2;
+    var basePercent = this.format(100*this.baseLoad/total);
+    msg = [ 'Base consumption is '+basePercent+'% of your total.',
+      'Any savings here make a big difference.' ];
     break;
   case 5:
-    msg = ['Use the button below to','hide or show these messages.'];
+    msg = [ 'Your landscape tells the story', 'of your energy behavior each day.',
+      'By listening, you can', 'discover easy ways to save.' ];
     break;
   case 6:
+    msg = ['You are viewing the last',' two days. Use the arrow below', 'to go back in time.'];
+    break;
+  case 7:
+    msg = ['Use the button below to','hide or show these messages.'];
+    break;
+  case 8:
     msg = ['Some clouds have silver', 'linings. Click one for more', 'information on a topic.'];
     call = { x:2.5, y:0.95*this.dataSource.maxValue, url: this.settings.moreInfoURL };
+    break;
+  case 9:
+    msg = ['Your electricity bill measures', 'energy in "kWh". What\'s that??' ];
+    break;
+  case 10:
+    var day = this.getRandomDay();
+    msg = ['1 kWh = 1 bacon double cheeseburger.',
+      'You consumed '+this.format(this.dayUsage[day])+' cheeseburgers on '+this.dayLabel[day]+'.'];
+    break;
+  case 11:
+    var day = this.getRandomDay();
+    // Typical roof area is asumed to be 40' x 60' = 223 m^2.
+    // We assume pwr=1 kW/m^2 of full sunshine, so dt = 3600(1/area/pwr) in seconds.
+    var area = 223, pwr = 1, eff = 0.15;
+    var dt = 60*this.dayUsage[day]/eff/area/pwr; // convert to minutes
+    msg = ['1 kWh = 16 seconds of', 'full sunshine on a typical roof.',
+      'Your '+this.dayLabel[day]+' energy use is '+this.format(dt)+' minutes',
+      '(for typical solar panels).' ];
+    call = { x:24*day+12, y: 0.92*this.dataSource.maxValue };
     break;
   default:
     msg = ['Here is message','number '+this.messageCount];
@@ -270,6 +303,10 @@ ExploreModule.prototype.getShareText = function() {
   return this.currentMessage.join(' ');
 }
 
+ExploreModule.prototype.getRandomDay = function() {
+  return Math.random() < 0.5 ? 0 : 1;
+}
+
 // Fetches and analyzes the data corresponding to this.dayOffset
 ExploreModule.prototype.getData = function() {
   // Fetch the data from our source.
@@ -277,11 +314,17 @@ ExploreModule.prototype.getData = function() {
   // Find the minimum reading.
   var size = this.displayData.length;
   var minValue = this.dataSource.maxValue;
+  this.dayUsage = [ 0,0 ]; // measures kWh/day for each of the two displayed days
   for(var i = 0; i < size; ++i) {
     var value = this.displayData[i];
     if(value < minValue) minValue = value;
+    var day = Math.floor(i/this.dataSource.readingsPerDay);
+    this.dayUsage[day] += 1e-3*value; // convert Wh to kWh
   }
   this.minValue = minValue;
+  // Calculate base load in kWh/day.
+  this.baseLoad = 1e-3*this.minValue*this.dataSource.readingsPerDay;
+  log('getData',this.baseLoad,this.dayUsage);
   // Calculate an array of land heights.
   if(this.landHeight == null) {
     this.landHeight = new Array(size+2);
