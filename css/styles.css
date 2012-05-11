@@ -38,10 +38,11 @@
     padding: 0;
     border: none;
     cursor: default;
+    font-size: 100%;
 }
 
-#exploreGraph {
-    font-size: 100%;
+#exploreSky {
+    fill: #A0CFEC;
 }
 
 #exploreGraph rect {
@@ -66,9 +67,18 @@
 #exploreGraph path.land1 { fill: #798086; stroke: none; }
 #exploreGraph path.land2 { fill: #61666B; stroke: none; }
 
-.messageGroup text {
+#exploreGraph line.timeLine { stroke: rgba(255,255,255,0.4); stroke-width: 1px; }
+
+#messageGroup text {
     font-weight: bold;
     stroke: #464;
+    cursor: pointer;
+}
+
+#calloutGroup path {
+    opacity: 0.75;
+    fill: white;
+    stroke: #88a;
     cursor: pointer;
 }
 

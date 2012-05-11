@@ -1,7 +1,9 @@
 function Settings() {
   self = this;
-  self.consumptionByCounty = null;
+  // Fetch the target URL for the "More Info..." button on our "About" dialog.
+  this.moreInfoURL = $('#moreInfo').attr('href');
   // Start loading our consumption database in the background.
+  this.consumptionByCounty = null;
   d3.csv('california.csv',function(rows) {
     self.consumptionByCounty = rows;
     var menu = $('#countyMenu');
