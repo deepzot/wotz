@@ -69,9 +69,16 @@
 
 #exploreGraph line.timeLine { stroke: rgba(255,255,255,0.4); stroke-width: 1px; }
 
-.messageGroup text {
+#messageGroup text {
     font-weight: bold;
     stroke: #464;
+    cursor: pointer;
+}
+
+#calloutGroup path {
+    opacity: 0.75;
+    fill: white;
+    stroke: #88a;
     cursor: pointer;
 }
 

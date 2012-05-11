@@ -5,6 +5,7 @@ function Graphics(container,name) {
   this.container = $(container);
   // Draw a graph of these readings.
   this.container.empty();
+  this.name = name;
   this.graph = d3.select(this.container.get(0)).append("svg:svg")
     .attr('class','graphics')
     .attr('id', name);
@@ -22,10 +23,10 @@ function Graphics(container,name) {
   }  
   // Create an empty SVG definitions section.
   this.defs = this.graph.append('svg:defs');
-  // The message group will be created, as needed, when showMessage is
-  // first called. We cannot create it here, or it will appear below
-  // any subsequent content added to this SVG element.
+  // Initialize our message and callout groups. We do not add them to the document
+  // now since their ordering determines their layer visibility.
   this.messageGroup = null;
+  this.calloutGroup = null;
 }
 
 // Creates a new gradient in our definitions section. The type should
@@ -62,6 +63,14 @@ Graphics.prototype.setMessageOpacity = function(opacity,fade) {
   }
 }
 
+// Creates a placeholder SVG group for displaying messages via showMessage
+// that display above all exisiting contents. Any existing group is
+// deleted and replaced.
+Graphics.prototype.createMessageGroup = function() {
+  if(this.messageGroup) $('#messageGroup').remove();
+  this.messageGroup = this.graph.append('svg:g').attr('id','messageGroup');
+}
+
 // Displays the specified lines in an SVG group above whatever content has
 // already been drawn when this method is first called. Text will be scaled
 // to fit our container. If fade is true then the new text will fade in.
@@ -71,9 +80,7 @@ Graphics.prototype.showMessage = function(lines,fade,ymin,ymax) {
   ymin = typeof ymin !== 'undefined' ? ymin : 0;
   ymax = typeof ymax !== 'undefined' ? ymax : this.height-1;
   // Create our message group now, if necessary.
-  if(null == this.messageGroup) {
-    this.messageGroup = this.graph.append('svg:g').attr('class','messageGroup');
-  }
+  if(null == this.messageGroup) this.createMessageGroup();
   // Remove any active transform and make the message group invisible.
   this.messageGroup.attr('transform',null);
   this.setMessageOpacity(0,false);
@@ -111,4 +118,32 @@ Graphics.prototype.showMessage = function(lines,fade,ymin,ymax) {
   this.setMessageOpacity(1,fade);
   // Return a reference to the message group.
   return this.messageGroup;
+}
+
+// Creates a placeholder SVG group for displaying messages via showMessage
+// that display above all exisiting contents. Any existing group is
+// deleted and replaced.
+Graphics.prototype.createCalloutGroup = function() {
+  if(this.calloutGroup) $('#calloutGroup').remove();
+  this.calloutGroup = this.graph.append('svg:g').attr('id','calloutGroup');
+}
+
+// Adds a new callout to the document with the specified origin (in SVG coords). The
+// optional scale parameter specifies the callout height as a fraction of the total
+// SVG element height (default is 0.2)
+Graphics.prototype.addCallout = function(x,y,scale) {
+  scale = typeof scale !== 'undefined' ? scale : 0.2;
+  // Create our callout group now, if necessary.
+  if(null == this.calloutGroup) this.createCalloutGroup();
+  // Calculate scale factor. Intrinsic bounding box of the path below is:
+  // x = -11.9, y =-69.4, width = 92.5, height = 69.5
+  var absScale = scale*(this.height/69.5);
+  this.calloutGroup.append('svg:path')
+    .attr('d','M-0.069,0.125c0,0,13.052-5.214,13.207-23.169c0,0-8.388,4.919-13.205-3.772\
+c0,0-13.933,0.325-11.561-13.55C-9.646-51.955,1.325-53.894,1.325-53.894s2.981-8.231,11.481\
+-5.981c0,0,16.944-22.375,43.435,1.4c0,0,12.315-3.275,16.829,9.639c0,0,6.861,0.461,7.486,\
+8.336s-7.514,9.764-7.514,9.764s-11.361,14.149-26.897,6.068c0,0-5.442,7.543-15.891,3.078\
+C30.255-21.59,23.556-3.375-0.069,0.125z')
+    .attr('transform','scale('+absScale+') translate('+(x/absScale)+','+(y/absScale)+')')
+    .attr('stroke-width',2/absScale);
 }

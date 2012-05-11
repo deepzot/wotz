@@ -208,6 +208,8 @@ ExploreModule.prototype.update = function(container) {
   }
   // Show the current message.
   this.showMessage();
+  // Display a callout for testing.
+  this.graphics.addCallout(x(12),y(0.4*this.minValue));
 }
 
 ExploreModule.prototype.showMessage = function() {
