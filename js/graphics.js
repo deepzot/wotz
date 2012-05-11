@@ -137,13 +137,28 @@ Graphics.prototype.addCallout = function(x,y,scale) {
   if(null == this.calloutGroup) this.createCalloutGroup();
   // Calculate scale factor. Intrinsic bounding box of the path below is:
   // x = -11.9, y =-69.4, width = 92.5, height = 69.5
-  var absScale = scale*(this.height/69.5);
+  var cx = -11.9, cy = -69.4;
+  var cWidth = 92.5, cHeight = 69.5;
+  var absScale = scale*(this.height/cHeight);
+  cWidth *= absScale;
+  cHeight *= absScale;
+  cx = cx*absScale + x;
+  cy = cy*absScale + y;
+  log('callout',scale,absScale,'y',cy,cy+cHeight,this.height,'x',cx,cx+cWidth,this.width);
+  // Apply any x,y flips necessary to keep most of the callout visible. We also prefer to
+  // have callouts point towards the vertical midline when there is space.
+  var absXScale = absScale, absYScale = absScale;
+  if(cx+cWidth >= this.width || (cx < this.width/2 && cx-cWidth > 0)) {
+    absXScale = -absXScale;
+  }
+  if(cy < 0) absYScale = -absYScale;
+  // Add the callout path now with the necessary transforms applied.
   this.calloutGroup.append('svg:path')
     .attr('d','M-0.069,0.125c0,0,13.052-5.214,13.207-23.169c0,0-8.388,4.919-13.205-3.772\
 c0,0-13.933,0.325-11.561-13.55C-9.646-51.955,1.325-53.894,1.325-53.894s2.981-8.231,11.481\
 -5.981c0,0,16.944-22.375,43.435,1.4c0,0,12.315-3.275,16.829,9.639c0,0,6.861,0.461,7.486,\
 8.336s-7.514,9.764-7.514,9.764s-11.361,14.149-26.897,6.068c0,0-5.442,7.543-15.891,3.078\
 C30.255-21.59,23.556-3.375-0.069,0.125z')
-    .attr('transform','scale('+absScale+') translate('+(x/absScale)+','+(y/absScale)+')')
+    .attr('transform','scale('+absXScale+','+absYScale+') translate('+(x/absXScale)+','+(y/absYScale)+')')
     .attr('stroke-width',2/absScale);
 }
