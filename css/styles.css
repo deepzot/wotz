@@ -102,3 +102,11 @@
 		stroke: #464;
 		cursor: pointer;
 }
+
+#asteroidField text {
+    fill: red;
+    text-anchor: middle;
+    text-shadow: none;
+}
+
+#asteroidField text.hourLabel { font-size: 1em; }

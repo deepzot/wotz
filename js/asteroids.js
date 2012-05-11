@@ -6,7 +6,7 @@ function Asteroids() {
 	this.y = null;
 	this.firedShots = null;
 	this.maxBaddies = 3;
-	this.spawnDelay = 10000;
+	this.spawnDelay = 3000;
   this.currentState = null;
 	this.dayOffset = null;
 	this.hourOffset = null;
@@ -82,7 +82,7 @@ Asteroids.prototype.positionLoop = function() {
 				self.dayOffset--;
 				self.getData();
 				// new round?
-				self.setState(self.gameStates.LOSE);
+				self.setState(self.gameStates.PAUSE);
 			}
 		}
 		// Update svg elements
@@ -253,6 +253,15 @@ Asteroids.prototype.update = function(container) {
 		.style('fill', 'steelblue')
 		.style('stroke', 'white');
 		
+	// Draw hour label
+	graphics.graph.selectAll('text.hourLabel')
+		.data([this.hourOffset])
+	.enter().append('svg:text')
+		.attr('class','hourLabel')
+		.text(function(d) { return d; })
+		.attr('x', function(d) { return self.x((d+.5)/24) })
+		.attr('y', self.histy(1) - graphics.fontSize)
+		
 	// Listen for mouse click events
 	graphics.graph.on("click", function(d) {
 		if( self.currentState == self.gameStates.RUNNING ) {
@@ -372,6 +381,15 @@ Asteroids.prototype.redraw = function() {
 				return 'steelblue';
 			}
 		});
+		
+	// Draw hour label
+	graphics.graph.selectAll('text.hourLabel')
+		.data([this.hourOffset])
+		.text(function(d) { 
+			format = d3.time.format("%I %p");
+			return format(new Date(2012, 1, 5, d-1));
+			})
+		.attr('x', function(d) { return self.x((d-1+.5)/24); })
 };
 
 // Returns true if point and pos are within a distrance r of each other
@@ -418,9 +436,9 @@ Asteroids.prototype.getData = function() {
     hourAvg = Math.max(hourAvg,minValue);
     this.avgValues[i] = hourAvg/maxValue;
   }
-  log(this.values);
-  log(this.avgValues);
-  log(this.baseValue);
+  //log(this.values);
+  //log(this.avgValues);
+  //log(this.baseValue);
 }
 
 Asteroids.prototype.setState = function(newState) {
