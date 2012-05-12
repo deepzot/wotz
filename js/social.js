@@ -1,24 +1,26 @@
 function Facebook() {
-  self = this;
   
   this.loggedIn = false;
   
   <!-- Load the facebook SDK (http://developers.facebook.com/docs/guides/mobile/web/#sdk) -->
-  window.fbAsyncInit = function() {
-    FB.init({
-      appId      : '420170771335687', // App ID
-      channelUrl : '//darkmatter.ps.uci.edu/gbtest/channel.html', // Channel File
-      status     : true, // check login status
-      cookie     : true, // enable cookies to allow the server to access the session
-      xfbml      : true  // parse XFBML
-    });
-    FB.Event.subscribe('auth.statusChange', function(response) {
-      if (response.authResponse) {
-        log('facebookStatusChange',response);
-        self.login();
-      }
-    });
-  };
+  window.fbAsyncInit = function(self) {
+    return function() {
+      FB.init({
+        appId      : '420170771335687', // App ID
+        channelUrl : '//wotz.ps.uci.edu/channel.html', // Channel File
+        status     : true, // check login status
+        cookie     : true, // enable cookies to allow the server to access the session
+        xfbml      : true  // parse XFBML
+      });
+      FB.Event.subscribe('auth.statusChange', function(response) {
+        if (response.authResponse) {
+          log('facebookStatusChange',response);
+          self.login();
+        }
+      });
+    };
+  }(this);
+  
   // Load the SDK Asynchronously
   (function(d){
      var js, id = 'facebook-jssdk', ref = d.getElementsByTagName('script')[0];
@@ -31,6 +33,7 @@ function Facebook() {
 }
 
 Facebook.prototype.doLoginLogout = function() {
+  self = this;
   if(this.loggedIn) {
     log('logging out');
     FB.logout();
@@ -74,11 +77,11 @@ Facebook.prototype.share = function(message) {
     // Already logged in...
     FB.ui({
         method: 'feed',
-        name: 'I\'m using GBAPP!',
-        caption: 'This is the caption.',
+        name: 'wotz a kilowatt?',
+        caption: 'let your data do the talking...',
         description: message,
-        link: 'http://darkmatter.ps.uci.edu/gbtest/',
-        picture: 'http://darkmatter.ps.uci.edu/gbtest/img/apple-touch-icon-72x72-precomposed.png'
+        link: 'http://wotz.ps.uci.edu/',
+        picture: 'http://wotz.ps.uci.edu/img/apple-touch-icon-72x72-precomposed.png'
       }, 
       function(response) {
         log('shareOnFacebook', response);
@@ -88,14 +91,12 @@ Facebook.prototype.share = function(message) {
 }
 
 function share(activeModule) {
-  var message = 'GBAPP is amazing.';
-  if(activeModule) {
-    if(activeModule.getShareText) {
-      message = activeModule.getShareText();
-    }
-    else {
-      message = 'I like the "' + activeModule.label + '" module.';
-    }
+  var message = '';
+  if(activeModule && activeModule.getShareText) {
+    message = activeModule.getShareText();
+  }
+  else {
+    message = $('#aboutSettings').text();
   }
   facebook.share(message);
 }

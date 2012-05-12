@@ -138,9 +138,13 @@ DemoApp.prototype.start = function() {
     return false; // prevent further form submission
   });
 
+  // Update facebook buttons when the #demo page has finished initializing.
+  $(document).delegate("#demo", "pageinit", function() {
+    facebook.updateButtons();
+  });
+  
   // Register submit handler that takes user from settings into the main demo.
   $('#settingsForm input[type="submit"]').click(function() {
-    facebook.updateButtons();
     $.mobile.changePage($('#demo'));
     self.module = new Splash();
     self.module.start(self.data,self.settings);

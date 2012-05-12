@@ -10,6 +10,7 @@ Splash.prototype.end = function() { }
 
 Splash.prototype.update = function(container) {
   var graphics = new Graphics(container,'splashGraph');
+  this.graphics = graphics; // for easier console debugging
     
   // Define some gradients for keynote 'showroom' style background
   graphics.addGradient('linear',
@@ -41,7 +42,7 @@ Splash.prototype.update = function(container) {
 
   var line1 = group.append('svg:text')
     .attr('x',graphics.width/2)
-    .attr('y',graphics.height/2-85)
+    .attr('y',graphics.height/2-80)
     .attr('fill','#4BB54E')
     .attr('opacity',0);
   line1.selectAll('tspan')
@@ -56,13 +57,24 @@ Splash.prototype.update = function(container) {
   lines23.append('svg:text')
     .text('let your data')
     .attr('x',graphics.width/2)
-    .attr('y',graphics.height/2+10);
+    .attr('y',graphics.height/2+5);
   lines23.append('svg:text')
     .text('do the talking...')
     .attr('x',graphics.width/2)
-    .attr('y',graphics.height/2+85);
+    .attr('y',graphics.height/2+80);
   
   var scale = graphics.centerVertically(group,0.8*graphics.width,0.8*graphics.height);
+  if(isNaN(scale)) {
+    log('splash found empty bbox');
+    return;
+  }
+
+  var line2box = $('#splash text')[1].getBBox();
+  var scall = 0.75*scale*line2box.height/graphics.height;
+  var xcall = graphics.width/2 + scale*line2box.width/2;
+  var ycall = graphics.height/2;
+  graphics.addCallout(xcall,ycall,{ scale:scall, xauto:false, yauto:false })
+  graphics.calloutGroup.attr('opacity',0);
   
   if(this.firstTime) {
     line1.transition()
@@ -72,6 +84,11 @@ Splash.prototype.update = function(container) {
   
     lines23.transition()
       .delay(500) // ms
+      .duration(750) // ms
+      .attr('opacity',1);
+      
+    graphics.calloutGroup.transition()
+      .delay(600) // ms
       .duration(750) // ms
       .attr('opacity',1);
   
@@ -89,5 +106,6 @@ Splash.prototype.update = function(container) {
         .attr('fill','#FFDE6C');
       line1.attr('opacity',1);
       lines23.attr('opacity',1);
+      graphics.calloutGroup.attr('opacity',1);
     }
 }
