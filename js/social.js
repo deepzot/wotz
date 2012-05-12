@@ -1,24 +1,26 @@
 function Facebook() {
-  self = this;
   
   this.loggedIn = false;
   
   <!-- Load the facebook SDK (http://developers.facebook.com/docs/guides/mobile/web/#sdk) -->
-  window.fbAsyncInit = function() {
-    FB.init({
-      appId      : '420170771335687', // App ID
-      channelUrl : '//wotz.ps.uci.edu/channel.html', // Channel File
-      status     : true, // check login status
-      cookie     : true, // enable cookies to allow the server to access the session
-      xfbml      : true  // parse XFBML
-    });
-    FB.Event.subscribe('auth.statusChange', function(response) {
-      if (response.authResponse) {
-        log('facebookStatusChange',response);
-        self.login();
-      }
-    });
-  };
+  window.fbAsyncInit = function(self) {
+    return function() {
+      FB.init({
+        appId      : '420170771335687', // App ID
+        channelUrl : '//wotz.ps.uci.edu/channel.html', // Channel File
+        status     : true, // check login status
+        cookie     : true, // enable cookies to allow the server to access the session
+        xfbml      : true  // parse XFBML
+      });
+      FB.Event.subscribe('auth.statusChange', function(response) {
+        if (response.authResponse) {
+          log('facebookStatusChange',response);
+          self.login();
+        }
+      });
+    };
+  }(this);
+  
   // Load the SDK Asynchronously
   (function(d){
      var js, id = 'facebook-jssdk', ref = d.getElementsByTagName('script')[0];
@@ -31,6 +33,7 @@ function Facebook() {
 }
 
 Facebook.prototype.doLoginLogout = function() {
+  self = this;
   if(this.loggedIn) {
     log('logging out');
     FB.logout();
@@ -41,7 +44,7 @@ Facebook.prototype.doLoginLogout = function() {
     log('logging in');
     FB.login(function(response) {
        if (response.authResponse) {
-         this.login();
+         self.login();
        }
     });
   }
