@@ -6,6 +6,11 @@ For colors, see http://kuler.adobe.com/#themeID/1906833
 #B5A58B light tan
 #4A4439 dark tan
 #4BB54E bright green
+
+Also, see http://www.uci.edu/graphic_identity/colors.php
+
+#002244 UCI blue
+#FFDE6C UCI gold
 */
 
 /* Used to hide close (X) button in dialogs */
@@ -13,6 +18,22 @@ For colors, see http://kuler.adobe.com/#themeID/1906833
 
 #disclaimerText {
     font-size: 0.8em;
+}
+
+.gold { color: #FFDE6C; }
+
+#splashGraph #messageGroup text {
+    /* See http://kv5r.com/articles/dev/font-family.asp */
+    font-family: Constantina,Georgia,'Nimbus Roman No9 L',serif;
+    font-weight: bold;
+    fill: #4BB54E;
+    stroke: none;
+    text-shadow: none;
+}
+
+#splash p {
+    margin: 0;
+    padding: 10%;
 }
 
 #dropData {
@@ -83,6 +104,7 @@ For colors, see http://kuler.adobe.com/#themeID/1906833
     font-weight: bold;
     stroke: #4A4439;
     cursor: pointer;
+    text-anchor: middle;
 }
 
 #calloutGroup path {
