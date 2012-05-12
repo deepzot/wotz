@@ -28,6 +28,7 @@ ChallengeModule.prototype.update = function(container) {
   this.graphics = graphics;
   // Draw a clock face.
   var radius = 0.49*Math.min(graphics.height,graphics.width);
+  var rlabel = 0.5*radius - 1.5*graphics.fontSize;
   graphics.graph.append('svg:circle')
     .attr('id','clockCircle')
     .attr('cx',graphics.width/2)
@@ -38,11 +39,8 @@ ChallengeModule.prototype.update = function(container) {
     .enter().append('svg:text')
       .attr('class','clockLabel')
       .text(function(d) { return d; })
-      .attr('x',graphics.width/2)
-      .attr('y',graphics.height/2)
-      .attr('transform',function(d) {
-        return 'rotate('+(30*d)+','+graphics.width/2+','+graphics.height/2+') translate(0,'+(-radius/2+2*graphics.fontSize)+')';
-      });
+      .attr('x',function(d,i) { return graphics.width/2 + rlabel*Math.sin(d*Math.PI/6); })
+      .attr('y',function(d,i) { return graphics.height/2 - rlabel*Math.cos(d*Math.PI/6) + 0.7*graphics.fontSize; });
   // Start real-time clock hands going.
   graphics.graph.selectAll('line.clockHand')
     .data([0,0,0])
