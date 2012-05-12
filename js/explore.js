@@ -74,15 +74,15 @@ ExploreModule.prototype.update = function(container) {
     [
       [  '0%','rgb(75,120,100)','1'],
       [ '15%','rgb(50,100,100)','1'],
-      ['100%','rgb(28,0,100)','1']
+      ['100%','#4F3BB5','1']
     ]);
   // Create a linear hill gradient.
   graphics.addGradient('linear',
     {id:'hillGradient',gradientUnits:'objectBoundingBox',x1:'0%',y1:'100%',x2:'0%',y2:'0%'},
     [
-      [  '0%','rgb(233,240,161)','1'],
-      [ '20%','rgb(83,156,50)','1'],
-      ['100%','rgb(97,102,107)','1']
+      [  '0%','#B5A58B','1'],
+      [ '20%','#4BB54E','1'],
+      ['100%','#4BB54E','1']
     ]);
   // Prepare axis scaling functions.
   this.xScale = d3.scale.linear()
@@ -244,7 +244,7 @@ ExploreModule.prototype.getNextMessage = function() {
     msg = ['Welcome to your','energy-use landscape.','Touch to continue...'];
     break;
   case 2:
-    msg = ['The sea level show your','base consumption by','things that are always on.'];
+    msg = ['The sea level shows your','base consumption by','things that are always on.'];
     call = { x:9, y:this.minValue };
     break;
   case 3:

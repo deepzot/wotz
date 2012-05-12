@@ -1,3 +1,13 @@
+/*
+For colors, see http://kuler.adobe.com/#themeID/1906833
+
+#4F3BB5 ocean blue
+#B2CFED sky blue
+#B5A58B light tan
+#4A4439 dark tan
+#4BB54E bright green
+*/
+
 /* Used to hide close (X) button in dialogs */
 .hideLinks a { display: none !important; }
 
@@ -42,7 +52,7 @@
 }
 
 #exploreSky {
-    fill: #A0CFEC;
+    fill: #B2CFED;
 }
 
 #exploreGraph rect {
@@ -65,9 +75,9 @@
 #exploreGraph text.rightArrow { font-size: 2em; text-anchor: end; cursor: pointer; }
 
 #exploreGraph path.land1 { fill: #798086; stroke: none; }
-#exploreGraph path.land2 { fill: #61666B; stroke: none; }
+#exploreGraph path.land2 { fill: #4A4439; stroke: none; }
 
-#exploreGraph line.timeLine { stroke: rgba(255,255,255,0.4); stroke-width: 1px; }
+#exploreGraph line.timeLine { stroke: white; opacity: 0.4; stroke-width: 1px; }
 
 #messageGroup text {
     font-weight: bold;
