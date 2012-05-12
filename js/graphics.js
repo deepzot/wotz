@@ -118,26 +118,10 @@ Graphics.prototype.showMessage = function(lines,fade,ymin,ymax) {
       .text(function(d) { return d; })
       .attr('font-size','10')
       .attr('y',function(d,i) { return 15*i; }); // line spacing is 15/10=1.5
-  // Calculate the bounding box of our (invisible) message group.
-  var bbox = this.messageGroup[0][0].getBBox();
-  // Calculate the target width and height (only one will actually be reached).
-  // Factors of 0.95 below give a bit of extra padding. Fixed sizes of 600,400
-  // ensure that messages don't get too large on a large display.
-  var targetWidth = Math.min(600,0.95*this.width);
-  var targetHeight = Math.min(100*lines.length,0.95*(ymax-ymin));
-  // Calculate the maximum scale factor that will still fit, both horizontally
-  // and vertically.
-  var scaleFactor = Math.min(targetWidth/bbox.width,targetHeight/bbox.height);
-  // Calculate the offsets that would center the message on (0,0) before scaling.
-  var dx0 = -(bbox.x + bbox.width/2);
-  var dy0 = -(bbox.y + bbox.height/2);
-  // Calculate the offsets to apply after scaling.
-  var dx = dx0 + this.width/(2*scaleFactor);
-  var dy = dy0 + (ymax-ymin)/(2*scaleFactor);
-  // Apply the scale and translation transforms.
-  this.messageGroup
-    .attr('transform','scale('+scaleFactor+') translate('+dx+','+dy+')')
-    .attr('stroke-width',(1/scaleFactor)+'px');
+  // Center the group vertically
+  var scaleFactor = this.centerVertically(this.messageGroup,600,100*lines.length,ymin,ymax);
+  // Set the stroke size in absolute units.
+  this.messageGroup.attr('stroke-width',(1/scaleFactor)+'px');  
   // Make the new message group visible.
   this.setMessageOpacity(1,fade);
   // Return a reference to the message group.
