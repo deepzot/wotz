@@ -22,8 +22,6 @@ Also, see http://www.uci.edu/graphic_identity/colors.php
 
 .gold { color: #FFDE6C; fill: #FFDE6C; }
 
-/*#splashGraph #messageGroup text {*/
-
 #splash  {
     /* See http://kv5r.com/articles/dev/font-family.asp (but it has a typo in Constantia) */
     font-family: Constantia,Georgia,'Nimbus Roman No9 L',serif;
