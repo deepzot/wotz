@@ -26,6 +26,11 @@ ChallengeModule.prototype.update = function(container) {
   // Create a new SVG graphics element that fills our container.
   var graphics = new Graphics(container,'challengeGraph');
   this.graphics = graphics;
+  // Draw a background rectangle.
+  graphics.graph.append('svg:rect')
+    .attr('id','challengeBackground')
+    .attr('width',graphics.width)
+    .attr('height',graphics.height);
   // Draw a clock face.
   var radius = 0.49*Math.min(graphics.height,graphics.width);
   var rlabel = 0.5*radius - 1.5*graphics.fontSize;
@@ -75,7 +80,7 @@ ChallengeModule.prototype.update = function(container) {
     .enter()
     .append('svg:path')
       .attr('class','hourlyArc')
-      .attr('opacity',function(d,i) { return 1-i/12; })
+      .attr('opacity',function(d,i) { return 1-i/15; })
       .attr('d',hourlyArc);
   hourlyDataG.attr('transform','translate('+graphics.width/2+','+graphics.height/2+')');
 }

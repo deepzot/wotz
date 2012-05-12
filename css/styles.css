@@ -131,15 +131,20 @@ Also, see http://www.uci.edu/graphic_identity/colors.php
 		cursor: pointer;
 }
 
+#challengeBackground {
+    fill: #B2CFED;
+    stroke: none;
+}
+
 #clockCircle {
-    stroke: black;
+    stroke: #4A4439;
     stroke-width: 0.25em;
-    fill: lightgray;
+    fill: white;
 }
 
 #challengeGraph text.clockLabel {
     font-size: 2em;
-    fill: red;
+    fill: #4A4439;
     text-anchor: middle;
 }
 
@@ -152,10 +157,10 @@ Also, see http://www.uci.edu/graphic_identity/colors.php
 #asteroidField text.hourLabel { font-size: 1em; }
 
 #challengeGraph path.hourlyArc {
-    fill: lightblue;
-    stroke: red;
+    fill: #B5A58B;
+    stroke: #4A4439;
 }
 
-#clockHand0 { stroke: black; stroke-width: 0.5em; }
-#clockHand1 { stroke: black; stroke-width: 0.3em; }
-#clockHand2 { stroke: red; stroke-width: 0.1em; }
+#clockHand0 { stroke: #4A4439; stroke-width: 0.5em; }
+#clockHand1 { stroke: #4A4439; stroke-width: 0.3em; }
+#clockHand2 { stroke: #4BB54E; stroke-width: 0.1em; }
