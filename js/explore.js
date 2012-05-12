@@ -259,7 +259,7 @@ ExploreModule.prototype.getNextMessage = function() {
     break;
   case 5:
     msg = [ 'Your landscape tells the story', 'of your energy behavior each day.',
-      'By listening, you can', 'discover easy ways to save.' ];
+      'Let your data do the talking...' ];
     break;
   case 6:
     msg = ['You are viewing the last',' two days. Use the arrow below', 'to go back in time.'];
