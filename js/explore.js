@@ -8,6 +8,7 @@ function ExploreModule() {
   this.messageCount = 0;
   this.currentMessage = null;
   this.currentCallout = null;
+  this.getNextMessage();
   // Number formatting helper.
   this.format = d3.format(".1f");
 }
@@ -21,8 +22,6 @@ ExploreModule.prototype.start = function(data,settings) {
   this.dayOffset = 0;
   this.landHeight = null;
   this.getData();
-  // Update our message.
-  this.getNextMessage();
   // Add a hide/show text UI element in the footer.
   var footer = $('#demo div[data-role="footer"]');
   footer.append('<a id="exploreMsgOnOff" href="#" data-role="button" data-mini="true">hide messages</a>')
