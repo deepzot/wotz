@@ -63,6 +63,10 @@ Splash.prototype.update = function(container) {
     .attr('y',graphics.height/2+85);
   
   var scale = graphics.centerVertically(group,0.8*graphics.width,0.8*graphics.height);
+  if(isNaN(scale)) {
+    log('splash found empty bbox');
+    return;
+  }
   
   if(this.firstTime) {
     line1.transition()
