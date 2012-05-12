@@ -76,10 +76,6 @@ Also, see http://www.uci.edu/graphic_identity/colors.php
     stroke: none;
 }
 
-#exploreGraph rect.bar {
-    fill: lightgray;
-}
-
 #exploreGraph text {
     fill: white;
     text-anchor: middle;
@@ -157,7 +153,6 @@ Also, see http://www.uci.edu/graphic_identity/colors.php
 #asteroidField text.hourLabel { font-size: 1em; }
 
 #challengeGraph path.hourlyArc {
-    fill: #B5A58B;
     stroke: #4A4439;
 }
 

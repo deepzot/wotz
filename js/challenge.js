@@ -31,6 +31,13 @@ ChallengeModule.prototype.update = function(container) {
     .attr('id','challengeBackground')
     .attr('width',graphics.width)
     .attr('height',graphics.height);
+  // Define a gradient for the usage histogram.
+  graphics.addGradient('radial',
+    {id:'usageGradient',gradientUnits:'userSpaceOnUse',cx:'0%',cy:'0%',r:'50%'},
+    [
+      ['50%','#B5A58B','1'],
+      ['70%','#4A4439','1']
+    ]);
   // Draw a clock face.
   var radius = 0.49*Math.min(graphics.height,graphics.width);
   var rlabel = 0.5*radius - 1.5*graphics.fontSize;
@@ -80,7 +87,8 @@ ChallengeModule.prototype.update = function(container) {
     .enter()
     .append('svg:path')
       .attr('class','hourlyArc')
-      .attr('opacity',function(d,i) { return 1-i/15; })
+      .attr('fill','url(#usageGradient)')
+      //.attr('opacity',function(d,i) { return 1-i/15; })
       .attr('d',hourlyArc);
   hourlyDataG.attr('transform','translate('+graphics.width/2+','+graphics.height/2+')');
 }
