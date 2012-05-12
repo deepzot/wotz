@@ -137,7 +137,7 @@ Graphics.prototype.showMessage = function(lines,fade,ymin,ymax) {
   // Apply the scale and translation transforms.
   this.messageGroup
     .attr('transform','scale('+scaleFactor+') translate('+dx+','+dy+')')
-    .attr('stroke-width',(2/scaleFactor)+'px');
+    .attr('stroke-width',(1/scaleFactor)+'px');
   // Make the new message group visible.
   this.setMessageOpacity(1,fade);
   // Return a reference to the message group.
