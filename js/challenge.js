@@ -27,7 +27,7 @@ ChallengeModule.prototype.update = function(container) {
   var graphics = new Graphics(container,'challengeGraph');
   this.graphics = graphics;
   // Draw a clock face.
-  var radius = 0.4*Math.min(graphics.height,graphics.width);
+  var radius = 0.49*Math.min(graphics.height,graphics.width);
   graphics.graph.append('svg:circle')
     .attr('id','clockCircle')
     .attr('cx',graphics.width/2)
