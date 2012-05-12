@@ -287,7 +287,7 @@ ExploreModule.prototype.getNextMessage = function() {
     var area = 223, pwr = 1, eff = 0.15;
     var dt = 60*this.dayUsage[day]/eff/area/pwr; // convert to minutes
     msg = ['1 kWh = 16 seconds of', 'full sunshine on a typical roof.',
-      'Your '+this.dayLabel[day]+' energy use is '+this.format(dt)+' minutes',
+      'Your energy use on '+this.dayLabel[day]+' is '+this.format(dt)+' mins',
       '(for typical solar panels).' ];
     call = { x:24*day+12, y: 0.92*this.dataSource.maxValue };
     break;
