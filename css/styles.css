@@ -20,20 +20,18 @@ Also, see http://www.uci.edu/graphic_identity/colors.php
     font-size: 0.8em;
 }
 
-.gold { color: #FFDE6C; }
+.gold { color: #FFDE6C; fill: #FFDE6C; }
 
-#splashGraph #messageGroup text {
+/*#splashGraph #messageGroup text {*/
+
+#splash  {
     /* See http://kv5r.com/articles/dev/font-family.asp (but it has a typo in Constantia) */
     font-family: Constantia,Georgia,'Nimbus Roman No9 L',serif;
     font-weight: bold;
     fill: #4BB54E;
     stroke: none;
+    text-anchor: middle;
     text-shadow: none;
-}
-
-#splash p {
-    margin: 0;
-    padding: 10%;
 }
 
 #dropData {
