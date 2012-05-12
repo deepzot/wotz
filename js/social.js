@@ -41,7 +41,7 @@ Facebook.prototype.doLoginLogout = function() {
     log('logging in');
     FB.login(function(response) {
        if (response.authResponse) {
-         self.login();
+         this.login();
        }
     });
   }
@@ -88,14 +88,12 @@ Facebook.prototype.share = function(message) {
 }
 
 function share(activeModule) {
-  var message = 'GBAPP is amazing.';
-  if(activeModule) {
-    if(activeModule.getShareText) {
-      message = activeModule.getShareText();
-    }
-    else {
-      message = 'I like the "' + activeModule.label + '" module.';
-    }
+  var message = '';
+  if(activeModule && activeModule.getShareText) {
+    message = activeModule.getShareText();
+  }
+  else {
+    message = $('#aboutSettings').text();
   }
   facebook.share(message);
 }
