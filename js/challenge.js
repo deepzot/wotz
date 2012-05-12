@@ -53,6 +53,17 @@ ChallengeModule.prototype.update = function(container) {
       .text(function(d) { return d; })
       .attr('x',function(d,i) { return graphics.width/2 + rlabel*Math.sin(d*Math.PI/6); })
       .attr('y',function(d,i) { return graphics.height/2 - rlabel*Math.cos(d*Math.PI/6) + 0.7*graphics.fontSize; });
+  graphics.graph.selectAll('line.clockTick')
+    .data([1,2,4,5,7,8,10,11])
+    .enter().append('svg:line')
+      .attr('class','clockTick')
+      .attr('x1',graphics.width/2)
+      .attr('x2',graphics.width/2)
+      .attr('y1',graphics.height/2-rlabel-0.5*graphics.fontSize)
+      .attr('y2',graphics.height/2-rlabel)
+      .attr('transform',function(d) {
+        return 'rotate('+(30*d)+','+(graphics.width/2)+','+(graphics.height/2)+')';
+      });
   // Start real-time clock hands going.
   graphics.graph.selectAll('line.clockHand')
     .data([0,0,0])
@@ -88,7 +99,7 @@ ChallengeModule.prototype.update = function(container) {
     .append('svg:path')
       .attr('class','hourlyArc')
       .attr('fill','url(#usageGradient)')
-      //.attr('opacity',function(d,i) { return 1-i/15; })
+      .attr('opacity',function(d,i) { return 1-i/24; })
       .attr('d',hourlyArc);
   hourlyDataG.attr('transform','translate('+graphics.width/2+','+graphics.height/2+')');
 }
