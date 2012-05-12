@@ -140,11 +140,11 @@ DemoApp.prototype.start = function() {
 
   // Register submit handler that takes user from settings into the main demo.
   $('#settingsForm input[type="submit"]').click(function() {
-    facebook.updateButtons();
     $.mobile.changePage($('#demo'));
     self.module = new Splash();
     self.module.start(self.data,self.settings);
     self.module.update(self.container);
+    facebook.updateButtons();
   });
 
   // Register login handler.
