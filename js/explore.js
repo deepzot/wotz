@@ -8,6 +8,7 @@ function ExploreModule() {
   this.messageCount = 0;
   this.currentMessage = null;
   this.currentCallout = null;
+  this.getNextMessage();
   // Number formatting helper.
   this.format = d3.format(".1f");
 }
@@ -21,8 +22,6 @@ ExploreModule.prototype.start = function(data,settings) {
   this.dayOffset = 0;
   this.landHeight = null;
   this.getData();
-  // Update our message.
-  this.getNextMessage();
   // Add a hide/show text UI element in the footer.
   var footer = $('#demo div[data-role="footer"]');
   footer.append('<a id="exploreMsgOnOff" href="#" data-role="button" data-mini="true">hide messages</a>')
@@ -74,20 +73,20 @@ ExploreModule.prototype.update = function(container) {
     [
       [  '0%','rgb(75,120,100)','1'],
       [ '15%','rgb(50,100,100)','1'],
-      ['100%','rgb(28,0,100)','1']
+      ['100%','#4F3BB5','1']
     ]);
   // Create a linear hill gradient.
   graphics.addGradient('linear',
     {id:'hillGradient',gradientUnits:'objectBoundingBox',x1:'0%',y1:'100%',x2:'0%',y2:'0%'},
     [
-      [  '0%','rgb(233,240,161)','1'],
-      [ '20%','rgb(83,156,50)','1'],
-      ['100%','rgb(97,102,107)','1']
+      [  '0%','#B5A58B','1'],
+      [ '20%','#4BB54E','1'],
+      ['100%','#4BB54E','1']
     ]);
   // Prepare axis scaling functions.
   this.xScale = d3.scale.linear()
     .domain([0,48])
-    .range([0,graphics.width-1]);
+    .range([0,graphics.width]);
   this.yScale = d3.scale.linear()
     .domain([0,self.dataSource.maxValue])
     .range([graphics.height-1,0]);
@@ -134,7 +133,7 @@ ExploreModule.prototype.update = function(container) {
   var nCycles = 8;
   var seaAmplitude = 0.025;
   var seaData = [ [0,1+seaAmplitude] ];
-  var seaX = d3.scale.linear().domain([0,nCycles]).range([0,graphics.width-1]);
+  var seaX = d3.scale.linear().domain([0,nCycles]).range([0,graphics.width]);
   for(var cycle = 0; cycle < nCycles; ++cycle) {
     seaData.push([seaX(cycle+0.25),1+2*seaAmplitude]);
     seaData.push([seaX(cycle+0.50),1+seaAmplitude]);
@@ -244,7 +243,7 @@ ExploreModule.prototype.getNextMessage = function() {
     msg = ['Welcome to your','energy-use landscape.','Touch to continue...'];
     break;
   case 2:
-    msg = ['The sea level show your','base consumption by','things that are always on.'];
+    msg = ['The sea level shows your','base consumption by','things that are always on.'];
     call = { x:9, y:this.minValue };
     break;
   case 3:
@@ -287,7 +286,7 @@ ExploreModule.prototype.getNextMessage = function() {
     var area = 223, pwr = 1, eff = 0.15;
     var dt = 60*this.dayUsage[day]/eff/area/pwr; // convert to minutes
     msg = ['1 kWh = 16 seconds of', 'full sunshine on a typical roof.',
-      'Your '+this.dayLabel[day]+' energy use is '+this.format(dt)+' minutes',
+      'Your energy use on '+this.dayLabel[day]+' is '+this.format(dt)+' mins',
       '(for typical solar panels).' ];
     call = { x:24*day+12, y: 0.92*this.dataSource.maxValue };
     break;

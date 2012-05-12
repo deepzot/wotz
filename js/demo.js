@@ -140,8 +140,11 @@ DemoApp.prototype.start = function() {
 
   // Register submit handler that takes user from settings into the main demo.
   $('#settingsForm input[type="submit"]').click(function() {
-    facebook.updateButtons();    
+    facebook.updateButtons();
     $.mobile.changePage($('#demo'));
+    self.module = new Splash();
+    self.module.start(self.data,self.settings);
+    self.module.update(self.container);
   });
 
   // Register login handler.
@@ -206,10 +209,8 @@ DemoApp.prototype.clearModule = function() {
     log('ending',this.module.id);
     this.module.end();
     $('#'+this.module.id+'Select').removeClass('ui-btn-active');
-    this.module = null;
   }
-  this.container.empty();
-  this.container.text('Select an activity using the buttons above...');  
+  this.module = null;
 }
 
 DemoApp.prototype.reset = function() {

@@ -1,8 +1,35 @@
+/*
+For colors, see http://kuler.adobe.com/#themeID/1906833
+
+#4F3BB5 ocean blue
+#B2CFED sky blue
+#B5A58B light tan
+#4A4439 dark tan
+#4BB54E bright green
+
+Also, see http://www.uci.edu/graphic_identity/colors.php
+
+#002244 UCI blue
+#FFDE6C UCI gold
+*/
+
 /* Used to hide close (X) button in dialogs */
 .hideLinks a { display: none !important; }
 
 #disclaimerText {
     font-size: 0.8em;
+}
+
+.gold { color: #FFDE6C; fill: #FFDE6C; }
+
+#splash  {
+    /* See http://kv5r.com/articles/dev/font-family.asp (but it has a typo in Constantia) */
+    font-family: Constantia,Georgia,'Nimbus Roman No9 L',serif;
+    font-weight: bold;
+    fill: #4BB54E;
+    stroke: none;
+    text-anchor: middle;
+    text-shadow: none;
 }
 
 #dropData {
@@ -42,7 +69,7 @@
 }
 
 #exploreSky {
-    fill: #A0CFEC;
+    fill: #B2CFED;
 }
 
 #exploreGraph rect {
@@ -65,14 +92,15 @@
 #exploreGraph text.rightArrow { font-size: 2em; text-anchor: end; cursor: pointer; }
 
 #exploreGraph path.land1 { fill: #798086; stroke: none; }
-#exploreGraph path.land2 { fill: #61666B; stroke: none; }
+#exploreGraph path.land2 { fill: #4A4439; stroke: none; }
 
-#exploreGraph line.timeLine { stroke: rgba(255,255,255,0.4); stroke-width: 1px; }
+#exploreGraph line.timeLine { stroke: white; opacity: 0.4; stroke-width: 1px; }
 
 #messageGroup text {
     font-weight: bold;
-    stroke: #464;
+    stroke: #4A4439;
     cursor: pointer;
+    text-anchor: middle;
 }
 
 #calloutGroup path {
