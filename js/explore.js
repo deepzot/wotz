@@ -86,7 +86,7 @@ ExploreModule.prototype.update = function(container) {
   // Prepare axis scaling functions.
   this.xScale = d3.scale.linear()
     .domain([0,48])
-    .range([0,graphics.width-1]);
+    .range([0,graphics.width]);
   this.yScale = d3.scale.linear()
     .domain([0,self.dataSource.maxValue])
     .range([graphics.height-1,0]);
@@ -133,7 +133,7 @@ ExploreModule.prototype.update = function(container) {
   var nCycles = 8;
   var seaAmplitude = 0.025;
   var seaData = [ [0,1+seaAmplitude] ];
-  var seaX = d3.scale.linear().domain([0,nCycles]).range([0,graphics.width-1]);
+  var seaX = d3.scale.linear().domain([0,nCycles]).range([0,graphics.width]);
   for(var cycle = 0; cycle < nCycles; ++cycle) {
     seaData.push([seaX(cycle+0.25),1+2*seaAmplitude]);
     seaData.push([seaX(cycle+0.50),1+seaAmplitude]);
