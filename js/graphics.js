@@ -152,7 +152,6 @@ Graphics.prototype.addCallout = function(x,y,options) {
   var xauto = typeof options.xauto !== 'undefined' ? options.xauto : true;
   // automatically flip in y to optimize display?
   var yauto = typeof options.yauto !== 'undefined' ? options.yauto : true;
-  log('options',options,xauto,yauto);
   // Create our callout group now, if necessary.
   if(null == this.calloutGroup) this.createCalloutGroup();
   // Calculate scale factor. Intrinsic bounding box of the path below is:
@@ -192,4 +191,5 @@ C30.255-21.59,23.556-3.375-0.069,0.125z')
       .style('stroke','none')
       .style('cursor','default');
   }
+  return callout;
 }
