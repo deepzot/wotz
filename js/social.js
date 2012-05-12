@@ -80,8 +80,8 @@ Facebook.prototype.share = function(message) {
         name: 'wotz a kilowatt?',
         caption: 'let your data do the talking...',
         description: message,
-        link: 'http://darkmatter.ps.uci.edu/gbtest/',
-        picture: 'http://darkmatter.ps.uci.edu/gbtest/img/apple-touch-icon-72x72-precomposed.png'
+        link: 'http://wotz.ps.uci.edu/',
+        picture: 'http://wotz.ps.uci.edu/img/apple-touch-icon-72x72-precomposed.png'
       }, 
       function(response) {
         log('shareOnFacebook', response);
