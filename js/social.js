@@ -7,7 +7,7 @@ function Facebook() {
   window.fbAsyncInit = function() {
     FB.init({
       appId      : '420170771335687', // App ID
-      channelUrl : '//darkmatter.ps.uci.edu/gbtest/channel.html', // Channel File
+      channelUrl : '//wotz.ps.uci.edu/channel.html', // Channel File
       status     : true, // check login status
       cookie     : true, // enable cookies to allow the server to access the session
       xfbml      : true  // parse XFBML
@@ -74,8 +74,8 @@ Facebook.prototype.share = function(message) {
     // Already logged in...
     FB.ui({
         method: 'feed',
-        name: 'I\'m using GBAPP!',
-        caption: 'This is the caption.',
+        name: 'wotz a kilowatt?',
+        caption: 'let your data do the talking...',
         description: message,
         link: 'http://darkmatter.ps.uci.edu/gbtest/',
         picture: 'http://darkmatter.ps.uci.edu/gbtest/img/apple-touch-icon-72x72-precomposed.png'
