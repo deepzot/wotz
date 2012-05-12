@@ -232,7 +232,7 @@ ExploreModule.prototype.showMessage = function() {
   this.graphics.clearCallouts();
   var call = this.currentCallout;
   if(call) {
-    this.graphics.addCallout(this.xScale(call.x),this.yScale(call.y),call.url);
+    this.graphics.addCallout(this.xScale(call.x),this.yScale(call.y),{ url:call.url });
   }
 }
 

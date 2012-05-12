@@ -142,11 +142,12 @@ Graphics.prototype.clearCallouts = function() {
 }
 
 // Adds a new callout to the document with the specified origin (in SVG coords).
-// Clicking the callout will open the specified URL in a new tab or window.
-// The optional scale parameter specifies the callout height as a fraction of the total
-// SVG element height (default is 0.2)
-Graphics.prototype.addCallout = function(x,y,url,scale) {
-  scale = typeof scale !== 'undefined' ? scale : 0.2;
+// Options are documented below.
+Graphics.prototype.addCallout = function(x,y,options) {
+  var scale = options['scale'] || 0.2; // relative to the enclosing SVG element height
+  var url = options['url'] || null; // clicking callout opens URL in new window/tab
+  var xauto = options['xauto'] || true; // automatically flip in x to optimize display?
+  var yauto = options['yauto'] || true; // automatically flip in y to optimize display?
   // Create our callout group now, if necessary.
   if(null == this.calloutGroup) this.createCalloutGroup();
   // Calculate scale factor. Intrinsic bounding box of the path below is:
@@ -162,10 +163,10 @@ Graphics.prototype.addCallout = function(x,y,url,scale) {
   // have callouts point towards the center of the screen, when there is space, to
   // minimize overlap with any centered message being displayed.
   var absXScale = absScale, absYScale = absScale;
-  if(cx+cWidth >= this.width || (cx < this.width/2 && cx-cWidth >= 0)) {
+  if(xauto && (cx+cWidth >= this.width || (cx < this.width/2 && cx-cWidth >= 0))) {
     absXScale = -absXScale;
   }
-  if(cy < 0 || (cy > this.height/2 && cy+cHeight < this.height)) {
+  if(yauto && (cy < 0 || (cy > this.height/2 && cy+cHeight < this.height))) {
     absYScale = -absYScale;
   }
   // Add the callout path now with the necessary transforms applied and click handler.

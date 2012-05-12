@@ -10,6 +10,7 @@ Splash.prototype.end = function() { }
 
 Splash.prototype.update = function(container) {
   var graphics = new Graphics(container,'splashGraph');
+  this.graphics = graphics; // for easier console debugging
     
   // Define some gradients for keynote 'showroom' style background
   graphics.addGradient('linear',
@@ -41,7 +42,7 @@ Splash.prototype.update = function(container) {
 
   var line1 = group.append('svg:text')
     .attr('x',graphics.width/2)
-    .attr('y',graphics.height/2-85)
+    .attr('y',graphics.height/2-80)
     .attr('fill','#4BB54E')
     .attr('opacity',0);
   line1.selectAll('tspan')
@@ -56,11 +57,11 @@ Splash.prototype.update = function(container) {
   lines23.append('svg:text')
     .text('let your data')
     .attr('x',graphics.width/2)
-    .attr('y',graphics.height/2+10);
+    .attr('y',graphics.height/2+15);
   lines23.append('svg:text')
     .text('do the talking...')
     .attr('x',graphics.width/2)
-    .attr('y',graphics.height/2+85);
+    .attr('y',graphics.height/2+80);
   
   var scale = graphics.centerVertically(group,0.8*graphics.width,0.8*graphics.height);
   if(isNaN(scale)) {
@@ -94,4 +95,6 @@ Splash.prototype.update = function(container) {
       line1.attr('opacity',1);
       lines23.attr('opacity',1);
     }
+    
+    graphics.addCallout(0.8*graphics.width,0.55*graphics.height,{ xauto:false, yauto:false });
 }
