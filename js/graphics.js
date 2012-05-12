@@ -144,10 +144,15 @@ Graphics.prototype.clearCallouts = function() {
 // Adds a new callout to the document with the specified origin (in SVG coords).
 // Options are documented below.
 Graphics.prototype.addCallout = function(x,y,options) {
-  var scale = options['scale'] || 0.2; // relative to the enclosing SVG element height
-  var url = options['url'] || null; // clicking callout opens URL in new window/tab
-  var xauto = options['xauto'] || true; // automatically flip in x to optimize display?
-  var yauto = options['yauto'] || true; // automatically flip in y to optimize display?
+  // relative to the enclosing SVG element height
+  var scale = typeof options.scale !== 'undefined' ? options.scale : 0.2;
+  // clicking callout opens URL in new window/tab
+  var url = typeof options.url !== 'undefined' ? options.url : null;
+  // automatically flip in x to optimize display?
+  var xauto = typeof options.xauto !== 'undefined' ? options.xauto : true;
+  // automatically flip in y to optimize display?
+  var yauto = typeof options.yauto !== 'undefined' ? options.yauto : true;
+  log('options',options,xauto,yauto);
   // Create our callout group now, if necessary.
   if(null == this.calloutGroup) this.createCalloutGroup();
   // Calculate scale factor. Intrinsic bounding box of the path below is:
@@ -163,10 +168,10 @@ Graphics.prototype.addCallout = function(x,y,options) {
   // have callouts point towards the center of the screen, when there is space, to
   // minimize overlap with any centered message being displayed.
   var absXScale = absScale, absYScale = absScale;
-  if(xauto && (cx+cWidth >= this.width || (cx < this.width/2 && cx-cWidth >= 0))) {
+  if(xauto==true && (cx+cWidth >= this.width || (cx < this.width/2 && cx-cWidth >= 0))) {
     absXScale = -absXScale;
   }
-  if(yauto && (cy < 0 || (cy > this.height/2 && cy+cHeight < this.height))) {
+  if(yauto==true && (cy < 0 || (cy > this.height/2 && cy+cHeight < this.height))) {
     absYScale = -absYScale;
   }
   // Add the callout path now with the necessary transforms applied and click handler.
