@@ -157,6 +157,10 @@ Also, see http://www.uci.edu/graphic_identity/colors.php
     text-anchor: middle;
 }
 
+#challengeGraph #messageGroup text {
+    fill: white;
+}
+
 #asteroidField text {
     fill: red;
     text-anchor: middle;

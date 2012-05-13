@@ -4,6 +4,13 @@ function ChallengeModule() {
   this.dataSource = null;
   this.hourlyData = new Array(12);
   this.timer = null;
+  // Reset messaging and callouts.
+  this.messageCount = 0;
+  this.currentMessage = null;
+  this.currentCallout = null;
+  this.getNextMessage();
+  // Number formatting helper.
+  this.format = d3.format(".1f");
 }
 
 ChallengeModule.prototype.start = function(data) {
@@ -18,8 +25,16 @@ ChallengeModule.prototype.start = function(data) {
     this.hourlyData[offset] = value;
     if(value > this.maxHourly) this.maxHourly = value;
   }
+  self = this;
   this.hourOrigin = hour % 12;
+  // Returns the angle in radians corresponding to the start of the hour stored in
+  // this.hourlyData[index]. Use index+1 to get the ending angle.
+  this.angleMap = function(index) {
+    return (index+self.hourOrigin)*Math.PI/6;
+  }
 }
+
+ChallengeModule.prototype.end = function() { }
 
 ChallengeModule.prototype.update = function(container) {
   var self = this;
@@ -39,21 +54,23 @@ ChallengeModule.prototype.update = function(container) {
       ['70%','#4A4439','1']
     ]);
   // Draw a clock face.
+  var clock = graphics.graph.append('svg:g');
+  clock.attr('opacity',0.3);
   var radius = 0.49*Math.min(graphics.height,graphics.width);
   var rlabel = 0.5*radius - 1.5*graphics.fontSize;
-  graphics.graph.append('svg:circle')
+  clock.append('svg:circle')
     .attr('id','clockCircle')
     .attr('cx',graphics.width/2)
     .attr('cy',graphics.height/2)
     .attr('r',radius/2);
-  graphics.graph.selectAll('text.clockLabel')
+  clock.selectAll('text.clockLabel')
     .data([12,3,6,9])
     .enter().append('svg:text')
       .attr('class','clockLabel')
       .text(function(d) { return d; })
       .attr('x',function(d,i) { return graphics.width/2 + rlabel*Math.sin(d*Math.PI/6); })
       .attr('y',function(d,i) { return graphics.height/2 - rlabel*Math.cos(d*Math.PI/6) + 0.7*graphics.fontSize; });
-  graphics.graph.selectAll('line.clockTick')
+  clock.selectAll('line.clockTick')
     .data([1,2,4,5,7,8,10,11])
     .enter().append('svg:line')
       .attr('class','clockTick')
@@ -65,7 +82,7 @@ ChallengeModule.prototype.update = function(container) {
         return 'rotate('+(30*d)+','+(graphics.width/2)+','+(graphics.height/2)+')';
       });
   // Start real-time clock hands going.
-  graphics.graph.selectAll('line.clockHand')
+  clock.selectAll('line.clockHand')
     .data([0,0,0])
     .enter().append('svg:line')
       .attr('class','clockHand')
@@ -81,18 +98,22 @@ ChallengeModule.prototype.update = function(container) {
     // Only hour hand moves continuously.
     var mins = now.getMinutes();
     var hands = [ (now.getHours()%12 + mins/60)/12, mins/60, now.getSeconds()/60 ];
-    graphics.graph.selectAll('line.clockHand').data(hands)
+    clock.selectAll('line.clockHand').data(hands)
       .attr('opacity',1)
       .attr('transform',function(d) { return 'rotate('+360*d+','+graphics.width/2+','+graphics.height/2+')'});
   },1000);
   // Draw average hourly usage around the clock face.
   var gap = graphics.fontSize/2;
+  // Returns the radius in SVG coordinates corresponding to the specified hourly usage.
+  this.radiusMap = function(usage) {
+    return radius/2+gap + (radius/2-gap)*usage/self.maxHourly;
+  }
   var hourlyArc = d3.svg.arc()
     .innerRadius(radius/2+graphics.fontSize/2)
-    .outerRadius(function(d) { return radius/2+gap + (radius/2-gap)*d/self.maxHourly; })
-    .startAngle(function(d,i) { return (i+self.hourOrigin)*Math.PI/6; })
-    .endAngle(function(d,i) { return (i+1+self.hourOrigin)*Math.PI/6; });
-  var hourlyDataG = graphics.graph.append('svg:g');
+    .outerRadius(function(d) { return self.radiusMap(d); })
+    .startAngle(function(d,i) { return self.angleMap(i); })
+    .endAngle(function(d,i) { return self.angleMap(i+1); });
+  var hourlyDataG = clock.append('svg:g');
   hourlyDataG.selectAll('path.hourlyArc')
     .data(this.hourlyData)
     .enter()
@@ -102,6 +123,42 @@ ChallengeModule.prototype.update = function(container) {
       .attr('opacity',function(d,i) { return 1-i/24; })
       .attr('d',hourlyArc);
   hourlyDataG.attr('transform','translate('+graphics.width/2+','+graphics.height/2+')');
+  // Show the current message and any associated callout.
+  this.showMessage();
 }
 
-ChallengeModule.prototype.end = function() { }
+ChallengeModule.prototype.showMessage = function() {
+  var fade = (this.messageCount != this.lastMessageCount);
+  var message = this.graphics.showMessage(this.currentMessage,fade);
+  this.lastMessageCount = this.messageCount;
+  var self = this;
+  message.on('click',function() {
+    self.getNextMessage();
+    self.showMessage();
+  });
+  // Show the current callout.
+  this.graphics.clearCallouts();
+  var call = this.currentCallout;
+  if(call) {
+    this.graphics.addCallout(this.xScale(call.x),this.yScale(call.y),{ url:call.url });
+  }
+}
+
+ChallengeModule.prototype.getNextMessage = function() {
+  log('msg click');
+  var msg,call=null;
+  switch(++this.messageCount) {
+  case 1:
+    msg = ['Ready for an','energy challenge?','Touch to continue...'];
+    break;
+  default:
+    msg = ['Here is message','number '+this.messageCount];
+  }
+  this.currentMessage = msg;
+  if(call && !('url' in call)) call.url = null;
+  this.currentCallout = call;
+}
+
+ChallengeModule.prototype.getShareText = function() {
+  return this.currentMessage.join(' ');
+}
