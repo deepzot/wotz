@@ -27,8 +27,9 @@ ChallengeModule.prototype.start = function(data) {
   }
   self = this;
   this.hourOrigin = hour % 12;
-  // Returns the angle in radians corresponding to the start of the hour stored in
-  // this.hourlyData[index]. Use index+1 to get the ending angle.
+  log('hourOrigin',this.hourOrigin);
+  // Returns the angle in radians (relative to 12 o'clock) corresponding to the start of the
+  // hour stored in this.hourlyData[index]. Use index+1 to get the ending angle.
   this.angleMap = function(index) {
     return (index+self.hourOrigin)*Math.PI/6;
   }
@@ -55,7 +56,7 @@ ChallengeModule.prototype.update = function(container) {
     ]);
   // Draw a clock face.
   var clock = graphics.graph.append('svg:g');
-  clock.attr('opacity',0.3);
+  this.clock = clock;
   var radius = 0.49*Math.min(graphics.height,graphics.width);
   var rlabel = 0.5*radius - 1.5*graphics.fontSize;
   clock.append('svg:circle')
@@ -128,28 +129,44 @@ ChallengeModule.prototype.update = function(container) {
 }
 
 ChallengeModule.prototype.showMessage = function() {
-  var fade = (this.messageCount != this.lastMessageCount);
-  var message = this.graphics.showMessage(this.currentMessage,fade);
-  this.lastMessageCount = this.messageCount;
   var self = this;
-  message.on('click',function() {
-    self.getNextMessage();
-    self.showMessage();
-  });
+  if(this.currentMessage) {
+    this.clock.attr('opacity',0.4);
+    var fade = (this.messageCount != this.lastMessageCount);
+    var message = this.graphics.showMessage(this.currentMessage,fade);
+    this.lastMessageCount = this.messageCount;
+    message.on('click',function() {
+      self.getNextMessage();
+      self.showMessage();
+    });
+  }
+  else {
+    this.clock.attr('opacity',1);
+    this.graphics.setMessageOpacity(0);
+  }
   // Show the current callout.
   this.graphics.clearCallouts();
   var call = this.currentCallout;
   if(call) {
-    this.graphics.addCallout(this.xScale(call.x),this.yScale(call.y),{ url:call.url });
+    var angle = this.angleMap(call.index+0.5);
+    var radius = this.radiusMap(this.hourlyData[call.index]);
+    var x = this.graphics.width/2+radius*Math.sin(angle);
+    var y = this.graphics.height/2-radius*Math.cos(angle);
+    this.graphics.addCallout(x,y);
   }
 }
 
 ChallengeModule.prototype.getNextMessage = function() {
-  log('msg click');
-  var msg,call=null;
+  var msg=null,call=null;
   switch(++this.messageCount) {
   case 1:
     msg = ['Ready for an','energy challenge?','Touch to continue...'];
+    break;
+  case 2:
+    msg = ['Try saving energy','before you use it...'];
+    break;
+  case 3:
+    call = { index: 2 };
     break;
   default:
     msg = ['Here is message','number '+this.messageCount];
