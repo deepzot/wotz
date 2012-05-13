@@ -106,8 +106,17 @@ Also, see http://www.uci.edu/graphic_identity/colors.php
     cursor: pointer;
 }
 
-#tetrisField {
-    font-size: 100%;
+#tetrisField rect.background {
+		stroke: none;
+    fill: #B5A58B;
+}
+
+#tetrisField rect.playArea {
+		stroke: black;
+		fill: #B2CFED;
+		fill-opacity: 1;
+		stroke-width: 2;
+		stroke-opacity: 1;
 }
 
 #tetrisField text {
@@ -117,9 +126,14 @@ Also, see http://www.uci.edu/graphic_identity/colors.php
     text-shadow: none;
 }
 
-#tetrisField text.scoreLabel { font-size: 2em; }
-#tetrisField text.levelLabel { font-size: 2em; }
-#tetrisField text.rowCountLabel { font-size: 2em; }
+#tetrisField text.scoreLabel { 
+	 text-anchor: end;
+	 font-size: 2em; 
+}
+
+#tetrisField line.boardGrid { stroke: black; opacity: .50 }
+#tetrisField rect.activeTile { fill: #4BB54E; stroke: black; }
+#tetrisField rect.storedTile { fill: #4F3BB5; stroke: black; }
 
 #playMessage text {
 		font-weight: bold;
@@ -168,3 +182,11 @@ Also, see http://www.uci.edu/graphic_identity/colors.php
 }
 
 #asteroidField text.hourLabel { font-size: 1em; }
+
+#asteroidField rect.background { fill: #B2CFED; }
+#asteroidField rect.hist { fill: steelblue; stroke: white; }
+#asteroidField rect.home { fill: yellow; }
+
+#asteroidField ellipse.baddies { fill: #4A4439; }
+#asteroidField ellipse.baddiesAvg { fill: #4BB54E; }
+#asteroidField ellipse.baddiesBase { fill: #4F3BB5; }

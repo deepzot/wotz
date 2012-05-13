@@ -6,7 +6,7 @@ function Tetris() {
   this.level = null;
   this.rowCount = null;
   this.storedTiles = null;
-  this.numTilesX = 10;
+  this.numTilesX = 12;
   this.numTilesY = 15;
   this.rowsPerLevel = 3;
   this.stepDelay = null;
@@ -14,6 +14,9 @@ function Tetris() {
   this.y = null;
 	this.intervalID = null;
 	this.currentMessage = null;
+	this.dataSource = null;
+  this.displayData = null;
+  this.displayRange = [ null,null ];
 }
 
 Tetris.prototype.gameStates = {
@@ -24,8 +27,9 @@ Tetris.prototype.gameStates = {
 	};
 
 Tetris.prototype.start = function(data) {
+	this.dataSource = data;
+	this.getData();
   if(this.currentState == null) {
-  	this.initNewGame();
   	this.setState(this.gameStates.READY);
   }
   else {
@@ -107,9 +111,12 @@ Tetris.prototype.update = function(container) {
   // Remember our container and graphics for redrawing things later.
   this.container = container;
   this.graphics = graphics;
-  graphics.graph
-  	.style('background', 'lightblue');
   var width = graphics.width, height = graphics.height;
+  // Draw a background rectangle.
+  graphics.graph.append('svg:rect')
+    .attr('class','background')
+    .attr('width',graphics.width)
+    .attr('height',graphics.height);
   // Prepare tile scaling functions
   var padX = Math.floor(0.2*width);
   var effectiveWidth = width-2*padX;
@@ -124,37 +131,38 @@ Tetris.prototype.update = function(container) {
 	self.y = d3.scale.linear()
 		.domain([0, this.numTilesY])
 		.range([padY,height-1-padY]);
+  // Draw a background rectangle.
+  graphics.graph.append('svg:rect')
+    .attr('class','playArea')
+    .attr('x',self.x(0))
+    .attr('y',self.y(0))
+		.attr('rx', this.y(.1)-this.y(0))
+    .attr('height',this.y(this.numTilesY) - this.y(0) )
+    .attr('width',this.x(this.numTilesX) - this.x(0) );
 	// Draw multiple horizontal lines
-	for (var i=0; i <= this.numTilesY; i++) {
+	for (var i=1; i < self.numTilesY; i++) {
 			graphics.graph.append("svg:line")
+					.attr("class","boardGrid")
 					.attr("x1", self.x(0))
 					.attr("y1", self.y(i))
 					.attr("x2", self.x(self.numTilesX))
-					.attr("y2", self.y(i))
-					.style("stroke", "rgb(6,120,155)")
+					.attr("y2", self.y(i));
 	};
 	// Using for loop to draw multiple vertical lines
-	for (var i=0; i <= self.numTilesX; i++) {
+	for (var i=1; i < self.numTilesX; i++) {
 			graphics.graph.append("svg:line")
+					.attr("class","boardGrid")
 					.attr("x1", self.x(i))
 					.attr("y1", self.y(0))
 					.attr("x2", self.x(i))
-					.attr("y2", self.y(self.numTilesY))
-					.style("stroke", "rgb(6,120,155)")
+					.attr("y2", self.y(self.numTilesY));
 	};
   // Add score label.
   var scoreLabel = graphics.graph.selectAll('text.scoreLabel').data([this.score]);
   scoreLabel.enter().append('svg:text')
     .attr('class','scoreLabel')
-    .text(function(d) { return 'Score: ' + d; })
-    .attr('x', padX/2)
-    .attr('y', padY + 3*graphics.fontSize);
-  // Add level label.
-  var levelLabel = graphics.graph.selectAll('text.levelLabel').data([this.level]);
-  levelLabel.enter().append('svg:text')
-    .attr('class','levelLabel')
-    .text(function(d) { return 'Level: ' + d; })
-    .attr('x', width-1-padX/2)
+    .text(function(d) { return d; })
+    .attr('x', self.x(self.numTilesX)-2)
     .attr('y', padY + 3*graphics.fontSize);
   // Add row count label.
 //   var rowCountLabel = graphics.graph.selectAll('text.rowCountLabel').data([this.rowCount]);
@@ -164,10 +172,13 @@ Tetris.prototype.update = function(container) {
 //     .attr('x', padX/2)
 //     .attr('y', padY + 7*graphics.fontSize); 
     
+  this.drawActivePiece();
+  this.drawTiles();
 	this.showMessage();
 }
 
 Tetris.prototype.end = function() {
+	log("Byebye from tetris!");
 	this.setState(this.gameStates.PAUSE);
 	//clearInterval(this.intervalID); 
 }
@@ -175,12 +186,12 @@ Tetris.prototype.end = function() {
 Tetris.prototype.initNewGame = function() {
 	this.currentState = this.gameStates.READY;
 	this.storedTiles = []; // initTiles(recent);
+	this.initTiles();
 	this.score = 0;
 	this.stepDelay = 1000; // in milliseconds
 	Shape.init(Math.floor(this.numTilesX/2),-1,Shape.randomShape());
 	this.level = 1;
 	this.rowCount = 0;
-	this.currentMessage = ['Touch to play!'];
 }
 
 // Our active shape
@@ -310,12 +321,13 @@ Tetris.prototype.drawActivePiece = function() {
 	var self = this;
 	var graphics = this.graphics;
 	// Update active piece.
-	var activePiece = graphics.graph.selectAll('rect')
+	var activePiece = graphics.graph.selectAll('rect.activeTile')
 		.data(Shape.State.currentShape);
-	activePiece.enter().append("rect")
+	activePiece.enter().append('svg:rect')
+		.attr('class', 'activeTile')
 		.attr("width", this.x(1)-this.x(0))
 		.attr("height", this.y(1)-this.y(0))
-		.style("fill", "green");
+		.attr('rx', this.y(.1)-this.y(0));
 	activePiece
 	//.transition().duration(this.stepDelay/4)
 		.attr("x", function(d,i) { return self.x(Shape.State.x + d.x) } )
@@ -328,18 +340,18 @@ Tetris.prototype.drawTiles = function() {
 	var self = this;
 	var graphics = this.graphics;
 	// Update stored tiles
-	var tiles = graphics.graph.selectAll("ellipse")
+	var tiles = graphics.graph.selectAll("rect.storedTile")
 		.data(this.storedTiles);
 	// Append new tiles
-	tiles.enter().append("ellipse")
-		.attr("rx", this.x(.5)-this.x(0))
-		.attr("ry", this.y(.5)-this.y(0))
-		.style("stroke", "black")
-		.style("fill", "blue");
+	tiles.enter().append('svg:rect')
+		.attr('class','storedTile')
+		.attr("width", this.x(1)-this.x(0))
+		.attr("height", this.y(1)-this.y(0))
+		.attr('rx', this.y(.1)-this.y(0));
 	// Set attr for all tiles
 	tiles
-		.attr("cx", function(d) { return self.x(d.x + .5); })
-		.attr("cy", function(d) { return self.y(d.y + .5); });
+		.attr("x", function(d) { return self.x(d.x); })
+		.attr("y", function(d) { return self.y(d.y); });
 	// Remove cleared tiles
 	tiles.exit().remove();
 }
@@ -377,14 +389,7 @@ Tetris.prototype.step = function() {
 		this.score++;
 		var scoreLabel = graphics.graph.selectAll('text.scoreLabel')
 			.data([this.score])
-			.text(function(d) { return 'Score: ' + d; });
-		var levelLabel = graphics.graph.selectAll('text.levelLabel')
-			.data([this.level])
-			.text(function(d) { return 'Level: ' + d; });
-// 		var rowCountLabel = graphics.graphselectAll('text.rowCountLabel')
-// 			.data([this.rowCount])
-// 			.text(function(d) { return 'Rows Cleared: ' + d; });
-		//scoreLabel.exit().remove();
+			.text(function(d) { return d; });
 
 		// Create a new piece
 		this.createNewPiece();
@@ -442,7 +447,9 @@ Tetris.prototype.setState = function(newState) {
 	}
 	else if(newState == this.gameStates.PAUSE){
 		// pause game
-		clearInterval(this.intervalID);
+		if(oldState == this.gameStates.RUNNING){
+			clearInterval(this.intervalID);
+		}
 		// display pause message
 		this.messagesVisible = true;
 		this.currentMessage = ['Touch to resume...'];
@@ -453,6 +460,7 @@ Tetris.prototype.setState = function(newState) {
 		this.initNewGame();
 		// display ready to start message
 		this.messagesVisible = true;
+		this.currentMessage = ['Touch to play!'];
 		//this.showMessage();
 	}
 	else if(newState == this.gameStates.LOSE){
@@ -484,4 +492,61 @@ Tetris.prototype.showMessage = function() {
 			self.setState(self.gameStates.READY);
 		}
   });
+}
+
+// Fetches and analyzes the data corresponding to this.dayOffset
+Tetris.prototype.getData = function() {
+  // Fetch the data from our source.
+  this.displayData = this.dataSource.getDays(-1,0,this.displayRange);
+  // Find the minimum reading.
+  var size = this.displayData.length;
+  var minValue = this.dataSource.maxValue;
+  for(var i = 0; i < size; ++i) {
+    var value = this.displayData[i];
+    if(value < minValue) minValue = value;
+  }
+  var maxValue = minValue;
+  for(var i = 0; i < size; ++i) {
+  	var value = this.displayData[i];
+  	if(value > maxValue) maxValue = value;
+  }
+  this.minValue = minValue;
+  this.baseValue = minValue / maxValue;
+
+  if(this.values == null) {
+    this.values = new Array(size);
+    this.avgValues = new Array(24);
+  }
+  for(var i = 0; i < size; ++i) {
+    this.values[i] = this.displayData[i]/maxValue;
+  }
+  for(var i = 0; i < 24; ++i) {
+    var hourAvg = this.dataSource.averageByHour(i);
+    hourAvg = minValue + 0.5*(hourAvg - minValue);
+    hourAvg = Math.max(hourAvg,minValue);
+    this.avgValues[i] = hourAvg/maxValue;
+  }
+}
+
+Tetris.prototype.initTiles = function() {
+	var self = this;
+	var valueToTile = 10;
+	for(var i = 0; i < self.values.length; i += 2){
+		var avg = (self.values[i]+self.values[i+1])/2;
+		var scaledValue = Math.round(avg*valueToTile);
+		for(var j = 0; j <= scaledValue; j++){
+			self.storedTiles.push({x: Math.round(i/2), y: self.numTilesY - j});
+		}
+	}
+	
+	for(var j = 0; j < this.numTilesY; j++){
+		// check for filled row
+		if( this.numTilesX == this.storedTiles.filter(function(d) { return (d.y == j); }).length) {
+			// randomly select one block to remove from the row
+			var randomX = Math.floor(Math.random()*self.numTilesX);
+			this.storedTiles = this.storedTiles.filter(function(d) {
+				return !(d.y == j && d.x == randomX);
+			});
+		}
+	}
 }
