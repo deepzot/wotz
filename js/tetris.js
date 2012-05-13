@@ -163,7 +163,7 @@ Tetris.prototype.update = function(container) {
     .attr('class','scoreLabel')
     .text(function(d) { return d; })
     .attr('x', self.x(self.numTilesX)-2)
-    .attr('y', padY + 2*graphics.fontSize);
+    .attr('y', padY + 3*graphics.fontSize);
   // Add row count label.
 //   var rowCountLabel = graphics.graph.selectAll('text.rowCountLabel').data([this.rowCount]);
 //   rowCountLabel.enter().append('svg:text')
@@ -178,6 +178,7 @@ Tetris.prototype.update = function(container) {
 }
 
 Tetris.prototype.end = function() {
+	log("Byebye from tetris!");
 	this.setState(this.gameStates.PAUSE);
 	//clearInterval(this.intervalID); 
 }
@@ -446,7 +447,7 @@ Tetris.prototype.setState = function(newState) {
 	}
 	else if(newState == this.gameStates.PAUSE){
 		// pause game
-		if(oldState != this.gameStates.LOSE){
+		if(oldState == this.gameStates.RUNNING){
 			clearInterval(this.intervalID);
 		}
 		// display pause message

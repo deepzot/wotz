@@ -89,8 +89,6 @@ Asteroids.prototype.positionLoop = function() {
 					.attr('class','hist')
 					.attr('x', function(d,i) { return self.x(i/24) })
 					.attr('width', self.x(1/24) )
-					.style('fill', 'steelblue')
-					.style('stroke', 'white');
 				hist
 					.attr('y', function(d) { return self.histy(d) })
 					.attr('height', function(d) { return graphics.height - self.histy(d) });
@@ -248,8 +246,11 @@ Asteroids.prototype.update = function(container) {
   // Remember our container and graphics for redrawing things later.
   this.container = container;
   this.graphics = graphics;
-  graphics.graph
-  	.style('background', 'lightblue');
+  // Draw a background rectangle.
+  graphics.graph.append('svg:rect')
+    .attr('class','background')
+    .attr('width',graphics.width)
+    .attr('height',graphics.height);
   // Create scales to map positions from 'game space' to 'pixel space'
 	this.x = d3.scale.linear()
 		.domain([0,1])
@@ -275,9 +276,8 @@ Asteroids.prototype.update = function(container) {
 	homeRect
 		.attr("transform", function(d) { return "translate(" + (self.x(d.path[0]) - d.w/2) + ',' + (self.y(d.path[1]) - d.h/2) + ")"; })
 		.attr("width", function(d) { return d.w; } )
-		.attr("height", function(d) { return d.h; } )
-		.attr("fill","yellow");
-			
+		.attr("height", function(d) { return d.h; } );
+					
 	// Draw histogram
 	graphics.graph.selectAll('rect.hist')
 		.data(this.values)
@@ -286,9 +286,7 @@ Asteroids.prototype.update = function(container) {
 		.attr('x', function(d,i) { return self.x(i/24) })
 		.attr('y', function(d) { return self.histy(d) })
 		.attr('width', self.x(1/24) )
-		.attr('height', function(d) { return graphics.height - self.histy(d) })
-		.style('fill', 'steelblue')
-		.style('stroke', 'white');
+		.attr('height', function(d) { return graphics.height - self.histy(d) });
 		
 	// Draw hour label
 	graphics.graph.selectAll('text.hourLabel')
@@ -342,6 +340,25 @@ Asteroids.prototype.createRandomBaddie = function() {
   };
 }
 
+// Create some random baddies
+Asteroids.prototype.createRandomBaddieInPad = function() {
+	var x = 0, y = 0;
+	switch ( Math.floor(Math.random()*4) ) {
+		case 0: x += Math.random(); break;
+		case 1: y += Math.random(); break;
+		case 2: x += Math.random(); y += 1; break;
+		case 3: y += Math.random(); x += 1; break;
+	}
+	var speed = .001;
+	var theta = Math.random()*Math.PI*2;
+  return {
+    vx: speed*Math.cos(theta),
+    vy: speed*Math.sin(theta),
+    path: [x, y],
+    r: 10
+  };
+}
+
 Asteroids.prototype.redraw = function() {
 	var self = this;
 	var graphics = this.graphics;
@@ -364,7 +381,6 @@ Asteroids.prototype.redraw = function() {
 		.attr('id','value')
     .attr("rx", function(d) { return d.r*1.25 })
     .attr("ry", function(d) { return d.r*0.75 })
-    .style('fill','darkgray')
     .style('fill-opacity', 0)
   .transition()
   	.duration(1000)
@@ -382,7 +398,6 @@ Asteroids.prototype.redraw = function() {
 		.attr('id','base')
     .attr("rx", function(d) { return d.r*1.25 })
     .attr("ry", function(d) { return d.r*0.75 })
-    .style('fill','darkblue')
     .style('fill-opacity', 0)
   .transition()
   	.duration(1000)
@@ -400,7 +415,6 @@ Asteroids.prototype.redraw = function() {
 		.attr('id','avg')
     .attr("rx", function(d) { return d.r*1.25 })
     .attr("ry", function(d) { return d.r*0.75 })
-    .style('fill','green')
     .style('fill-opacity', 0)
   .transition()
   	.duration(1000)
@@ -529,9 +543,9 @@ Asteroids.prototype.spawn = function() {
 	this.numBaddiesAvg = Math.floor(this.maxBaddies*this.avgValues[this.hourOffset]+.5);
 	this.numBaddiesBase = Math.floor(this.maxBaddies*this.baseValue+.5);
 	// Append wave of new baddies
-	this.baddies = $.merge(this.baddies,d3.range(this.numBaddies).map(this.createRandomBaddie));
-	this.baddiesAvg = $.merge(this.baddiesAvg,d3.range(this.numBaddiesAvg).map(this.createRandomBaddie));
-	this.baddiesBase = $.merge(this.baddiesBase,d3.range(this.numBaddiesBase).map(this.createRandomBaddie));
+	this.baddies = $.merge(this.baddies,d3.range(this.numBaddies).map(this.createRandomBaddieInPad));
+	this.baddiesAvg = $.merge(this.baddiesAvg,d3.range(this.numBaddiesAvg).map(this.createRandomBaddieInPad));
+	this.baddiesBase = $.merge(this.baddiesBase,d3.range(this.numBaddiesBase).map(this.createRandomBaddieInPad));
 }
 
 Asteroids.prototype.showMessage = function() {
