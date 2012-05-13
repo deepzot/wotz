@@ -144,6 +144,7 @@ Graphics.prototype.clearCallouts = function() {
 // Adds a new callout to the document with the specified origin (in SVG coords).
 // Options are documented below.
 Graphics.prototype.addCallout = function(x,y,options) {
+  options = typeof options !== 'undefined' ? options : { };
   // relative to the enclosing SVG element height
   var scale = typeof options.scale !== 'undefined' ? options.scale : 0.2;
   // clicking callout opens URL in new window/tab

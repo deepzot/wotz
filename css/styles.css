@@ -76,10 +76,6 @@ Also, see http://www.uci.edu/graphic_identity/colors.php
     stroke: none;
 }
 
-#exploreGraph rect.bar {
-    fill: lightgray;
-}
-
 #exploreGraph text {
     fill: white;
     text-anchor: middle;
@@ -124,6 +120,46 @@ Also, see http://www.uci.edu/graphic_identity/colors.php
 #tetrisField text.scoreLabel { font-size: 2em; }
 #tetrisField text.levelLabel { font-size: 2em; }
 #tetrisField text.rowCountLabel { font-size: 2em; }
+
+#playMessage text {
+		font-weight: bold;
+		stroke: #464;
+		cursor: pointer;
+}
+
+#challengeBackground {
+    fill: #B2CFED;
+    stroke: none;
+}
+
+#clockCircle {
+    stroke: #4A4439;
+    stroke-width: 0.25em;
+    fill: white;
+}
+
+.clockTick {
+    stroke: #B5A58B;
+    stroke-width: 0.25em;
+}
+
+#challengeGraph path.hourlyArc {
+    stroke: #4A4439;
+}
+
+#clockHand0 { stroke: #4A4439; stroke-width: 0.5em; }
+#clockHand1 { stroke: #4A4439; stroke-width: 0.3em; }
+#clockHand2 { stroke: #4BB54E; stroke-width: 0.1em; }
+
+#challengeGraph text.clockLabel {
+    font-size: 2em;
+    fill: #4A4439;
+    text-anchor: middle;
+}
+
+#challengeGraph #messageGroup text {
+    fill: white;
+}
 
 #asteroidField text {
     fill: red;
