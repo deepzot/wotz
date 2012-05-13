@@ -110,26 +110,20 @@ Also, see http://www.uci.edu/graphic_identity/colors.php
     cursor: pointer;
 }
 
-#gameBoard {
+#tetrisField {
     font-size: 100%;
 }
 
-#gameBoard text {
+#tetrisField text {
     stroke: black;
     fill: white;
     text-anchor: middle;
     text-shadow: none;
 }
 
-#gameBoard text.scoreLabel { font-size: 2em; }
-#gameBoard text.levelLabel { font-size: 2em; }
-#gameBoard text.rowCountLabel { font-size: 2em; }
-
-#playMessage text {
-		font-weight: bold;
-		stroke: #464;
-		cursor: pointer;
-}
+#tetrisField text.scoreLabel { font-size: 2em; }
+#tetrisField text.levelLabel { font-size: 2em; }
+#tetrisField text.rowCountLabel { font-size: 2em; }
 
 #asteroidField text {
     fill: red;
