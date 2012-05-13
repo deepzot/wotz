@@ -26,6 +26,7 @@ Asteroids.prototype.start = function(data) {
 	if( this.currentState == null) {
 		this.setState(this.gameStates.READY);
 	}
+	log("Hello from Asteroids!");
 	this.getData();
 	// Listen for keydown events
 	d3.select(window).on("keydown", function() {
@@ -489,7 +490,6 @@ Asteroids.prototype.setState = function(newState) {
 		// pause game
 		this.toggleTimers();
 		// display pause message
-		this.messagesVisible = true;
 		this.currentMessage = ['Tap To Resume!'];
 		this.showMessage();
 	}
