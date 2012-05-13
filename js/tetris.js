@@ -25,7 +25,6 @@ Tetris.prototype.gameStates = {
 
 Tetris.prototype.start = function(data) {
   if(this.currentState == null) {
-  	this.initNewGame();
   	this.setState(this.gameStates.READY);
   }
   else {
@@ -146,15 +145,8 @@ Tetris.prototype.update = function(container) {
   var scoreLabel = graphics.graph.selectAll('text.scoreLabel').data([this.score]);
   scoreLabel.enter().append('svg:text')
     .attr('class','scoreLabel')
-    .text(function(d) { return 'Score: ' + d; })
-    .attr('x', padX/2)
-    .attr('y', padY + 3*graphics.fontSize);
-  // Add level label.
-  var levelLabel = graphics.graph.selectAll('text.levelLabel').data([this.level]);
-  levelLabel.enter().append('svg:text')
-    .attr('class','levelLabel')
-    .text(function(d) { return 'Level: ' + d; })
-    .attr('x', width-1-padX/2)
+    .text(function(d) { return d; })
+    .attr('x', self.x(self.numTilesX))
     .attr('y', padY + 3*graphics.fontSize);
   // Add row count label.
 //   var rowCountLabel = graphics.graph.selectAll('text.rowCountLabel').data([this.rowCount]);
@@ -180,7 +172,6 @@ Tetris.prototype.initNewGame = function() {
 	Shape.init(Math.floor(this.numTilesX/2),-1,Shape.randomShape());
 	this.level = 1;
 	this.rowCount = 0;
-	this.currentMessage = ['Touch to play!'];
 }
 
 // Our active shape
@@ -328,18 +319,18 @@ Tetris.prototype.drawTiles = function() {
 	var self = this;
 	var graphics = this.graphics;
 	// Update stored tiles
-	var tiles = graphics.graph.selectAll("ellipse")
+	var tiles = graphics.graph.selectAll("rect.storedTile")
 		.data(this.storedTiles);
 	// Append new tiles
-	tiles.enter().append("ellipse")
-		.attr("rx", this.x(.5)-this.x(0))
-		.attr("ry", this.y(.5)-this.y(0))
+	tiles.enter().append("rect.storedTile")
+		.attr("width", this.x(1)-this.x(0))
+		.attr("height", this.y(1)-this.y(0))
 		.style("stroke", "black")
 		.style("fill", "blue");
 	// Set attr for all tiles
 	tiles
-		.attr("cx", function(d) { return self.x(d.x + .5); })
-		.attr("cy", function(d) { return self.y(d.y + .5); });
+		.attr("x", function(d) { return self.x(d.x); })
+		.attr("y", function(d) { return self.y(d.y); });
 	// Remove cleared tiles
 	tiles.exit().remove();
 }
@@ -377,14 +368,7 @@ Tetris.prototype.step = function() {
 		this.score++;
 		var scoreLabel = graphics.graph.selectAll('text.scoreLabel')
 			.data([this.score])
-			.text(function(d) { return 'Score: ' + d; });
-		var levelLabel = graphics.graph.selectAll('text.levelLabel')
-			.data([this.level])
-			.text(function(d) { return 'Level: ' + d; });
-// 		var rowCountLabel = graphics.graphselectAll('text.rowCountLabel')
-// 			.data([this.rowCount])
-// 			.text(function(d) { return 'Rows Cleared: ' + d; });
-		//scoreLabel.exit().remove();
+			.text(function(d) { return d; });
 
 		// Create a new piece
 		this.createNewPiece();
@@ -455,6 +439,7 @@ Tetris.prototype.setState = function(newState) {
 		this.initNewGame();
 		// display ready to start message
 		this.messagesVisible = true;
+		this.currentMessage = ['Touch to play!'];
 		//this.showMessage();
 	}
 	else if(newState == this.gameStates.LOSE){

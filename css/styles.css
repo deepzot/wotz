@@ -117,9 +117,10 @@ Also, see http://www.uci.edu/graphic_identity/colors.php
     text-shadow: none;
 }
 
-#tetrisField text.scoreLabel { font-size: 2em; }
-#tetrisField text.levelLabel { font-size: 2em; }
-#tetrisField text.rowCountLabel { font-size: 2em; }
+#tetrisField text.scoreLabel { 
+	 text-anchor: end;
+	 font-size: 2em; 
+}
 
 #playMessage text {
 		font-weight: bold;
