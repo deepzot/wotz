@@ -442,7 +442,9 @@ Tetris.prototype.setState = function(newState) {
 	}
 	else if(newState == this.gameStates.PAUSE){
 		// pause game
-		clearInterval(this.intervalID);
+		if(oldState != this.gameStates.LOSE){
+			clearInterval(this.intervalID);
+		}
 		// display pause message
 		this.messagesVisible = true;
 		this.currentMessage = ['Touch to resume...'];
