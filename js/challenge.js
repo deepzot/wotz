@@ -9,7 +9,6 @@ function ChallengeModule() {
   this.currentMessage = null;
   this.getNextMessage();
   this.selectedHour = null;
-  this.selectedUsage = 0;
   // Number formatting helper.
   this.format = d3.format(".1f");
   this.hourLabels = [
@@ -129,10 +128,8 @@ ChallengeModule.prototype.update = function(container) {
       .attr('opacity',function(d,i) { return 1-i/24; })
       .attr('d',hourlyArc)
       .on('click',function(d,i) {
-        log('click',d,i,(self.currentMessage == null),this);
         if(self.currentMessage == null) {
           self.selectedHour = i;
-          self.selectedUsage = d;
           d3.select(this).attr('fill','#4BB54E');
           self.getNextMessage();
           self.showMessage();
@@ -144,20 +141,27 @@ ChallengeModule.prototype.update = function(container) {
 }
 
 ChallengeModule.prototype.showMessage = function() {
-  log('show',this.currentMessage);
   var self = this;
   if(this.currentMessage) {
+    // Fade out the clock so we can see the text above it.
     this.clock.attr('opacity',0.4);
+    // Display the current message.
     var fade = (this.messageCount != this.lastMessageCount);
     var message = this.graphics.showMessage(this.currentMessage,fade);
     this.lastMessageCount = this.messageCount;
+    // Don't show pointer when mouse is over hour sectors if message is displayed.
     $('.hourlyArc').css('cursor','default');
+    // Set the handler for when the user clicks on the message.
     message.on('click',function() {
       self.getNextMessage();
       self.showMessage();
     });
   }
   else {
+    // Restore the fill of any selected hour.
+    if(this.selectedHour) {
+      $('.hourlyArc:nth-child('+(this.selectedHour+1)+')').attr('fill','url(#usageGradient)');
+    }
     this.graphics.removeMessageGroup();
     this.clock.attr('opacity',1);
     $('.hourlyArc').css('cursor','pointer');
@@ -186,12 +190,13 @@ ChallengeModule.prototype.getNextMessage = function() {
       msg = null;
     }
     else {
-      // Generate a new message based on the current selection.
+      // Generate a new message based on the current selection...
+      // Generate a time range message
       var hour = this.hourOrigin24 + this.selectedHour;
       var range = this.hourLabels[hour % 24] + '-' + this.hourLabels[(hour+1)%24];
-      var usage = this.selectedUsage*3600/this.dataSource.duration;
-      msg = ['You picked ' + range + ' @ ' + this.format(this.selectedUsage) ];
-      log('msg',msg);
+      // Lookup the average consumption for this hour of the day.
+      var usage = this.dataSource.averageByHour(hour);
+      msg = ['You picked ' + range + ' @ ' + this.format(usage) ];
     }
   }
   this.currentMessage = msg;
