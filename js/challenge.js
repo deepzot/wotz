@@ -154,8 +154,8 @@ ChallengeModule.prototype.showMessage = function() {
     this.lastMessageCount = this.messageCount;
     // Don't show pointer when mouse is over hour sectors if message is displayed.
     $('.hourlyArc').css('cursor','default');
-    // Set the handler for when the user clicks on the message.
-    message.on('click',function() {
+    // Click anywhere to advance the sequencer...
+    this.graphics.setClickAnywhere(function() {
       self.getNextMessage();
       self.showMessage();
     });
@@ -165,6 +165,7 @@ ChallengeModule.prototype.showMessage = function() {
     if(this.selectedHour) {
       $('.hourlyArc:nth-child('+(this.selectedHour+1)+')').attr('fill','url(#usageGradient)');
     }
+    this.graphics.clearClickAnywhere();
     this.graphics.removeMessageGroup();
     this.clock.attr('opacity',1);
     $('.hourlyArc').css('cursor','pointer');
