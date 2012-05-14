@@ -120,16 +120,17 @@ Also, see http://www.uci.edu/graphic_identity/colors.php
 }
 
 #tetrisField text {
-    stroke: black;
     fill: white;
     text-anchor: middle;
     text-shadow: none;
 }
 
 #tetrisField text.scoreLabel { 
-	 text-anchor: end;
+	 text-anchor: start;
 	 font-size: 2em; 
 }
+#tetrisField text.leftArrow { font-size: 3em; text-anchor: end; cursor: pointer; }
+#tetrisField text.rightArrow { font-size: 3em; text-anchor: start; cursor: pointer; }
 
 #tetrisField line.boardGrid { stroke: black; opacity: .50 }
 #tetrisField rect.activeTile { fill: #4BB54E; stroke: black; }
