@@ -95,6 +95,12 @@ Graphics.prototype.createMessageGroup = function() {
   this.messageGroup = this.graph.append('svg:g').attr('id','messageGroup');
 }
 
+// Removes any existing message group created by showMessage.
+Graphics.prototype.removeMessageGroup = function() {
+  if(this.messageGroup) $('#messageGroup').remove();
+  this.messageGroup = null;
+}
+
 // Displays the specified lines in an SVG group above whatever content has
 // already been drawn when this method is first called. Text will be scaled
 // to fit our container. If fade is true then the new text will fade in.
