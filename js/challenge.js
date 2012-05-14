@@ -4,13 +4,18 @@ function ChallengeModule() {
   this.dataSource = null;
   this.hourlyData = new Array(12);
   this.timer = null;
-  // Reset messaging and callouts.
+  // Reset messaging sequencer.
   this.messageCount = 0;
   this.currentMessage = null;
-  this.currentCallout = null;
   this.getNextMessage();
+  this.selectedHour = null;
+  this.selectedUsage = 0;
   // Number formatting helper.
   this.format = d3.format(".1f");
+  this.hourLabels = [
+    'midnight','1am','2am','3am','4am','5am','6am','7am','8am','9am','10am','11am',
+    'noon','1pm','2pm','3pm','4pm','5pm','6pm','7pm','8pm','9pm','10pm','11pm'
+  ];
 }
 
 ChallengeModule.prototype.start = function(data) {
@@ -26,8 +31,8 @@ ChallengeModule.prototype.start = function(data) {
     if(value > this.maxHourly) this.maxHourly = value;
   }
   self = this;
+  this.hourOrigin24 = hour;
   this.hourOrigin = hour % 12;
-  log('hourOrigin',this.hourOrigin);
   // Returns the angle in radians (relative to 12 o'clock) corresponding to the start of the
   // hour stored in this.hourlyData[index]. Use index+1 to get the ending angle.
   this.angleMap = function(index) {
@@ -122,42 +127,45 @@ ChallengeModule.prototype.update = function(container) {
       .attr('class','hourlyArc')
       .attr('fill','url(#usageGradient)')
       .attr('opacity',function(d,i) { return 1-i/24; })
-      .attr('d',hourlyArc);
+      .attr('d',hourlyArc)
+      .on('click',function(d,i) {
+        log('click',d,i,(self.currentMessage == null),this);
+        if(self.currentMessage == null) {
+          self.selectedHour = i;
+          self.selectedUsage = d;
+          d3.select(this).attr('fill','#4BB54E');
+          self.getNextMessage();
+          self.showMessage();
+        }
+      });
   hourlyDataG.attr('transform','translate('+graphics.width/2+','+graphics.height/2+')');
-  // Show the current message and any associated callout.
+  // Show the current message.
   this.showMessage();
 }
 
 ChallengeModule.prototype.showMessage = function() {
+  log('show',this.currentMessage);
   var self = this;
   if(this.currentMessage) {
     this.clock.attr('opacity',0.4);
     var fade = (this.messageCount != this.lastMessageCount);
     var message = this.graphics.showMessage(this.currentMessage,fade);
     this.lastMessageCount = this.messageCount;
+    $('.hourlyArc').css('cursor','default');
     message.on('click',function() {
       self.getNextMessage();
       self.showMessage();
     });
   }
   else {
+    this.graphics.removeMessageGroup();
     this.clock.attr('opacity',1);
-    this.graphics.setMessageOpacity(0);
-  }
-  // Show the current callout.
-  this.graphics.clearCallouts();
-  var call = this.currentCallout;
-  if(call) {
-    var angle = this.angleMap(call.index+0.5);
-    var radius = this.radiusMap(this.hourlyData[call.index]);
-    var x = this.graphics.width/2+radius*Math.sin(angle);
-    var y = this.graphics.height/2-radius*Math.cos(angle);
-    this.graphics.addCallout(x,y);
+    $('.hourlyArc').css('cursor','pointer');
   }
 }
 
 ChallengeModule.prototype.getNextMessage = function() {
-  var msg=null,call=null;
+  var msg;
   switch(++this.messageCount) {
   case 1:
     msg = ['Ready for an','energy challenge?','Touch to continue...'];
@@ -166,14 +174,27 @@ ChallengeModule.prototype.getNextMessage = function() {
     msg = ['Try saving energy','before you use it...'];
     break;
   case 3:
-    call = { index: 2 };
+    msg = ['Here is your predicted','energy usage over the','next 12 hours.'];
+    break;
+  case 4:
+    msg = ['Select an hour for','your next challenge...'];
     break;
   default:
-    msg = ['Here is message','number '+this.messageCount];
+    log('next',this.selectedHour,this.currentMessage);
+    if(this.currentMessage != null) {
+      // Hide the existing message to allow a new hour selection
+      msg = null;
+    }
+    else {
+      // Generate a new message based on the current selection.
+      var hour = this.hourOrigin24 + this.selectedHour;
+      var range = this.hourLabels[hour % 24] + '-' + this.hourLabels[(hour+1)%24];
+      var usage = this.selectedUsage*3600/this.dataSource.duration;
+      msg = ['You picked ' + range + ' @ ' + this.format(this.selectedUsage) ];
+      log('msg',msg);
+    }
   }
   this.currentMessage = msg;
-  if(call && !('url' in call)) call.url = null;
-  this.currentCallout = call;
 }
 
 ChallengeModule.prototype.getShareText = function() {
