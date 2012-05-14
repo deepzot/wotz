@@ -10,7 +10,8 @@ function ChallengeModule() {
   this.getNextMessage();
   this.selectedHour = null;
   // Number formatting helper.
-  this.format = d3.format(".0f");
+  this.format0 = d3.format(".0f");
+  this.format1 = d3.format(".1f");
   this.hourLabels = [
     'midnight','1am','2am','3am','4am','5am','6am','7am','8am','9am','10am','11am',
     'noon','1pm','2pm','3pm','4pm','5pm','6pm','7pm','8pm','9pm','10pm','11pm'
@@ -22,11 +23,13 @@ ChallengeModule.prototype.start = function(data) {
   // Remember our data source.
   this.dataSource = data;
   this.maxHourly = 0;
+  this.minHourly = 1e9;
   var now = new Date();
   var hour = now.getHours();
   for(var offset = 0; offset < 12; ++offset) {
     var value = this.dataSource.averageByHour((hour + offset)%24);
     this.hourlyData[offset] = value;
+    if(value < this.minHourly) this.minHourly = value;
     if(value > this.maxHourly) this.maxHourly = value;
   }
   self = this;
@@ -144,7 +147,7 @@ ChallengeModule.prototype.showMessage = function() {
   var self = this;
   if(this.currentMessage) {
     // Fade out the clock so we can see the text above it.
-    this.clock.attr('opacity',0.3);
+    this.clock.attr('opacity',0.25);
     // Display the current message.
     var fade = (this.messageCount != this.lastMessageCount);
     var message = this.graphics.showMessage(this.currentMessage,fade);
@@ -175,12 +178,30 @@ ChallengeModule.prototype.getNextMessage = function() {
     msg = ['Ready for an','energy challenge?','Touch to continue...'];
     break;
   case 2:
-    msg = ['Try saving energy','before you use it...'];
+    msg = [
+      'Try saving "embodied" energy',
+      'before you use it...'];
     break;
   case 3:
-    msg = ['Here is your predicted','energy usage over the','next 12 hours.'];
+    msg = [
+      'Embodied energy is the total',
+      'energy needed to create, transport,',
+      'and dispose of something.'];
     break;
   case 4:
+    msg = [
+      'Save one hour of embodied energy',
+      'to cover the energy cost of',
+      'owning something for one hour.'];
+    break;
+  case 5:
+    msg = ['The clock border shows your','predicted energy use over','the next 12 hours.'];
+    break;
+  case 6:
+    var range = this.format1(1e-3*this.minHourly)+'-'+this.format1(1e-3*this.maxHourly)+' kWh';
+    msg = ['The size of each box represents','your average hourly usage','(in the range '+range+').'];
+    break;
+  case 7:
     msg = ['Select an hour for','your next challenge...'];
     break;
   default:
@@ -213,11 +234,11 @@ ChallengeModule.prototype.getNextMessage = function() {
       var line3 = null, savings = null;
       if(target.cost < 0.025*usage) {
         line3 = 'one day\'s embodied energy of';
-        savings = this.format(2400*target.cost/usage)+'%';
+        savings = this.format0(2400*target.cost/usage)+'%';
       }
       else {
         line3 = 'one hour\'s embodied energy of';
-        savings = this.format(100*target.cost/usage)+'%';
+        savings = this.format0(100*target.cost/usage)+'%';
       }
       msg = [
         'Use '+savings+' less electricity',
