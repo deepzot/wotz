@@ -144,7 +144,7 @@ ChallengeModule.prototype.showMessage = function() {
   var self = this;
   if(this.currentMessage) {
     // Fade out the clock so we can see the text above it.
-    this.clock.attr('opacity',0.4);
+    this.clock.attr('opacity',0.3);
     // Display the current message.
     var fade = (this.messageCount != this.lastMessageCount);
     var message = this.graphics.showMessage(this.currentMessage,fade);
@@ -184,7 +184,6 @@ ChallengeModule.prototype.getNextMessage = function() {
     msg = ['Select an hour for','your next challenge...'];
     break;
   default:
-    log('next',this.selectedHour,this.currentMessage);
     if(this.currentMessage != null) {
       // Hide the existing message to allow a new hour selection
       msg = null;
@@ -192,11 +191,31 @@ ChallengeModule.prototype.getNextMessage = function() {
     else {
       // Generate a new message based on the current selection...
       // Generate a time range message
-      var hour = this.hourOrigin24 + this.selectedHour;
-      var range = this.hourLabels[hour % 24] + '-' + this.hourLabels[(hour+1)%24];
+      var hour = (this.hourOrigin24 + this.selectedHour)%24;
+      var range = this.hourLabels[hour] + '-' + this.hourLabels[(hour+1)%24];
       // Lookup the average consumption for this hour of the day.
       var usage = this.dataSource.averageByHour(hour);
-      msg = ['You picked ' + range + ' @ ' + this.format(usage) ];
+      // Scan the possible challenges to find the most ambitious one possible (savings <= 60%)
+      var maxCost = 0.6*usage;
+      if(challengeData[0].cost > maxCost) {
+        msg = ['You barely used any energy from '+range,'Congratulations!'];
+        break;
+      }
+      var lastIndex = 0;
+      while(lastIndex < challengeData.length-1 && challengeData[lastIndex+1].cost <= maxCost) {
+        lastIndex++;
+      }
+      // Pick a random challenge
+      var index = Math.floor(lastIndex*Math.random());
+      var target = challengeData[index];
+      // Calculate the savings fraction required
+      var savings = this.format(100*target.cost/usage)+'%';
+      msg = [
+        'Use '+savings+' less electricity',
+        'from ' + range+' to save',
+        'one hour\'s embodied energy of',
+        target.what+'.'
+      ];
     }
   }
   this.currentMessage = msg;
