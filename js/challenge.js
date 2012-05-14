@@ -10,7 +10,7 @@ function ChallengeModule() {
   this.getNextMessage();
   this.selectedHour = null;
   // Number formatting helper.
-  this.format = d3.format(".1f");
+  this.format = d3.format(".0f");
   this.hourLabels = [
     'midnight','1am','2am','3am','4am','5am','6am','7am','8am','9am','10am','11am',
     'noon','1pm','2pm','3pm','4pm','5pm','6pm','7pm','8pm','9pm','10pm','11pm'
@@ -208,12 +208,21 @@ ChallengeModule.prototype.getNextMessage = function() {
       // Pick a random challenge
       var index = Math.floor(lastIndex*Math.random());
       var target = challengeData[index];
-      // Calculate the savings fraction required
-      var savings = this.format(100*target.cost/usage)+'%';
+      // Calculate the savings fraction required. If it is less than 60/24=0.025, change the time
+      // period from from 1 hour to 1 day.
+      var line3 = null, savings = null;
+      if(target.cost < 0.025*usage) {
+        line3 = 'one day\'s embodied energy of';
+        savings = this.format(2400*target.cost/usage)+'%';
+      }
+      else {
+        line3 = 'one hour\'s embodied energy of';
+        savings = this.format(100*target.cost/usage)+'%';
+      }
       msg = [
         'Use '+savings+' less electricity',
         'from ' + range+' to save',
-        'one hour\'s embodied energy of',
+        line3,
         target.what+'.'
       ];
     }
