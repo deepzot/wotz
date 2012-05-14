@@ -4,13 +4,18 @@ function ChallengeModule() {
   this.dataSource = null;
   this.hourlyData = new Array(12);
   this.timer = null;
-  // Reset messaging and callouts.
+  // Reset messaging sequencer.
   this.messageCount = 0;
   this.currentMessage = null;
-  this.currentCallout = null;
   this.getNextMessage();
+  this.selectedHour = null;
   // Number formatting helper.
-  this.format = d3.format(".1f");
+  this.format0 = d3.format(".0f");
+  this.format1 = d3.format(".1f");
+  this.hourLabels = [
+    'midnight','1am','2am','3am','4am','5am','6am','7am','8am','9am','10am','11am',
+    'noon','1pm','2pm','3pm','4pm','5pm','6pm','7pm','8pm','9pm','10pm','11pm'
+  ];
 }
 
 ChallengeModule.prototype.start = function(data) {
@@ -18,16 +23,18 @@ ChallengeModule.prototype.start = function(data) {
   // Remember our data source.
   this.dataSource = data;
   this.maxHourly = 0;
+  this.minHourly = 1e9;
   var now = new Date();
   var hour = now.getHours();
   for(var offset = 0; offset < 12; ++offset) {
     var value = this.dataSource.averageByHour((hour + offset)%24);
     this.hourlyData[offset] = value;
+    if(value < this.minHourly) this.minHourly = value;
     if(value > this.maxHourly) this.maxHourly = value;
   }
   self = this;
+  this.hourOrigin24 = hour;
   this.hourOrigin = hour % 12;
-  log('hourOrigin',this.hourOrigin);
   // Returns the angle in radians (relative to 12 o'clock) corresponding to the start of the
   // hour stored in this.hourlyData[index]. Use index+1 to get the ending angle.
   this.angleMap = function(index) {
@@ -122,58 +129,127 @@ ChallengeModule.prototype.update = function(container) {
       .attr('class','hourlyArc')
       .attr('fill','url(#usageGradient)')
       .attr('opacity',function(d,i) { return 1-i/24; })
-      .attr('d',hourlyArc);
+      .attr('d',hourlyArc)
+      .on('click',function(d,i) {
+        if(self.currentMessage == null) {
+          self.selectedHour = i;
+          d3.select(this).attr('fill','#4BB54E');
+          self.getNextMessage();
+          self.showMessage();
+        }
+      });
   hourlyDataG.attr('transform','translate('+graphics.width/2+','+graphics.height/2+')');
-  // Show the current message and any associated callout.
+  // Show the current message.
   this.showMessage();
 }
 
 ChallengeModule.prototype.showMessage = function() {
   var self = this;
   if(this.currentMessage) {
-    this.clock.attr('opacity',0.4);
+    // Fade out the clock so we can see the text above it.
+    this.clock.attr('opacity',0.25);
+    // Display the current message.
     var fade = (this.messageCount != this.lastMessageCount);
     var message = this.graphics.showMessage(this.currentMessage,fade);
     this.lastMessageCount = this.messageCount;
-    message.on('click',function() {
+    // Don't show pointer when mouse is over hour sectors if message is displayed.
+    $('.hourlyArc').css('cursor','default');
+    // Click anywhere to advance the sequencer...
+    this.graphics.setClickAnywhere(function() {
       self.getNextMessage();
       self.showMessage();
     });
   }
   else {
+    // Restore the fill of any selected hour.
+    if(this.selectedHour) {
+      $('.hourlyArc:nth-child('+(this.selectedHour+1)+')').attr('fill','url(#usageGradient)');
+    }
+    this.graphics.clearClickAnywhere();
+    this.graphics.removeMessageGroup();
     this.clock.attr('opacity',1);
-    this.graphics.setMessageOpacity(0);
-  }
-  // Show the current callout.
-  this.graphics.clearCallouts();
-  var call = this.currentCallout;
-  if(call) {
-    var angle = this.angleMap(call.index+0.5);
-    var radius = this.radiusMap(this.hourlyData[call.index]);
-    var x = this.graphics.width/2+radius*Math.sin(angle);
-    var y = this.graphics.height/2-radius*Math.cos(angle);
-    this.graphics.addCallout(x,y);
+    $('.hourlyArc').css('cursor','pointer');
   }
 }
 
 ChallengeModule.prototype.getNextMessage = function() {
-  var msg=null,call=null;
+  var msg;
   switch(++this.messageCount) {
   case 1:
     msg = ['Ready for an','energy challenge?','Touch to continue...'];
     break;
   case 2:
-    msg = ['Try saving energy','before you use it...'];
+    msg = [
+      'Try saving "embodied" energy',
+      'before you use it...'];
     break;
   case 3:
-    call = { index: 2 };
+    msg = [
+      'Embodied energy is the total',
+      'energy needed to create, transport,',
+      'and dispose of something.'];
+    break;
+  case 4:
+    msg = [
+      'Save one hour of embodied energy',
+      'to cover the energy cost of',
+      'owning something for one hour.'];
+    break;
+  case 5:
+    msg = ['The clock border shows your','predicted energy use over','the next 12 hours.'];
+    break;
+  case 6:
+    var range = this.format1(1e-3*this.minHourly)+'-'+this.format1(1e-3*this.maxHourly)+' kWh';
+    msg = ['The size of each box represents','your average hourly usage','(in the range '+range+').'];
+    break;
+  case 7:
+    msg = ['Select an hour for','your next challenge...'];
     break;
   default:
-    msg = ['Here is message','number '+this.messageCount];
+    if(this.currentMessage != null) {
+      // Hide the existing message to allow a new hour selection
+      msg = null;
+    }
+    else {
+      // Generate a new message based on the current selection...
+      // Generate a time range message
+      var hour = (this.hourOrigin24 + this.selectedHour)%24;
+      var range = this.hourLabels[hour] + '-' + this.hourLabels[(hour+1)%24];
+      // Lookup the average consumption for this hour of the day.
+      var usage = this.dataSource.averageByHour(hour);
+      // Scan the possible challenges to find the most ambitious one possible (savings <= 60%)
+      var maxCost = 0.6*usage;
+      if(challengeData[0].cost > maxCost) {
+        msg = ['You barely used any energy from '+range,'Congratulations!'];
+        break;
+      }
+      var lastIndex = 0;
+      while(lastIndex < challengeData.length-1 && challengeData[lastIndex+1].cost <= maxCost) {
+        lastIndex++;
+      }
+      // Pick a random challenge
+      var index = Math.floor(lastIndex*Math.random());
+      var target = challengeData[index];
+      // Calculate the savings fraction required. If it is less than 60/24=0.025, change the time
+      // period from from 1 hour to 1 day.
+      var line3 = null, savings = null;
+      if(target.cost < 0.025*usage) {
+        line3 = 'one day\'s embodied energy of';
+        savings = this.format0(2400*target.cost/usage)+'%';
+      }
+      else {
+        line3 = 'one hour\'s embodied energy of';
+        savings = this.format0(100*target.cost/usage)+'%';
+      }
+      msg = [
+        'Use '+savings+' less electricity',
+        'from ' + range+' to save',
+        line3,
+        target.what+'.'
+      ];
+    }
   }
   this.currentMessage = msg;
-  if(call && !('url' in call)) call.url = null;
-  this.currentCallout = call;
 }
 
 ChallengeModule.prototype.getShareText = function() {

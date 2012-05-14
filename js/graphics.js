@@ -27,6 +27,7 @@ function Graphics(container,name) {
   // now since their ordering determines their layer visibility.
   this.messageGroup = null;
   this.calloutGroup = null;
+  this.clicker = null;
 }
 
 // Creates a new gradient in our definitions section. The type should
@@ -93,6 +94,12 @@ Graphics.prototype.centerVertically = function(group,maxWidth,maxHeight,ymin,yma
 Graphics.prototype.createMessageGroup = function() {
   if(this.messageGroup) $('#messageGroup').remove();
   this.messageGroup = this.graph.append('svg:g').attr('id','messageGroup');
+}
+
+// Removes any existing message group created by showMessage.
+Graphics.prototype.removeMessageGroup = function() {
+  if(this.messageGroup) $('#messageGroup').remove();
+  this.messageGroup = null;
 }
 
 // Displays the specified lines in an SVG group above whatever content has
@@ -193,4 +200,21 @@ C30.255-21.59,23.556-3.375-0.069,0.125z')
       .style('cursor','default');
   }
   return callout;
+}
+
+// Creates an invisible rectangle covering our graphics area and attaches a click handler to it.
+Graphics.prototype.setClickAnywhere = function(handler) {
+  if(this.clicker) this.clicker.remove();
+  this.clicker = this.graph.append('svg:rect')
+    .attr('opacity',0)
+    .attr('width',this.width)
+    .attr('height',this.height)
+    .style('cursor','pointer')
+    .on('click',function() { return handler(this); });
+}
+
+// Removes any current clickAnywhere rectangle and its associated handler.
+Graphics.prototype.clearClickAnywhere = function() {
+  if(this.clicker) this.clicker.remove();
+  this.clicker = null;
 }
