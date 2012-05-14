@@ -78,13 +78,16 @@ function GreenButtonData(xml) {
 }
 
 // Returns the average energy consumption by hour of the day (0-23) for the data seen so far.
+// Result is given in Watt-hours per hour ( = Watts).
 GreenButtonData.prototype.averageByHour = function(hour) {
-  return (this.byHourCount[hour] > 0) ? this.byHourSum[hour]/this.byHourCount[hour] : 0;
+  return (this.byHourCount[hour] > 0) ? this.readingsPerHour*this.byHourSum[hour]/this.byHourCount[hour] : 0;
 }
 
 // Returns the average energy consumption by day of the week (0-6) for the data seen so far.
+// Result is given in kWh per day ( = kW/24)
 GreenButtonData.prototype.averageByWeekDay = function(day) {
-  return (this.byWeekDayCount[day] > 0) ? this.byWeekDaySum[day]/this.byWeekDayCount[day] : 0;
+  return (this.byWeekDayCount[day] > 0) ?
+    (1e-3/24)*this.readingsPerDay*this.byWeekDaySum[day]/this.byWeekDayCount[day] : 0;
 }
 
 // Updates our current position in the datafile.
