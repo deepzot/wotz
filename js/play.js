@@ -2,18 +2,22 @@ function PlayModule() {
   this.id = 'play';
   this.label = 'Play';
   this.game = null;
-  this.tetrisActive = null;
-}
+  this.tetrisActive = true;
+  this.game = new Tetris();}
 
 PlayModule.prototype.start = function(data) {
   log('play start',data.current);
-  this.tetrisActive = true;
-  this.game = new Tetris();
   this.game.start(data);
   // Add a hide/show text UI element in the footer.
   var footer = $('#demo div[data-role="footer"]');
   footer.append('<a id="gameSelector" href="#" data-role="button" data-mini="true">Asteroids</a>')
     .trigger('create');
+	if(this.tetrisActive) {
+    $('#gameSelector .ui-btn-text').text('Asteroids');
+	}
+	else {
+    $('#gameSelector .ui-btn-text').text('Tetris');
+	}
   var self = this;
   $('#gameSelector').click(function() {
     self.game.end();

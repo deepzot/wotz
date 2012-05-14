@@ -7,7 +7,7 @@ function Tetris() {
   this.rowCount = null;
   this.storedTiles = null;
   this.numTilesX = 12;
-  this.numTilesY = 15;
+  this.numTilesY = 18;
   this.rowsPerLevel = 3;
   this.stepDelay = null;
   this.x = null;
@@ -118,10 +118,10 @@ Tetris.prototype.update = function(container) {
     .attr('width',graphics.width)
     .attr('height',graphics.height);
   // Prepare tile scaling functions
-  var padX = Math.floor(0.2*width);
-  var effectiveWidth = width-2*padX;
+  //var padX = Math.floor(0.2*width);
+  var effectiveWidth = width*.6;
   var effectiveHeight = height;
-  var tileSize = Math.min(height/this.numTilesY,width/this.numTilesX);
+  var tileSize = Math.min(effectiveHeight/this.numTilesY,effectiveWidth/this.numTilesX);
   var padX = (width-tileSize*this.numTilesX)/2;
   var padY = (height-tileSize*this.numTilesY)/2;
   
@@ -130,7 +130,7 @@ Tetris.prototype.update = function(container) {
 		.range([padX,width-1-padX]);
 	self.y = d3.scale.linear()
 		.domain([0, this.numTilesY])
-		.range([padY,height-1-padY]);
+		.range([0,height-1]);
   // Draw a background rectangle.
   graphics.graph.append('svg:rect')
     .attr('class','playArea')
@@ -138,42 +138,90 @@ Tetris.prototype.update = function(container) {
     .attr('y',self.y(0))
 		.attr('rx', this.y(.1)-this.y(0))
     .attr('height',this.y(this.numTilesY) - this.y(0) )
-    .attr('width',this.x(this.numTilesX) - this.x(0) );
+    .attr('width',this.x(this.numTilesX) - this.x(0) )
+    .on('click', function() {
+			if(self.currentState == self.gameStates.RUNNING) {
+				// Rotate shape 
+				newShape = Shape.rotateLeft();
+				if(self.isPossibleMovement(0,0,newShape)) {
+					Shape.State.currentShape = newShape;
+					self.drawActivePiece();
+				}
+			}
+		});
 	// Draw multiple horizontal lines
 	for (var i=1; i < self.numTilesY; i++) {
-			graphics.graph.append("svg:line")
-					.attr("class","boardGrid")
-					.attr("x1", self.x(0))
-					.attr("y1", self.y(i))
-					.attr("x2", self.x(self.numTilesX))
-					.attr("y2", self.y(i));
+		graphics.graph.append("svg:line")
+			.attr("class","boardGrid")
+			.attr("x1", self.x(0))
+			.attr("y1", self.y(i))
+			.attr("x2", self.x(self.numTilesX))
+			.attr("y2", self.y(i));
 	};
 	// Using for loop to draw multiple vertical lines
 	for (var i=1; i < self.numTilesX; i++) {
-			graphics.graph.append("svg:line")
-					.attr("class","boardGrid")
-					.attr("x1", self.x(i))
-					.attr("y1", self.y(0))
-					.attr("x2", self.x(i))
-					.attr("y2", self.y(self.numTilesY));
+		graphics.graph.append("svg:line")
+			.attr("class","boardGrid")
+			.attr("x1", self.x(i))
+			.attr("y1", self.y(0))
+			.attr("x2", self.x(i))
+			.attr("y2", self.y(self.numTilesY));
 	};
   // Add score label.
   var scoreLabel = graphics.graph.selectAll('text.scoreLabel').data([this.score]);
   scoreLabel.enter().append('svg:text')
     .attr('class','scoreLabel')
     .text(function(d) { return d; })
-    .attr('x', self.x(self.numTilesX)-2)
-    .attr('y', padY + 3*graphics.fontSize);
-  // Add row count label.
-//   var rowCountLabel = graphics.graph.selectAll('text.rowCountLabel').data([this.rowCount]);
-//   rowCountLabel.enter().append('svg:text')
-//     .attr('class','rowCountLabel')
-//     .text(function(d) { return 'Rows Cleared: ' + d; })
-//     .attr('x', padX/2)
-//     .attr('y', padY + 7*graphics.fontSize); 
-    
-  this.drawActivePiece();
+    .attr('x', self.x(self.numTilesX)+tileSize)
+    .attr('y', graphics.height/8);
+  graphics.graph.append('svg:text')
+		.attr('class','leftArrow')
+		.text('<')
+		.attr('x', self.x(0) - tileSize)
+		.attr('y', graphics.height*.75)
+		.on('click', function() {
+				if(self.currentState == self.gameStates.RUNNING) {
+					if(self.isPossibleMovement(-1,0,Shape.State.currentShape)) {
+						Shape.State.x = Shape.State.x - 1;
+						self.drawActivePiece();
+					}	
+				}
+		});
+  graphics.graph.append('svg:text')
+		.attr('class','rightArrow')
+		.text('>')
+		.attr('x', self.x(self.numTilesX)+tileSize)
+		.attr('y', graphics.height*.75)
+		.on('click', function() {
+				if(self.currentState == self.gameStates.RUNNING) {
+					if(self.isPossibleMovement(+1,0,Shape.State.currentShape)) {
+						Shape.State.x = Shape.State.x + 1;
+						self.drawActivePiece();
+					}	
+				}
+		});
   this.drawTiles();
+  // Draw a clickable
+  graphics.graph.append('svg:rect')
+  	.attr('class','rotateClicker')
+    .attr('x',self.x(0))
+    .attr('y',self.y(0))
+		.attr('rx', this.y(.1)-this.y(0))
+    .attr('height',this.y(this.numTilesY) - this.y(0) )
+    .attr('width',this.x(this.numTilesX) - this.x(0) )
+    .style('stroke','none')
+    .style('opacity',0)
+    .on('click', function() {
+			if(self.currentState == self.gameStates.RUNNING) {
+				// Rotate shape 
+				newShape = Shape.rotateLeft();
+				if(self.isPossibleMovement(0,0,newShape)) {
+					Shape.State.currentShape = newShape;
+					self.drawActivePiece();
+				}
+			}
+		});
+  this.drawActivePiece();
 	this.showMessage();
 }
 
@@ -327,7 +375,15 @@ Tetris.prototype.drawActivePiece = function() {
 		.attr('class', 'activeTile')
 		.attr("width", this.x(1)-this.x(0))
 		.attr("height", this.y(1)-this.y(0))
-		.attr('rx', this.y(.1)-this.y(0));
+		.attr('rx', this.y(.1)-this.y(0))
+		.on('click', function() {
+			if(self.currentState == self.gameStates.RUNNING) {
+				// Move piece all the way down
+				while(self.isPossibleMovement(0,1,Shape.State.currentShape)) {
+					Shape.State.y = Shape.State.y + 1;
+				}
+			}
+		});
 	activePiece
 	//.transition().duration(this.stepDelay/4)
 		.attr("x", function(d,i) { return self.x(Shape.State.x + d.x) } )
@@ -394,10 +450,7 @@ Tetris.prototype.step = function() {
 		// Create a new piece
 		this.createNewPiece();
 	}
-	
-	this.drawActivePiece();
-	this.drawTiles();
-		
+	this.update(this.container);		
 }
 
 // Iterates through each row and returns the number
