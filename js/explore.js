@@ -10,7 +10,8 @@ function ExploreModule() {
   this.currentCallout = null;
   this.getNextMessage();
   // Number formatting helper.
-  this.format = d3.format(".1f");
+  this.format0 = d3.format(".0f");
+  this.format1 = d3.format(".1f");
 }
 
 ExploreModule.prototype.start = function(data,settings) {
@@ -253,12 +254,16 @@ ExploreModule.prototype.getNextMessage = function() {
     break;
   case 4:
     var total = (this.dayUsage[0]+this.dayUsage[1])/2;
-    var basePercent = this.format(100*this.baseLoad/total);
-    msg = [ 'Base consumption is '+basePercent+'% of your total.',
-      'Any savings here make a big difference.' ];
+    var basePercent = this.format0(100*this.baseLoad/total);
+    msg = [
+      'Base consumption is '+basePercent+'%',
+      'of your total. Any savings here',
+      'can make a big difference.'];
     break;
   case 5:
-    msg = [ 'Your landscape tells the story', 'of your energy behavior each day.',
+    msg = [
+      'Your landscape tells the story',
+      'of how energy fits into your life.',
       'Let your data do the talking...' ];
     break;
   case 6:
@@ -272,23 +277,35 @@ ExploreModule.prototype.getNextMessage = function() {
     call = { x:2.5, y:0.95*this.dataSource.maxValue, url: this.settings.moreInfoURL };
     break;
   case 9:
-    msg = ['Your electricity bill measures', 'energy in "kWh". What\'s that??' ];
+    msg = ['Your electricity bill measures', 'energy in "kiloWatt-hours".','What\'s that??' ];
     break;
   case 10:
     var day = this.getRandomDay();
-    msg = ['1 kWh = 1 bacon double cheeseburger.',
-      'You consumed '+this.format(this.dayUsage[day])+' cheeseburgers on '+this.dayLabel[day]+'.'];
+    msg = [
+      '1 kWh = 1 deluxe bacon',
+      'double cheeseburger.',
+      'You "consumed" '+this.format0(this.dayUsage[day]),
+      'cheeseburgers on '+this.dayLabel[day]+'!'];
+    call = { x:24*day+12, y: 0.15*this.dataSource.maxValue, url:'about/energy.html/#food' };
     break;
   case 11:
+    msg = [
+      '1 kWh = 1 hour of direct sun',
+      'on a typical window (3\'x4\').',
+      'Typical solar panels convert',
+      'about 15% of this to electricity.'];
+    break;
+  case 12:
     var day = this.getRandomDay();
-    // Typical roof area is asumed to be 40' x 60' = 223 m^2.
-    // We assume pwr=1 kW/m^2 of full sunshine, so dt = 3600(1/area/pwr) in seconds.
-    var area = 223, pwr = 1, eff = 0.15;
-    var dt = 60*this.dayUsage[day]/eff/area/pwr; // convert to minutes
-    msg = ['1 kWh = 16 seconds of', 'full sunshine on a typical roof.',
-      'Your energy use on '+this.dayLabel[day]+' is '+this.format(dt)+' mins',
-      '(for typical solar panels).' ];
-    call = { x:24*day+12, y: 0.92*this.dataSource.maxValue };
+    // Calculate the area (m^2) required to supply this day's energy using a typical PV cell on a typical day.
+    var area = this.dayUsage[day]/(0.15*5);
+    // Convert to sq.ft.
+    area = area*10.7639104;
+    msg = [
+      'Your electricity use on '+this.dayLabel[day],
+      'could have been supplied by',
+      this.format0(area)+' sq.ft. of solar panels.'];
+    call = { x:24*day+12, y: 0.92*this.dataSource.maxValue, url:'about/energy.html#solar' };
     break;
   default:
     msg = ['Here is message','number '+this.messageCount];
