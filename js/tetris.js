@@ -17,21 +17,25 @@ function Tetris() {
 	this.dataSource = null;
   this.displayData = null;
   this.displayRange = [ null,null ];
+  this.introMessageCount = null;
+  this.messageLimit = 8;
 }
 
 Tetris.prototype.gameStates = {
   	PAUSE : {value: 0, name: "Pause"}, 
   	READY: {value: 1, name: "Ready"}, 
   	RUNNING : {value: 2, name: "Running"},
-  	LOSE : {value: 3, name: "Lose"}
+  	LOSE : {value: 3, name: "Lose"},
+  	INTRO : {value: 4, name: "Intro"}
 	};
 
 Tetris.prototype.start = function(data) {
 	this.dataSource = data;
 	this.getData();
-  if(this.currentState == null) {
-  	this.setState(this.gameStates.READY);
-  }
+	
+	if(this.currentState == null) {
+		this.setState(this.gameStates.READY);
+	}
   else {
   	this.drawActivePiece();
   	this.drawTiles();
@@ -505,24 +509,35 @@ Tetris.prototype.setState = function(newState) {
 		}
 		// display pause message
 		this.messagesVisible = true;
-		this.currentMessage = ['Touch to resume...'];
+		this.currentMessage = ['Touch to resume.'];
 		this.showMessage();
 	}
 	else if(newState == this.gameStates.READY){
 		// init game
 		this.initNewGame();
-		// display ready to start message
-		this.messagesVisible = true;
-		this.currentMessage = ['Touch to play!'];
-		//this.showMessage();
+		if(self.messageCount == null) {
+			self.setState(self.gameStates.INTRO);
+		}
+		else {
+			// display ready to start message
+			this.messagesVisible = true;
+			this.currentMessage = ['Touch to start!'];
+			this.showMessage();
+		}
 	}
 	else if(newState == this.gameStates.LOSE){
 		// end game
 		clearInterval(this.intervalID);
 		// display game over message
 		this.messagesVisible = true;
-		this.currentMessage = ['Game over!','Touch to play again...'];
+		this.currentMessage = ['Use less energy tomorrow','for a higher score!'];
 		this.showMessage();
+	}
+	else if(newState == this.gameStates.INTRO) {
+		log('set state to intro');
+		this.messageCount = 0;
+		this.getNextMessage();
+		this.messagesVisible = true;
 	}
 	return;
 }
@@ -543,6 +558,16 @@ Tetris.prototype.showMessage = function() {
 		else if (self.currentState == self.gameStates.LOSE) {
 			// Set up a new game
 			self.setState(self.gameStates.READY);
+		}
+		else if (self.currentState == self.gameStates.INTRO) {
+			// Cycle through intro messages
+			if(self.messageCount == self.messageLimit) {
+				self.setState(self.gameStates.RUNNING);
+			}
+			else {
+				self.getNextMessage();
+				self.showMessage();
+			}
 		}
   });
 }
@@ -602,4 +627,42 @@ Tetris.prototype.initTiles = function() {
 			});
 		}
 	}
+}
+
+Tetris.prototype.getNextMessage = function() {
+  var msg,call=null;
+  switch(++this.messageCount) {
+  case 1:
+    msg = ['Have fun with your data!','Touch to continue...'];
+    break;
+  case 2:
+    msg = ['Learn the patterns of your','energy use while you play.'];
+    break;
+  case 3:
+    msg = ['This game of Tetris starts','with a graph of your most recent','day\'s energy use filling the board.'];
+    //call = { x:hr, y:this.getConsumption(hr) };
+    break;
+  case 4:
+    msg = [ 'Tap on the left to move left.','Tap on the right to move right.','Tap on a piece to rotate it.' ];
+    break;
+  case 5:
+    msg = [ 'Use the arrow keys on a keyboard', 'if you have access to one.'];
+    break;
+  case 6:
+    msg = ['Watch out for that','peak from (insert time span)!'];
+    //call = { x:hr, y:this.getConsumption(hr) };
+    break;
+  case 7:
+    msg = ['Use the button below to','try a different game.'];
+    break;
+  case 8:
+  	msg = ['Touch to start!'];
+  	break;
+  default:
+    msg = [''];
+  }
+  this.currentMessage = msg;
+  log(msg);
+  if(call && !('url' in call)) call.url = null;
+  this.currentCallout = call;
 }
