@@ -178,7 +178,7 @@ Graphics.prototype.addCallout = function(x,y,options) {
   if(xauto==true && (cx+cWidth >= this.width || (cx < this.width/2 && cx-cWidth >= 0))) {
     absXScale = -absXScale;
   }
-  if(yauto==true && (cy < 0 || (cy > this.height/2 && cy+cHeight < this.height))) {
+  if(yauto==true && (cy < 0 || (cy > this.height/2 && cy+2*cHeight < this.height))) {
     absYScale = -absYScale;
   }
   // Add the callout path now with the necessary transforms applied and click handler.
@@ -191,7 +191,9 @@ C30.255-21.59,23.556-3.375-0.069,0.125z')
     .attr('transform','scale('+absXScale+','+absYScale+') translate('+(x/absXScale)+','+(y/absYScale)+')');
   if(url) {
     callout
+      .style('stroke','rgba(136,136,170,0.6)')
       .style('stroke-width',0.025*cHeight)
+      .style('cursor','pointer')
       .on('click',function() { window.open(url,'_blank'); });
   }
   else {
