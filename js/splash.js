@@ -21,20 +21,38 @@ Splash.prototype.update = function(container) {
       [ '75%','#e2e6eb',1.0],
       ['100%','#e2e6eb',1.0]
     ]);
-    graphics.addGradient('radial',
-      { id:'splashRadial',gradientUnits:'userSpaceOnUse',cx:'50%',cy:'0%',r:'65%' },
-      [
-        [  '0%','#e6edf0',1.0],
-        ['100%','#e6edf0',0.0]
-      ]);
-    graphics.graph.append('svg:rect')
-      .attr('fill','url(#splashLinear)')
-      .attr('width',graphics.width)
-      .attr('height',graphics.height);
-    graphics.graph.append('svg:rect')
-      .attr('fill','url(#splashRadial)')
-      .attr('width',graphics.width)
-      .attr('height',graphics.height);
+  graphics.addGradient('radial',
+    { id:'splashRadial',gradientUnits:'userSpaceOnUse',cx:'50%',cy:'0%',r:'65%' },
+    [
+      [  '0%','#e6edf0',1.0],
+      ['100%','#e6edf0',0.0]
+    ]);
+  graphics.graph.append('svg:rect')
+    .attr('fill','url(#splashLinear)')
+    .attr('width',graphics.width)
+    .attr('height',graphics.height);
+  graphics.graph.append('svg:rect')
+    .attr('fill','url(#splashRadial)')
+    .attr('width',graphics.width)
+    .attr('height',graphics.height);
+
+  // Add some text to draw attention to the module buttons in the header toolbar.
+  var ptrs = graphics.graph.selectAll('text.splashPointer')
+    .data([0.167,0.5,0.833])
+    .enter().append('svg:text')
+      .attr('class','splashPointer')
+      .attr('opacity',0)
+      .text('☝')
+      .attr('x',function(d) { return d*graphics.width; })
+      .attr('y',3*graphics.fontSize);
+  if(this.firstTime) {
+    ptrs.transition()
+      .delay(function(d,i) { return 2000+250*i; }) // in ms
+      .attr('opacity',1);
+  }
+  else {
+    ptrs.attr('opacity',1);
+  }
   
   var group = graphics.graph.append('svg:g')
     .attr('id','splash')

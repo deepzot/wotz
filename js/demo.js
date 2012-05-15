@@ -25,6 +25,8 @@ DemoApp.prototype.start = function() {
     $('#'+module.id+'Select').click((function(m) {
       return function() {
         if(self.module) {
+          // Do nothing if we are already running
+          if(self.module == m) return false;
           log('ending',self.module.id);
           self.module.end();
         }

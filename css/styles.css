@@ -32,6 +32,15 @@ Also, see http://www.uci.edu/graphic_identity/colors.php
     text-shadow: none;
 }
 
+.splashPointer {
+    font-family: symbol,'Standard Symbols L';
+    font-size: 3em;
+    fill: #4A4439;
+    stroke: none;
+    text-anchor: middle;
+    text-shadow: none;
+}
+
 #dropData {
     position: relative;
 }
