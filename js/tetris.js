@@ -105,7 +105,35 @@ Tetris.prototype.start = function(data) {
 		}
 		return;
 	}); // End Listen for key down events
-	
+	// Listen for clicks
+	d3.select(window).on("click", function() {
+		if(self.currentState == self.gameStates.RUNNING) {
+			var mouseX = d3.event.pageX, mouseY = d3.event.pageY;
+			var distFromPiece = Math.sqrt(
+				(mouseX-self.x(Shape.State.x))*(mouseX-self.x(Shape.State.x))
+				+ (mouseY-self.y(Shape.State.y))*(mouseY-self.y(Shape.State.y)));
+			if( distFromPiece < self.x(3)-self.x(0) ){
+				// Rotate shape 
+				newShape = Shape.rotateLeft();
+				if(self.isPossibleMovement(0,0,newShape)) {
+					Shape.State.currentShape = newShape;
+					self.drawActivePiece();
+				}
+			}
+			else if( mouseX < self.x(Shape.State.x-1) ){
+				if(self.isPossibleMovement(-1,0,Shape.State.currentShape)) {
+					Shape.State.x = Shape.State.x - 1;
+					self.drawActivePiece();
+				}
+			}
+			else if(mouseX > self.x(Shape.State.x+1)){
+				if(self.isPossibleMovement(1,0,Shape.State.currentShape)) {
+					Shape.State.x = Shape.State.x + 1;
+					self.drawActivePiece();
+				}
+			}
+		}
+	}); // End Listen for mouse events
 }
 
 Tetris.prototype.update = function(container) {
@@ -142,17 +170,7 @@ Tetris.prototype.update = function(container) {
     .attr('y',self.y(0))
 		.attr('rx', this.y(.1)-this.y(0))
     .attr('height',this.y(this.numTilesY) - this.y(0) )
-    .attr('width',this.x(this.numTilesX) - this.x(0) )
-    .on('click', function() {
-			if(self.currentState == self.gameStates.RUNNING) {
-				// Rotate shape 
-				newShape = Shape.rotateLeft();
-				if(self.isPossibleMovement(0,0,newShape)) {
-					Shape.State.currentShape = newShape;
-					self.drawActivePiece();
-				}
-			}
-		});
+    .attr('width',this.x(this.numTilesX) - this.x(0) );
 	// Draw multiple horizontal lines
 	for (var i=1; i < self.numTilesY; i++) {
 		graphics.graph.append("svg:line")
@@ -178,53 +196,7 @@ Tetris.prototype.update = function(container) {
     .text(function(d) { return d; })
     .attr('x', self.x(self.numTilesX)+tileSize)
     .attr('y', graphics.height/8);
-  graphics.graph.append('svg:text')
-		.attr('class','leftArrow')
-		.text('<')
-		.attr('x', self.x(0) - tileSize)
-		.attr('y', graphics.height*.75)
-		.on('click', function() {
-				if(self.currentState == self.gameStates.RUNNING) {
-					if(self.isPossibleMovement(-1,0,Shape.State.currentShape)) {
-						Shape.State.x = Shape.State.x - 1;
-						self.drawActivePiece();
-					}	
-				}
-		});
-  graphics.graph.append('svg:text')
-		.attr('class','rightArrow')
-		.text('>')
-		.attr('x', self.x(self.numTilesX)+tileSize)
-		.attr('y', graphics.height*.75)
-		.on('click', function() {
-				if(self.currentState == self.gameStates.RUNNING) {
-					if(self.isPossibleMovement(+1,0,Shape.State.currentShape)) {
-						Shape.State.x = Shape.State.x + 1;
-						self.drawActivePiece();
-					}	
-				}
-		});
   this.drawTiles();
-  // Draw a clickable
-  graphics.graph.append('svg:rect')
-  	.attr('class','rotateClicker')
-    .attr('x',self.x(0))
-    .attr('y',self.y(0))
-		.attr('rx', this.y(.1)-this.y(0))
-    .attr('height',this.y(this.numTilesY) - this.y(0) )
-    .attr('width',this.x(this.numTilesX) - this.x(0) )
-    .style('stroke','none')
-    .style('opacity',0)
-    .on('click', function() {
-			if(self.currentState == self.gameStates.RUNNING) {
-				// Rotate shape 
-				newShape = Shape.rotateLeft();
-				if(self.isPossibleMovement(0,0,newShape)) {
-					Shape.State.currentShape = newShape;
-					self.drawActivePiece();
-				}
-			}
-		});
   this.drawActivePiece();
 	this.showMessage();
 }
@@ -379,15 +351,7 @@ Tetris.prototype.drawActivePiece = function() {
 		.attr('class', 'activeTile')
 		.attr("width", this.x(1)-this.x(0))
 		.attr("height", this.y(1)-this.y(0))
-		.attr('rx', this.y(.1)-this.y(0))
-		.on('click', function() {
-			if(self.currentState == self.gameStates.RUNNING) {
-				// Move piece all the way down
-				while(self.isPossibleMovement(0,1,Shape.State.currentShape)) {
-					Shape.State.y = Shape.State.y + 1;
-				}
-			}
-		});
+		.attr('rx', this.y(.1)-this.y(0));
 	activePiece
 	//.transition().duration(this.stepDelay/4)
 		.attr("x", function(d,i) { return self.x(Shape.State.x + d.x) } )
