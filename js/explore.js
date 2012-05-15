@@ -14,7 +14,7 @@ function ExploreModule() {
   this.format1 = d3.format(".1f");
   this.format = function(value) {
     // Assumes value is > 0
-    if(value < 0.1) return '< 0.1';
+    if(value < 0.1) return 'below 0.1';
     if(value < 10) return this.format1(value);
     return this.format0(value);
   }
@@ -253,7 +253,7 @@ ExploreModule.prototype.getNextMessage = function() {
   case 1:
     msg = ['Welcome to your','energy-use landscape.','Touch to continue...'];
     // Uncomment the next line to skip over intro messages for testing.
-    this.messageCount = 11;
+    //!!this.messageCount = 11;
     break;
   case 2:
     msg = ['The sea level shows your','base consumption by','things that are always on.'];
@@ -290,6 +290,7 @@ ExploreModule.prototype.getNextMessage = function() {
     break;
   case 9:
     msg = ['Your electricity bill measures', 'energy in "kiloWatt-hours".','What\'s that??' ];
+    call = { x:24, y:0.15*this.dataSource.maxValue, url: 'about/energy.html#kwh' };
     break;
   case 10:
     var day = this.getRandomDay();
@@ -321,8 +322,12 @@ ExploreModule.prototype.getNextMessage = function() {
     break;
   default:
     var usage = this.getRandomUsage();
-    var units = this.getRandomUnits(usage.amount);
-    var amount = usage.amount*units.conversion;
+    var amount,units,tries = 0;
+    do {
+      // Should really have conversions sorted to avoid this iteration
+      units = this.getRandomUnits();
+      amount = usage.amount*units.conversion;
+    } while(++tries < 10 && (amount < 1 || amount > 100));
     msg = usage.lines;
     msg.push('= '+this.format(amount)+' '+units.what+'.');
     if(typeof units.url !== 'undefined') {
@@ -335,7 +340,7 @@ ExploreModule.prototype.getNextMessage = function() {
   this.currentCallout = call;
 }
 
-ExploreModule.prototype.getRandomUnits = function(amount) {
+ExploreModule.prototype.getRandomUnits = function() {
   var r = Math.random();
   var obj = { url:'about/energy.html' };
   if(r < 0.1) {
@@ -386,12 +391,18 @@ ExploreModule.prototype.getRandomUnits = function(amount) {
     // ~200 9V battery per kWh
     obj.conversion = 0.5;
     obj.what = 'hundred 9V batteries';
-    obj.url += 'battery';
+    obj.url += '#battery';
   }
-  else if(r < 0.9) {
+  else if(r < 0.85) {
     // 13" macbook air has 50 Wh battery
     obj.conversion = 20;
     obj.what = 'MacBook Air charges';
+    obj.url += '#battery';
+  }
+  else if(r < 0.9) {
+    // Nissan leaf has 24 kWh battery
+    obj.conversion = 1./24.;
+    obj.what = 'Nissan LEAF charges';
     obj.url += '#battery';
   }
   else {
@@ -400,7 +411,7 @@ ExploreModule.prototype.getRandomUnits = function(amount) {
     // 1 gallon = 16 cups
     obj.conversion = 2.83972587;
     obj.what = 'gallons of boiling water';
-    obj.url = '#water';
+    obj.url += '#water';
   }
   return obj;
 }
@@ -408,7 +419,18 @@ ExploreModule.prototype.getRandomUnits = function(amount) {
 ExploreModule.prototype.getRandomUsage = function() {
   var r = Math.random();
   var obj = { };
-  if(r < 0.1) {
+  if(r < 0.05) {
+    obj.lines = [
+      'Average daily '+(this.settings.serviceType),
+      'electricity use by '+(this.settings.peopleCount)+
+        (this.settings.serviceType=='residential'?' people':' employees'),
+      'in '+this.settings.countyName
+    ];
+    obj.amount = 24*this.settings.consumptionRate;
+    obj.x = 12;
+    obj.y = 0.15*this.dataSource.maxValue;
+  }
+  else if(r < 0.1) {
     obj.lines = [
       'Average hourly '+(this.settings.serviceType),
       'electricity use by '+(this.settings.peopleCount)+
@@ -444,7 +466,7 @@ ExploreModule.prototype.getRandomUsage = function() {
   }
   else if(r < 0.6) {
     var dayIndex = this.getRandomDay();
-    obj.lines = ['The electricity you used on '+this.dayLabel[dayIndex]];
+    obj.lines = ['The electricity you','used on '+this.dayLabel[dayIndex]];
     obj.amount = this.dayUsage[dayIndex];
     obj.x = 12+24*dayIndex;
     obj.y = 0.15*this.dataSource.maxValue;
