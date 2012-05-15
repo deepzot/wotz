@@ -178,7 +178,7 @@ Graphics.prototype.addCallout = function(x,y,options) {
   if(xauto==true && (cx+cWidth >= this.width || (cx < this.width/2 && cx-cWidth >= 0))) {
     absXScale = -absXScale;
   }
-  if(yauto==true && (cy < 0 || (cy > this.height/2 && cy+cHeight < this.height))) {
+  if(yauto==true && (cy < 0 || (cy > this.height/2 && cy+2*cHeight < this.height))) {
     absYScale = -absYScale;
   }
   // Add the callout path now with the necessary transforms applied and click handler.
