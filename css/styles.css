@@ -100,10 +100,7 @@ Also, see http://www.uci.edu/graphic_identity/colors.php
 }
 
 #calloutGroup path {
-    opacity: 0.75;
-    fill: white;
-    stroke: #88a;
-    cursor: pointer;
+    fill: rgba(255,255,255,0.5);
 }
 
 #tetrisField rect.background {

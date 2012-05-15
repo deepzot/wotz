@@ -191,7 +191,9 @@ C30.255-21.59,23.556-3.375-0.069,0.125z')
     .attr('transform','scale('+absXScale+','+absYScale+') translate('+(x/absXScale)+','+(y/absYScale)+')');
   if(url) {
     callout
+      .style('stroke','rgba(136,136,170,0.7)')
       .style('stroke-width',0.025*cHeight)
+      .style('cursor','pointer')
       .on('click',function() { window.open(url,'_blank'); });
   }
   else {
