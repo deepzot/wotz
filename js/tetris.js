@@ -18,7 +18,7 @@ function Tetris() {
   this.displayData = null;
   this.displayRange = [ null,null ];
   this.introMessageCount = null;
-  this.messageLimit = 8;
+  this.messageLimit = 7;
 }
 
 Tetris.prototype.gameStates = {
@@ -649,13 +649,9 @@ Tetris.prototype.getNextMessage = function() {
     msg = [ 'Use the arrow keys on a keyboard', 'if you have access to one.'];
     break;
   case 6:
-    msg = ['Watch out for that','peak from (insert time span)!'];
-    //call = { x:hr, y:this.getConsumption(hr) };
-    break;
-  case 7:
     msg = ['Use the button below to','try a different game.'];
     break;
-  case 8:
+  case 7:
   	msg = ['Touch to start!'];
   	break;
   default:
