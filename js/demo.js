@@ -112,6 +112,16 @@ DemoApp.prototype.start = function() {
         });
     }
   }
+  else {
+    // If drag and drop is not supported, let the icon double as a load button.
+    $('#dropData')
+      .css('cursor','pointer')
+      .on('click', function() {
+        $('#gbIcon').css({ 'opacity' : 0.6 });
+        log('gbclick');
+        $('#loadData').submit();
+      });
+  }
 
   // Implement the welcome handler.
   $('#loadData').submit(function() {
