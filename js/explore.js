@@ -9,9 +9,15 @@ function ExploreModule() {
   this.currentMessage = null;
   this.currentCallout = null;
   this.getNextMessage();
-  // Number formatting helper.
+  // Number formatting helpers.
   this.format0 = d3.format(".0f");
   this.format1 = d3.format(".1f");
+  this.format = function(value) {
+    // Assumes value is > 0
+    if(value < 0.1) return '< 0.1';
+    if(value < 10) return this.format1(value);
+    return this.format0(value);
+  }
   this.hourLabels = [
     'midnight','1am','2am','3am','4am','5am','6am','7am','8am','9am','10am','11am',
     'noon','1pm','2pm','3pm','4pm','5pm','6pm','7pm','8pm','9pm','10pm','11pm'
@@ -247,7 +253,7 @@ ExploreModule.prototype.getNextMessage = function() {
   case 1:
     msg = ['Welcome to your','energy-use landscape.','Touch to continue...'];
     // Uncomment the next line to skip over intro messages for testing.
-    //this.messageCount = 11;
+    this.messageCount = 11;
     break;
   case 2:
     msg = ['The sea level shows your','base consumption by','things that are always on.'];
@@ -260,7 +266,7 @@ ExploreModule.prototype.getNextMessage = function() {
     break;
   case 4:
     var total = (this.dayUsage[0]+this.dayUsage[1])/2;
-    var basePercent = this.format0(100*this.baseLoad/total);
+    var basePercent = this.format(100*this.baseLoad/total);
     msg = [
       'Base consumption is '+basePercent+'%',
       'of your total. Any savings here',
@@ -290,7 +296,7 @@ ExploreModule.prototype.getNextMessage = function() {
     msg = [
       '1 kWh = 1 deluxe bacon',
       'double cheeseburger.',
-      'You "consumed" '+this.format0(this.dayUsage[day]),
+      'You "consumed" '+this.format(this.dayUsage[day]),
       'cheeseburgers on '+this.dayLabel[day]+'!'];
     call = { x:24*day+12, y: 0.15*this.dataSource.maxValue, url:'about/energy.html/#food' };
     break;
@@ -310,15 +316,15 @@ ExploreModule.prototype.getNextMessage = function() {
     msg = [
       'Your electricity use on '+this.dayLabel[day],
       'could have been supplied by',
-      this.format0(area)+' sq.ft. of solar panels.'];
+      this.format(area)+' sq.ft. of solar panels.'];
     call = { x:24*day+12, y: 0.92*this.dataSource.maxValue, url:'about/energy.html#solar' };
     break;
   default:
     var usage = this.getRandomUsage();
-    var units = this.getRandomUnits();
+    var units = this.getRandomUnits(usage.amount);
     var amount = usage.amount*units.conversion;
     msg = usage.lines;
-    msg.push('equals '+this.format1(amount)+' '+units.what+'.');
+    msg.push('= '+this.format(amount)+' '+units.what+'.');
     if(typeof units.url !== 'undefined') {
       call = { x:usage.x, y:usage.y, url:units.url };
     }
@@ -329,14 +335,73 @@ ExploreModule.prototype.getNextMessage = function() {
   this.currentCallout = call;
 }
 
-ExploreModule.prototype.getRandomUnits = function() {
+ExploreModule.prototype.getRandomUnits = function(amount) {
   var r = Math.random();
-  var obj = { };
-  if(r < 2) {
+  var obj = { url:'about/energy.html' };
+  if(r < 0.1) {
     obj.what = 'kiloWatt-hours';
     obj.conversion = 1.0;
+    obj.url += '#kwh';
   }
-  obj.url = 'about/energy.html';
+  else if(r < 0.2) {
+    // food: snickers bar = 271 kcal = 0.315 kcal
+    obj.conversion = 1/0.315;
+    obj.what = 'snickers bars';
+    obj.url += '#food';
+  }
+  else if(r < 0.3) {
+    // food: 1 kWh = 860.42065 kcal
+    // peanut butter: 1 cup = 1504 kcal = 1.748 kWh
+    obj.conversion = 1/1.748;
+    obj.what = 'cups of peanut butter';
+    obj.url += '#food';
+  }
+  else if(r < 0.4) {
+    // gasoline: 1 gallon = 36 kWh
+    // 1 gallon = 16 cups
+    obj.conversion = 16./36.;
+    obj.what = 'cups of gasoline';
+    obj.url += '#gasoline';
+  }
+  else if(r < 0.5) {
+    // natural gas: 30 kWh/100 cubic ft
+    obj.conversion = 0.3;
+    obj.what = 'cubic feet of natural gas';
+    obj.url += '#natgas';
+  }
+  else if(r < 0.6) {
+    // coal: 7300 kWh/ton = 3.65 kWh/lb.
+    obj.conversion = 1./3.65;
+    obj.what = 'pounds of coal';
+    obj.url += '#coal';
+  }
+  else if(r < 0.7) {
+    // natural uranium: 161 Gwh/tonne = 161 kWh/gram
+    // 1 gram = 15.432 grains
+    obj.conversion = 0.0959;
+    obj.what = 'grains of natural uranium';
+    obj.url += '#uranium';
+  }
+  else if(r < 0.8) {
+    // ~200 9V battery per kWh
+    obj.conversion = 0.5;
+    obj.what = 'hundred 9V batteries';
+    obj.url += 'battery';
+  }
+  else if(r < 0.9) {
+    // 13" macbook air has 50 Wh battery
+    obj.conversion = 20;
+    obj.what = 'MacBook Air charges';
+    obj.url += '#battery';
+  }
+  else {
+    // boiling 1 cup of water from 20C to 100C takes
+    // 4.186 J/(gC) * (80C) * (236.6g) = 79,233 J = 0.022 kWh
+    // 1 gallon = 16 cups
+    obj.conversion = 2.83972587;
+    obj.what = 'gallons of boiling water';
+    obj.url = '#water';
+  }
   return obj;
 }
 
@@ -372,7 +437,7 @@ ExploreModule.prototype.getRandomUsage = function() {
     obj.y = this.getConsumption(obj.x);
   }
   else if(r < 0.4){
-    obj.lines = ['Your average weekend electricity use'];
+    obj.lines = ['Your average weekend','electricity consumption'];
     obj.amount = this.dataSource.averageByWeekDay(0)+this.dataSource.averageByWeekDay(6);
     obj.x = 24;
     obj.y = 0.15*this.dataSource.maxValue;
@@ -389,7 +454,7 @@ ExploreModule.prototype.getRandomUsage = function() {
     var range = this.hourLabels[hour%24]+'-'+this.hourLabels[(hour+1)%24];
     var data = this.displayData.slice(hour*this.dataSource.readingsPerHour,(hour+1)*this.dataSource.readingsPerHour);
     var dayIndex = Math.floor(hour/24);
-    obj.lines = ['Your '+this.dayLabel[dayIndex]+' '+range+' electricity usage'];
+    obj.lines = ['Your '+this.dayLabel[dayIndex]+' '+range,'electricity consumption'];
     obj.amount = 0;
     for(var k = 0; k < data.length; ++k) obj.amount += 1e-3*data[k];
     obj.x = hour+0.5;
