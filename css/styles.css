@@ -184,7 +184,7 @@ Also, see http://www.uci.edu/graphic_identity/colors.php
 }
 
 #asteroidField text {
-    fill: red;
+    fill: white;
     text-anchor: middle;
     text-shadow: none;
 }
@@ -192,7 +192,7 @@ Also, see http://www.uci.edu/graphic_identity/colors.php
 #asteroidField text.hourLabel { font-size: 1em; }
 
 #asteroidField rect.background { fill: #B2CFED; }
-#asteroidField rect.hist { fill: steelblue; stroke: white; }
+#asteroidField rect.hist { stroke: white; }
 #asteroidField rect.home { fill: yellow; }
 
 #asteroidField ellipse.baddies { fill: #4A4439; }

@@ -11,13 +11,16 @@ function Asteroids() {
 	this.dataSource = null;
   this.displayData = null;
   this.displayRange = [ null,null ];
+  this.introMessageCount = null;
+  this.messageLimit = 6;
 }
 
 Asteroids.prototype.gameStates = {
   PAUSE : {value: 0, name: "Pause"}, 
   READY: {value: 1, name: "Ready"}, 
   RUNNING : {value: 2, name: "Running"},
-  LOSE : {value: 3, name: "Lose"}
+  LOSE : {value: 3, name: "Lose"},
+  INTRO : {value: 4, name: "Intro"}
 };
 
 Asteroids.prototype.start = function(data) { 
@@ -89,6 +92,7 @@ Asteroids.prototype.positionLoop = function() {
 					.attr('class','hist')
 					.attr('x', function(d,i) { return self.x(i/24) })
 					.attr('width', self.x(1/24) )
+					.style('fill','#B5A58B');
 				hist
 					.attr('y', function(d) { return self.histy(d) })
 					.attr('height', function(d) { return graphics.height - self.histy(d) });
@@ -283,6 +287,7 @@ Asteroids.prototype.update = function(container) {
 		.data(this.values)
 	.enter().append('svg:rect')
 		.attr('class','hist')
+		.style('fill','#B5A58B')
 		.attr('x', function(d,i) { return self.x(i/24) })
 		.attr('y', function(d) { return self.histy(d) })
 		.attr('width', self.x(1/24) )
@@ -298,7 +303,7 @@ Asteroids.prototype.update = function(container) {
 			return format(new Date(2012, 1, 5, d-1));
 			})
 		.attr('x', function(d) { return self.x((d-1+.5)/24); })
-		.attr('y', self.histy(1) - graphics.fontSize)
+		.attr('y', self.histy(0) - 1*graphics.fontSize)
 		.style('opacity',0);
 		
 	// Listen for mouse click events
@@ -435,7 +440,7 @@ Asteroids.prototype.redraw = function() {
 				return 'darkred';
 			}
 			else {
-				return 'steelblue';
+				return '#B5A58B';
 			}
 		});
 };
@@ -504,18 +509,31 @@ Asteroids.prototype.setState = function(newState) {
 		// pause game
 		this.toggleTimers();
 		// display pause message
-		this.currentMessage = ['Tap To Resume!'];
+		this.messagesVisible = true;
+		this.currentMessage = ['Tap to resume.'];
 		this.showMessage();
 	}
 	else if(newState == this.gameStates.READY){
 		// init game
 		this.initNewGame();
-		//this.showMessage();
+		if(this.messageCount == null) {
+			this.setState(this.gameStates.INTRO);
+		}
+		else {
+			this.messagesVisible = true;
+			this.showMessage();
+		}
 	}
 	else if(newState == this.gameStates.LOSE){
-		this.currentMessage = ['Game over!','Tap to play again!'];
+		this.currentMessage = ['Use less energy tomorrow for a higher score!'];
 		this.messagesVisible = true;
 		this.showMessage();
+	}
+	else if(newState == this.gameStates.INTRO) {
+		log('set state to intro');
+		this.messageCount = 0;
+		this.getNextMessage();
+		this.messagesVisible = true;
 	}
 }
 
@@ -566,6 +584,16 @@ Asteroids.prototype.showMessage = function() {
 			// Set up a new game
 			self.setState(self.gameStates.READY);
 		}
+		else if (self.currentState == self.gameStates.INTRO) {
+			// Cycle through intro messages
+			if(self.messageCount == self.messageLimit) {
+				self.setState(self.gameStates.RUNNING);
+			}
+			else {
+				self.getNextMessage();
+				self.showMessage();
+			}
+		}
   });
   // Show the current callout.
   //this.graphics.clearCallouts();
@@ -573,4 +601,34 @@ Asteroids.prototype.showMessage = function() {
   //if(call) {
   //  this.graphics.addCallout(this.xScale(call.x),this.yScale(call.y),call.url);
   //}
+}
+
+Asteroids.prototype.getNextMessage = function() {
+  var msg,call=null;
+  switch(++this.messageCount) {
+  case 1:
+    msg = ['Try to survive the day!','Don\'t let your energy use','overwhelm your home!'];
+    break;
+  case 2:
+    msg = ['The number of enemies that','spawn every "hour" is determined','by yesterday\'s electricity use.'];
+    break;
+  case 3:
+    msg = ['The number of blue enemies is','determined by your base load.'];
+    //call = { x:hr, y:this.getConsumption(hr) };
+    break;
+  case 4:
+    msg = ['Your average energy use is','represented by green enemies.' ];
+    break;
+  case 5:
+    msg = ['The dark enemies reflect', 'yesterday\'s actual energy use.'];
+    break;
+  case 6:
+  	msg = ['Touch to start!'];
+  	break;
+  default:
+    msg = [''];
+  }
+  this.currentMessage = msg;
+  if(call && !('url' in call)) call.url = null;
+  this.currentCallout = call;
 }
