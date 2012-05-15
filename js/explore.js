@@ -319,6 +319,9 @@ ExploreModule.prototype.getNextMessage = function() {
     var amount = usage.amount*units.conversion;
     msg = usage.lines;
     msg.push('equals '+this.format1(amount)+' '+units.what+'.');
+    if(typeof units.url !== 'undefined') {
+      call = { x:usage.x, y:usage.y, url:units.url };
+    }
     break;
   }
   this.currentMessage = msg;
@@ -333,6 +336,7 @@ ExploreModule.prototype.getRandomUnits = function() {
     obj.what = 'kiloWatt-hours';
     obj.conversion = 1.0;
   }
+  obj.url = 'about/energy.html';
   return obj;
 }
 
@@ -347,41 +351,55 @@ ExploreModule.prototype.getRandomUsage = function() {
       'in '+this.settings.countyName
     ];
     obj.amount = this.settings.consumptionRate;
+    obj.x = 24;
+    obj.y = 0.15*this.dataSource.maxValue;
   }
   else if(r<0.2) {
     var dayIndex = this.getRandomDay();
     var dayNumber = this.dataSource.getDateTime(this.displayRange[0]+24*dayIndex).getDay();
-    obj.lines = [ 'Your average electricity use on a '+this.dayLabel[dayIndex] ];
+    obj.lines = [ 'Your average electricity','consumption on a '+this.dayLabel[dayIndex] ];
     obj.amount = this.dataSource.averageByWeekDay(dayNumber);
+    obj.x = 12+24*dayIndex;
+    obj.y = 0.15*this.dataSource.maxValue;
   }
   else if(r < 0.35) {
     var hour = Math.floor(24*Math.random());
     var range = this.hourLabels[hour]+'-'+this.hourLabels[(hour+1)%24];
     obj.lines = ['Your typical electricity','use from '+range];
     obj.amount = 1e-3*this.dataSource.averageByHour(hour); // convert from Wh/h to kWh/h
+    var dayIndex = this.getRandomDay();
+    obj.x = hour+24*dayIndex+0.5;
+    obj.y = this.getConsumption(obj.x);
   }
   else if(r < 0.4){
     obj.lines = ['Your average weekend electricity use'];
     obj.amount = this.dataSource.averageByWeekDay(0)+this.dataSource.averageByWeekDay(6);
+    obj.x = 24;
+    obj.y = 0.15*this.dataSource.maxValue;
   }
   else if(r < 0.6) {
     var dayIndex = this.getRandomDay();
     obj.lines = ['The electricity you used on '+this.dayLabel[dayIndex]];
     obj.amount = this.dayUsage[dayIndex];
+    obj.x = 12+24*dayIndex;
+    obj.y = 0.15*this.dataSource.maxValue;
   }
   else if(r < 0.9) {
     var hour = Math.floor(48*Math.random());
     var range = this.hourLabels[hour%24]+'-'+this.hourLabels[(hour+1)%24];
     var data = this.displayData.slice(hour*this.dataSource.readingsPerHour,(hour+1)*this.dataSource.readingsPerHour);
-    log('data',data);    
     var dayIndex = Math.floor(hour/24);
     obj.lines = ['Your '+this.dayLabel[dayIndex]+' '+range+' electricity usage'];
     obj.amount = 0;
     for(var k = 0; k < data.length; ++k) obj.amount += 1e-3*data[k];
+    obj.x = hour+0.5;
+    obj.y = this.getConsumption(hour);
   }
   else {
     obj.lines = ['Your base load energy','consumption for '+this.dayLabel[0]+' - '+this.dayLabel[1]];
     obj.amount = 2*this.baseLoad;
+    obj.x = 24;
+    obj.y = 0.15*this.dataSource.maxValue;
   }
   return obj;
 }
@@ -447,6 +465,7 @@ ExploreModule.prototype.getConsumption = function(hourOffset) {
 ExploreModule.prototype.navBack = function() {
   this.dayOffset--;
   this.getData();
+  this.currentCallout = null;
   this.update(this.container);
 }
 
@@ -454,5 +473,6 @@ ExploreModule.prototype.navBack = function() {
 ExploreModule.prototype.navForward = function() {
   this.dayOffset++;
   this.getData();
+  this.currentCallout = null;
   this.update(this.container);
 }
