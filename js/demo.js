@@ -25,6 +25,8 @@ DemoApp.prototype.start = function() {
     $('#'+module.id+'Select').click((function(m) {
       return function() {
         if(self.module) {
+          // Do nothing if we are already running
+          if(self.module == m) return false;
           log('ending',self.module.id);
           self.module.end();
         }
@@ -111,6 +113,16 @@ DemoApp.prototype.start = function() {
           return false;
         });
     }
+  }
+  else {
+    // If drag and drop is not supported, let the icon double as a load button.
+    $('#dropData')
+      .css('cursor','pointer')
+      .on('click', function() {
+        $('#gbIcon').css({ 'opacity' : 0.6 });
+        log('gbclick');
+        $('#loadData').submit();
+      });
   }
 
   // Implement the welcome handler.
