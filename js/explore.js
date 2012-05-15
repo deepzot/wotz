@@ -12,6 +12,10 @@ function ExploreModule() {
   // Number formatting helper.
   this.format0 = d3.format(".0f");
   this.format1 = d3.format(".1f");
+  this.hourLabels = [
+    'midnight','1am','2am','3am','4am','5am','6am','7am','8am','9am','10am','11am',
+    'noon','1pm','2pm','3pm','4pm','5pm','6pm','7pm','8pm','9pm','10pm','11pm'
+  ];
 }
 
 ExploreModule.prototype.start = function(data,settings) {
@@ -242,6 +246,8 @@ ExploreModule.prototype.getNextMessage = function() {
   switch(++this.messageCount) {
   case 1:
     msg = ['Welcome to your','energy-use landscape.','Touch to continue...'];
+    // Uncomment the next line to skip over intro messages for testing.
+    //this.messageCount = 11;
     break;
   case 2:
     msg = ['The sea level shows your','base consumption by','things that are always on.'];
@@ -308,11 +314,76 @@ ExploreModule.prototype.getNextMessage = function() {
     call = { x:24*day+12, y: 0.92*this.dataSource.maxValue, url:'about/energy.html#solar' };
     break;
   default:
-    msg = ['Here is message','number '+this.messageCount];
+    var usage = this.getRandomUsage();
+    var units = this.getRandomUnits();
+    var amount = usage.amount*units.conversion;
+    msg = usage.lines;
+    msg.push('equals '+this.format1(amount)+' '+units.what+'.');
+    break;
   }
   this.currentMessage = msg;
   if(call && !('url' in call)) call.url = null;
   this.currentCallout = call;
+}
+
+ExploreModule.prototype.getRandomUnits = function() {
+  var r = Math.random();
+  var obj = { };
+  if(r < 2) {
+    obj.what = 'kiloWatt-hours';
+    obj.conversion = 1.0;
+  }
+  return obj;
+}
+
+ExploreModule.prototype.getRandomUsage = function() {
+  var r = Math.random();
+  var obj = { };
+  if(r < 0.1) {
+    obj.lines = [
+      'Average hourly '+(this.settings.serviceType),
+      'electricity use by '+(this.settings.peopleCount)+
+        (this.settings.serviceType=='residential'?' people':' employees'),
+      'in '+this.settings.countyName
+    ];
+    obj.amount = this.settings.consumptionRate;
+  }
+  else if(r<0.2) {
+    var dayIndex = this.getRandomDay();
+    var dayNumber = this.dataSource.getDateTime(this.displayRange[0]+24*dayIndex).getDay();
+    obj.lines = [ 'Your average electricity use on a '+this.dayLabel[dayIndex] ];
+    obj.amount = this.dataSource.averageByWeekDay(dayNumber);
+  }
+  else if(r < 0.35) {
+    var hour = Math.floor(24*Math.random());
+    var range = this.hourLabels[hour]+'-'+this.hourLabels[(hour+1)%24];
+    obj.lines = ['Your typical electricity','use from '+range];
+    obj.amount = 1e-3*this.dataSource.averageByHour(hour); // convert from Wh/h to kWh/h
+  }
+  else if(r < 0.4){
+    obj.lines = ['Your average weekend electricity use'];
+    obj.amount = this.dataSource.averageByWeekDay(0)+this.dataSource.averageByWeekDay(6);
+  }
+  else if(r < 0.6) {
+    var dayIndex = this.getRandomDay();
+    obj.lines = ['The electricity you used on '+this.dayLabel[dayIndex]];
+    obj.amount = this.dayUsage[dayIndex];
+  }
+  else if(r < 0.9) {
+    var hour = Math.floor(48*Math.random());
+    var range = this.hourLabels[hour%24]+'-'+this.hourLabels[(hour+1)%24];
+    var data = this.displayData.slice(hour*this.dataSource.readingsPerHour,(hour+1)*this.dataSource.readingsPerHour);
+    log('data',data);    
+    var dayIndex = Math.floor(hour/24);
+    obj.lines = ['Your '+this.dayLabel[dayIndex]+' '+range+' electricity usage'];
+    obj.amount = 0;
+    for(var k = 0; k < data.length; ++k) obj.amount += 1e-3*data[k];
+  }
+  else {
+    obj.lines = ['Your base load energy','consumption for '+this.dayLabel[0]+' - '+this.dayLabel[1]];
+    obj.amount = 2*this.baseLoad;
+  }
+  return obj;
 }
 
 ExploreModule.prototype.getShareText = function() {
