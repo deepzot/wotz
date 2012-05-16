@@ -30,9 +30,24 @@ h1 {
     padding-right: 1.5em;
 }
 
+h2 {
+    border-bottom: 1px solid #4A4439;
+    margin-left: 0.5em;
+    margin-right: 1.5em;
+    padding-left: 1em;
+}
+
 p {
     margin-left: 1em;
     margin-right: 2em;
+}
+
+.alert {
+    margin: 2em;
+    padding: 1em;
+    border: 2px solid red;
+    background-color: #faa;
+    color: white;
 }
 
 .green { color: #4BB54E; }
