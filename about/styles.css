@@ -23,3 +23,17 @@ h1, h2, h3 {
     font-family: Constantia,Georgia,'Nimbus Roman No9 L',serif;
     font-weight: bold;
 }
+
+h1 {
+    font-size: 3em;
+    text-align: right;
+    padding-right: 1.5em;
+}
+
+p {
+    margin-left: 1em;
+    margin-right: 2em;
+}
+
+.green { color: #4BB54E; }
+.gold { color: #FFDE6C; }
