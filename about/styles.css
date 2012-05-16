@@ -1,0 +1,39 @@
+/*
+For colors, see http://kuler.adobe.com/#themeID/1906833
+
+#4F3BB5 ocean blue
+#B2CFED sky blue
+#B5A58B light tan
+#4A4439 dark tan
+#4BB54E bright green
+
+Also, see http://www.uci.edu/graphic_identity/colors.php
+
+#002244 UCI blue
+#FFDE6C UCI gold
+*/
+
+body {
+    color: #4A4439;
+    background: #B2CFED;
+    font-family: Helvetica, Arial, sans-serif;
+}
+
+h1, h2, h3 {
+    font-family: Constantia,Georgia,'Nimbus Roman No9 L',serif;
+    font-weight: bold;
+}
+
+h1 {
+    font-size: 3em;
+    text-align: right;
+    padding-right: 1.5em;
+}
+
+p {
+    margin-left: 1em;
+    margin-right: 2em;
+}
+
+.green { color: #4BB54E; }
+.gold { color: #FFDE6C; }
